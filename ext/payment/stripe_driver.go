@@ -8,9 +8,9 @@ import (
 
 	"github.com/fruitsco/goji/x/driver"
 	"github.com/shopspring/decimal"
-	"github.com/stripe/stripe-go/v74"
-	"github.com/stripe/stripe-go/v74/client"
-	"github.com/stripe/stripe-go/v74/webhook"
+	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/client"
+	"github.com/stripe/stripe-go/v76/webhook"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
