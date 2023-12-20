@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/fruitsco/goji/x/conf"
+	"github.com/fruitsco/goji/x/logging"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 )
@@ -65,7 +66,7 @@ func NewCommand[C any](params RootParams) *Root {
 			}
 
 			// inject logger into cli context
-			ctx.Context = ContextWithLogger(ctx.Context, log)
+			ctx.Context = logging.ContextWithLogger(ctx.Context, log)
 
 			// parse config using env
 			cfg, err := conf.Parse[C](conf.ParseOptions{
@@ -85,7 +86,7 @@ func NewCommand[C any](params RootParams) *Root {
 			return nil
 		},
 		After: func(ctx *cli.Context) error {
-			log, err := LoggerFromContext(ctx.Context)
+			log, err := logging.LoggerFromContext(ctx.Context)
 			if err != nil {
 				return err
 			}

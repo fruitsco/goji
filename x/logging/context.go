@@ -1,4 +1,4 @@
-package goji
+package logging
 
 import (
 	"context"
