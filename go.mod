@@ -19,7 +19,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.12.0
 	github.com/minio/minio-go/v7 v7.0.66
-	github.com/redis/go-redis/v9 v9.3.0
+	github.com/redis/go-redis/v9 v9.3.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/stripe/stripe-go/v74 v74.30.0
 	go.uber.org/fx v1.20.1
