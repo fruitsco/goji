@@ -60,7 +60,7 @@ func NewCommand[C any](params RootParams) *Root {
 			environment := GetEnvFromCLI(ctx)
 
 			// create the logger
-			log, err := createLogger(ctx, environment)
+			log, err := createLogger(ctx, params.AppName, environment)
 			if err != nil {
 				return err
 			}
@@ -139,7 +139,11 @@ func init() {
 	}
 }
 
-func createLogger(ctx *cli.Context, environment conf.Environment) (*zap.Logger, error) {
+func createLogger(
+	ctx *cli.Context,
+	name string,
+	environment conf.Environment,
+) (*zap.Logger, error) {
 	level := GetLevelFromCLI(ctx)
 
 	var config zap.Config
@@ -147,6 +151,11 @@ func createLogger(ctx *cli.Context, environment conf.Environment) (*zap.Logger, 
 		config = zap.NewProductionConfig()
 	} else {
 		config = zap.NewDevelopmentConfig()
+	}
+
+	config.InitialFields = map[string]any{
+		"app": name,
+		"env": environment,
 	}
 
 	config.Level = level
