@@ -16,7 +16,7 @@ type RootParams struct {
 	Description    string
 	Prefix         string
 	Flags          []cli.Flag
-	DefaultConfig  map[string]any
+	DefaultConfig  conf.DefaultConfig
 	ConfigFileName string
 }
 
