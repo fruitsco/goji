@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/pubsub v1.33.0
 	cloud.google.com/go/storage v1.36.0
 	entgo.io/ent v0.12.5
-	github.com/fruitsco/roma v0.0.0-20231220031415-c94bee2fd911
+	github.com/fruitsco/roma v0.0.0-20231220171707-8025ccdfe1ad
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/knadh/koanf/parsers/dotenv v0.1.0
