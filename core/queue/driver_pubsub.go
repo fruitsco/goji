@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"cloud.google.com/go/pubsub"
+	"github.com/fruitsco/goji/internal/google"
 	"github.com/fruitsco/goji/x/driver"
-	"github.com/fruitsco/roma/x/google"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
