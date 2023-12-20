@@ -60,8 +60,6 @@ github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 h1:E2s37DuLxFhQD
 github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870/go.mod h1:5tD+neXqOorC30/tWg0LCSkrqj/AR6gu8yY8/fpw1q0=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
 github.com/felixge/httpsnoop v1.0.4/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
-github.com/fruitsco/go v0.0.0-20231219172357-ad6a43deec47 h1:VDifex5wXl4IwBP5lm5T49faKHifAhFxWJJ0nmXl83M=
-github.com/fruitsco/go v0.0.0-20231219172357-ad6a43deec47/go.mod h1:OyifpRJ2np1kF50KRlXX3ETIu63/MbQRCCQPyKbNLA0=
 github.com/fruitsco/roma v0.0.0-20231220031415-c94bee2fd911 h1:x0l/yGk2feLSEfWDYt2z5FpVSQIO1jAtEdOSjg1SHF4=
 github.com/fruitsco/roma v0.0.0-20231220031415-c94bee2fd911/go.mod h1:9ktZF8Esiu/GF0BibW8J0mwdR2E4HVySUmpqhyI6164=
 github.com/fsnotify/fsnotify v1.6.0 h1:n+5WquG0fcWoWp6xPWfHdbskMCQaFnG6PfBrh1Ky4HY=
