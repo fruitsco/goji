@@ -1,13 +1,13 @@
 package queue
 
 import (
-	"github.com/fruitsco/goji/x"
+	"github.com/fruitsco/goji/x/logging"
 	"go.uber.org/fx"
 )
 
 func Module(cfg *Config) fx.Option {
 	return fx.Module("queue",
-		fx.Decorate(x.NamedLogger("queue")),
+		fx.Decorate(logging.NamedLogger("queue")),
 
 		fx.Provide(NewNoOpDriverFactory),
 

@@ -20,6 +20,8 @@ require (
 	github.com/mailgun/mailgun-go/v4 v4.12.0
 	github.com/minio/minio-go/v7 v7.0.66
 	github.com/redis/go-redis/v9 v9.3.0
+	github.com/shopspring/decimal v1.3.1
+	github.com/stripe/stripe-go/v74 v74.30.0
 	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
 	google.golang.org/api v0.154.0

@@ -7,7 +7,7 @@ import (
 	"github.com/fruitsco/goji/core/queue"
 	"github.com/fruitsco/goji/core/redis"
 	"github.com/fruitsco/goji/core/storage"
-	"github.com/fruitsco/goji/x"
+	"github.com/fruitsco/goji/util"
 )
 
 type Config struct {
@@ -19,7 +19,7 @@ type Config struct {
 	Storage      *storage.Config      `conf:"storage"`
 }
 
-var DefaultConfig = x.MergeMap(
+var DefaultConfig = util.MergeMap(
 	database.DefaultConfig,
 	email.DefaultConfig,
 	notification.DefaultConfig,

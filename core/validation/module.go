@@ -1,13 +1,13 @@
 package validation
 
 import (
-	"github.com/fruitsco/goji/x"
+	"github.com/fruitsco/goji/x/logging"
 	"go.uber.org/fx"
 )
 
 func Module() fx.Option {
 	return fx.Module("validation",
-		fx.Decorate(x.NamedLogger("validation")),
+		fx.Decorate(logging.NamedLogger("validation")),
 		fx.Provide(New),
 	)
 }
