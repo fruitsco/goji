@@ -1,5 +1,7 @@
 package payment
 
+import "github.com/fruitsco/goji/x/conf"
+
 type PaymentDriver string
 
 const (
@@ -18,6 +20,6 @@ type Config struct {
 	Stripe *StripeConfig `conf:"stripe"`
 }
 
-var DefaultConfig = map[string]any{
+var DefaultConfig = conf.DefaultConfig{
 	"payment.driver": "stripe",
 }

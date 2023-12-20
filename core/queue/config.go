@@ -1,5 +1,7 @@
 package queue
 
+import "github.com/fruitsco/goji/x/conf"
+
 type QueueDriver string
 
 const (
@@ -17,6 +19,6 @@ type Config struct {
 	PubSub *PubSubConfig `conf:"pubsub"`
 }
 
-var DefaultConfig = map[string]any{
+var DefaultConfig = conf.DefaultConfig{
 	"queue.driver": "noop",
 }

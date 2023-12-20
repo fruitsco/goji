@@ -1,5 +1,7 @@
 package storage
 
+import "github.com/fruitsco/goji/x/conf"
+
 type StorageDriver string
 
 const (
@@ -31,7 +33,7 @@ type Config struct {
 	Minio  *MinioConfig  `conf:"minio"`
 }
 
-var DefaultConfig = map[string]any{
+var DefaultConfig = conf.DefaultConfig{
 	"storage.driver": "noop",
 
 	// minio

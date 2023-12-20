@@ -1,5 +1,7 @@
 package notification
 
+import "github.com/fruitsco/goji/x/conf"
+
 type NotificationDriver string
 
 type Topics string
@@ -23,6 +25,6 @@ type Config struct {
 	Slack *SlackConfig `conf:"slack"`
 }
 
-var DefaultConfig = map[string]any{
+var DefaultConfig = conf.DefaultConfig{
 	"notification.driver": "slack",
 }

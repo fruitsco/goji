@@ -3,6 +3,7 @@ package conf
 import (
 	"strings"
 
+	"github.com/fruitsco/go/x/conf"
 	"github.com/knadh/koanf/parsers/dotenv"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/confmap"
@@ -21,7 +22,7 @@ const (
 
 type ParseOptions struct {
 	Environment Environment
-	Defaults    map[string]any
+	Defaults    conf.DefaultConfig
 	Prefix      string
 	FileName    string
 	Log         *zap.Logger
@@ -41,7 +42,7 @@ func Parse[C any](opt ParseOptions) (*C, error) {
 
 	k.Load(confmap.Provider(opt.Defaults, "."), nil)
 
-	k.Load(confmap.Provider(map[string]any{
+	k.Load(confmap.Provider(conf.DefaultConfig{
 		"environment": opt.Environment,
 	}, "."), nil)
 

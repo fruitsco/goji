@@ -1,3 +1,5 @@
 package conf
 
-type DefaultConfig map[string]any
+import "github.com/fruitsco/go/x/conf"
+
+type DefaultConfig conf.DefaultConfig

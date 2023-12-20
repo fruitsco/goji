@@ -7,6 +7,7 @@ require (
 	cloud.google.com/go/pubsub v1.33.0
 	cloud.google.com/go/storage v1.36.0
 	entgo.io/ent v0.12.5
+	github.com/fruitsco/go v0.0.0-20231219172357-ad6a43deec47
 	github.com/fruitsco/roma v0.0.0-20231220031415-c94bee2fd911
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/jackc/pgx/v5 v5.5.1
@@ -76,7 +77,6 @@ require (
 	go.opentelemetry.io/otel v1.21.0 // indirect
 	go.opentelemetry.io/otel/metric v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.21.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.19.0 // indirect

@@ -1,5 +1,7 @@
 package database
 
+import "github.com/fruitsco/goji/x/conf"
+
 type Config struct {
 	Host           string `conf:"host"`
 	Port           int    `conf:"port"`
@@ -26,7 +28,7 @@ type Config struct {
 	MigrationDevDatabase string `conf:"migration_dev_database"`
 }
 
-var DefaultConfig = map[string]any{
+var DefaultConfig = conf.DefaultConfig{
 	"db.host":                   "127.0.0.1",
 	"db.port":                   "5432",
 	"db.username":               "fruits",

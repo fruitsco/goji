@@ -1,5 +1,7 @@
 package email
 
+import "github.com/fruitsco/goji/x/conf"
+
 type MailDriver string
 
 const (
@@ -33,6 +35,6 @@ type Config struct {
 	Sender *SenderConfig `conf:"sender"`
 }
 
-var DefaultConfig = map[string]any{
+var DefaultConfig = conf.DefaultConfig{
 	"email.driver": "noop",
 }
