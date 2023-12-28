@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"net/http/httptrace"
@@ -43,21 +44,24 @@ func NewMinioDriverFactory(params MinioDriverParams) driver.FactoryResult[Storag
 func NewMinioDriver(params MinioDriverParams) (*MinioDriver, error) {
 	log := params.Log.Named("minio")
 
-	transport, err := minio.DefaultTransport(params.Config.Secure)
+	// use secure transport if the secure option is set, and we're either not using a proxy or the proxy itself is secure
+	secureTransport := params.Config.Secure && (params.Config.ProxyUrl == "" || strings.HasPrefix(params.Config.ProxyUrl, "https://"))
+
+	transport, err := minio.DefaultTransport(secureTransport)
 	if err != nil {
 		return nil, err
 	}
 
-	// If we are using a secure connection w/ a self-signed certificate,
+	// If we are using a secure transport w/ a self-signed certificate,
 	// we need to skip verification.
-	if params.Config.Secure && params.Config.TLSSkipVerify {
+	if secureTransport && params.Config.TLSSkipVerify {
 		transport.TLSClientConfig.InsecureSkipVerify = true
 	}
 
 	// If the proxy url is set, set the proxy env variables for the minio client.
 	// We use minio's default transport and set the proxy url on it.
-	if params.Config.ProxyUrl != nil && *params.Config.ProxyUrl != "" {
-		proxyUrl, err := url.Parse(*params.Config.ProxyUrl)
+	if params.Config.ProxyUrl != "" {
+		proxyUrl, err := url.Parse(params.Config.ProxyUrl)
 		if err != nil {
 			return nil, err
 		}

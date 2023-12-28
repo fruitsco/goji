@@ -16,15 +16,32 @@ type GCSConfig struct {
 }
 
 type MinioConfig struct {
-	Host          string  `conf:"host"`
-	AccessKey     string  `conf:"access_key"`
-	SecretKey     string  `conf:"secret_key"`
-	Secure        bool    `conf:"secure"`
-	ProxyUrl      *string `conf:"proxy_url"`
-	Region        string  `conf:"region"`
-	Expiration    int     `conf:"signed_url_expiration"`
-	TLSSkipVerify bool    `conf:"tls_skip_verify"`
-	Trace         bool    `conf:"http_trace"`
+	// The host:port of the minio server to connect to
+	Host string `conf:"host"`
+
+	// The access key to use when connecting to the minio server
+	AccessKey string `conf:"access_key"`
+
+	// The secret key to use when connecting to the minio server
+	SecretKey string `conf:"secret_key"`
+
+	// Whether to use HTTPS when connecting to the minio server
+	Secure bool `conf:"secure"`
+
+	// The URL of the proxy to use when connecting to the minio server
+	ProxyUrl string `conf:"proxy_url"`
+
+	// The region of the minio server
+	Region string `conf:"region"`
+
+	// The expiration time of signed URLs
+	Expiration int `conf:"signed_url_expiration"`
+
+	// Whether to skip TLS verification
+	TLSSkipVerify bool `conf:"tls_skip_verify"`
+
+	// Whether to enable HTTP request tracing
+	Trace bool `conf:"http_trace"`
 }
 
 type Config struct {
@@ -38,6 +55,7 @@ var DefaultConfig = conf.DefaultConfig{
 
 	// minio
 	"storage.minio.host":                  "localhost:9000",
+	"storage.minio.https":                 "false",
 	"storage.minio.secure":                "false",
 	"storage.minio.signed_url_expiration": "3600",
 

@@ -52,14 +52,18 @@ func New(params StorageParams) *Storage {
 	}
 }
 
-func (s *Storage) resolveDriver() (Driver, error) {
+func (s *Storage) Driver(name StorageDriver) (Driver, error) {
+	return s.drivers.Resolve(name)
+}
 
+// MARK: - Default Driver
+
+func (s *Storage) defaultDriver() (Driver, error) {
 	return s.drivers.Resolve(s.config.Driver)
 }
 
 func (s *Storage) Exists(ctx context.Context, bucketName string, name string) (bool, error) {
-	driver, err := s.resolveDriver()
-
+	driver, err := s.defaultDriver()
 	if err != nil {
 		return false, err
 	}
@@ -68,8 +72,7 @@ func (s *Storage) Exists(ctx context.Context, bucketName string, name string) (b
 }
 
 func (s *Storage) Delete(ctx context.Context, bucketName string, name string) error {
-	driver, err := s.resolveDriver()
-
+	driver, err := s.defaultDriver()
 	if err != nil {
 		return err
 	}
@@ -78,8 +81,7 @@ func (s *Storage) Delete(ctx context.Context, bucketName string, name string) er
 }
 
 func (s *Storage) SignedUpload(ctx context.Context, bucketName string, name string, options *SignedUploadOptions) (*SignResult, error) {
-	driver, err := s.resolveDriver()
-
+	driver, err := s.defaultDriver()
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +90,7 @@ func (s *Storage) SignedUpload(ctx context.Context, bucketName string, name stri
 }
 
 func (s *Storage) SignedDownload(ctx context.Context, bucketName string, name string) (*SignResult, error) {
-	driver, err := s.resolveDriver()
-
+	driver, err := s.defaultDriver()
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +98,7 @@ func (s *Storage) SignedDownload(ctx context.Context, bucketName string, name st
 	return driver.SignedDownload(ctx, bucketName, name)
 }
 func (s *Storage) Download(ctx context.Context, bucketName string, name string) ([]byte, error) {
-	driver, err := s.resolveDriver()
-
+	driver, err := s.defaultDriver()
 	if err != nil {
 		return nil, err
 	}
@@ -106,10 +106,8 @@ func (s *Storage) Download(ctx context.Context, bucketName string, name string) 
 	return driver.Download(ctx, bucketName, name)
 }
 
-// Upload uploads a file to the storage
 func (s *Storage) Upload(ctx context.Context, bucketName string, name string, data []byte) error {
-	driver, err := s.resolveDriver()
-
+	driver, err := s.defaultDriver()
 	if err != nil {
 		return err
 	}
