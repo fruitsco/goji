@@ -43,11 +43,11 @@ func (mailer *SmtpDriver) Send(ctx context.Context, msg Message) error {
 	smtpAddr := fmt.Sprintf("%s:%d", mailer.host, mailer.port)
 
 	text := ""
-	if msg.Text() != nil {
-		text = *msg.Text()
+	if msg.GetText() != nil {
+		text = *msg.GetText()
 	}
 
-	err := smtp.SendMail(smtpAddr, nil, *msg.From(), msg.To(), []byte(text))
+	err := smtp.SendMail(smtpAddr, nil, *msg.GetFrom(), msg.GetTo(), []byte(text))
 
 	if err != nil {
 		fmt.Println(err)

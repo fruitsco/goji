@@ -1,14 +1,14 @@
 package email
 
 type Message interface {
-	From() *string
-	To() []string
-	Subject() *string
-	Text() *string
-	HTML() *string
-	Template() *Template
-	Files() []*File
-	Attributes() map[string]any
+	GetFrom() *string
+	GetTo() []string
+	GetSubject() *string
+	GetText() *string
+	GetHtml() *string
+	GetTemplate() *Template
+	GetFiles() []*File
+	GetAttributes() map[string]any
 }
 
 type Template struct {
@@ -24,32 +24,28 @@ func NewTemplate(name string, attributes map[string]any) *Template {
 }
 
 func NewTemplateMessage(
-	from *string,
 	to []string,
 	template *Template,
 	attributes map[string]any,
 ) *GenericMessage {
 	return &GenericMessage{
-		from:       from,
-		to:         to,
-		template:   template,
-		attributes: attributes,
+		To:         to,
+		Template:   template,
+		Attributes: attributes,
 	}
 }
 
 func NewTemplateMessageWithAttachments(
-	from *string,
 	to []string,
 	template *Template,
 	files []*File,
 	attributes map[string]any,
 ) *GenericMessage {
 	return &GenericMessage{
-		from:       from,
-		to:         to,
-		template:   template,
-		files:      files,
-		attributes: attributes,
+		To:         to,
+		Template:   template,
+		Files:      files,
+		Attributes: attributes,
 	}
 }
 
@@ -64,64 +60,64 @@ func NewGenericMessage(
 	attributes map[string]any,
 ) *GenericMessage {
 	return &GenericMessage{
-		from:       from,
-		to:         to,
-		subject:    subject,
-		text:       text,
-		html:       html,
-		template:   template,
-		files:      files,
-		attributes: attributes,
+		From:       from,
+		To:         to,
+		Subject:    subject,
+		Text:       text,
+		Html:       html,
+		Template:   template,
+		Files:      files,
+		Attributes: attributes,
 	}
 }
 
 type GenericMessage struct {
-	from    *string
-	to      []string
-	subject *string
-	text    *string
-	html    *string
+	From    *string
+	To      []string
+	Subject *string
+	Text    *string
+	Html    *string
 
 	// email templates
-	template *Template
+	Template *Template
 
 	// adds attachments
-	files []*File
+	Files []*File
 
-	// attributes
-	attributes map[string]any
+	// Attributes
+	Attributes map[string]any
 }
 
-func (m *GenericMessage) From() *string {
-	return m.from
+func (m *GenericMessage) GetFrom() *string {
+	return m.From
 }
 
-func (m *GenericMessage) To() []string {
-	return m.to
+func (m *GenericMessage) GetTo() []string {
+	return m.To
 }
 
-func (m *GenericMessage) Subject() *string {
-	return m.subject
+func (m *GenericMessage) GetSubject() *string {
+	return m.Subject
 }
 
-func (m *GenericMessage) Text() *string {
-	return m.text
+func (m *GenericMessage) GetText() *string {
+	return m.Text
 }
 
-func (m *GenericMessage) HTML() *string {
-	return m.html
+func (m *GenericMessage) GetHtml() *string {
+	return m.Html
 }
 
-func (m *GenericMessage) Template() *Template {
-	return m.template
+func (m *GenericMessage) GetTemplate() *Template {
+	return m.Template
 }
 
-func (m *GenericMessage) Files() []*File {
-	return m.files
+func (m *GenericMessage) GetFiles() []*File {
+	return m.Files
 }
 
-func (m *GenericMessage) Attributes() map[string]any {
-	return m.attributes
+func (m *GenericMessage) GetAttributes() map[string]any {
+	return m.Attributes
 }
 
 type File struct {

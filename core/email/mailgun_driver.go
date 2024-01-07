@@ -43,22 +43,22 @@ func NewMailgunDriver(params MailgunDriverParams) *MailgunDriver {
 // Send a message using mailgun
 func (m *MailgunDriver) Send(ctx context.Context, message Message) error {
 	text := ""
-	if message.Text() != nil {
-		text = *message.Text()
+	if message.GetText() != nil {
+		text = *message.GetText()
 	}
 
 	subject := ""
-	if message.Subject() != nil {
-		subject = *message.Subject()
+	if message.GetSubject() != nil {
+		subject = *message.GetSubject()
 	}
 
 	from := ""
-	if message.From() != nil {
-		from = *message.From()
+	if message.GetFrom() != nil {
+		from = *message.GetFrom()
 	}
 
-	msg := m.mg.NewMessage(from, subject, text, message.To()...)
-	for _, _fl := range message.Files() {
+	msg := m.mg.NewMessage(from, subject, text, message.GetTo()...)
+	for _, _fl := range message.GetFiles() {
 		fl := _fl
 		msg.AddReaderInline(fl.Name, io.NopCloser(bytes.NewReader(fl.Data)))
 	}

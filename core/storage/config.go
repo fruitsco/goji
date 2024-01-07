@@ -19,14 +19,14 @@ type MinioConfig struct {
 	// The host:port of the minio server to connect to
 	Host string `conf:"host"`
 
+	// Whether to use HTTPS when connecting to the minio server
+	Secure bool `conf:"secure"`
+
 	// The access key to use when connecting to the minio server
 	AccessKey string `conf:"access_key"`
 
 	// The secret key to use when connecting to the minio server
 	SecretKey string `conf:"secret_key"`
-
-	// Whether to use HTTPS when connecting to the minio server
-	Secure bool `conf:"secure"`
 
 	// The URL of the proxy to use when connecting to the minio server
 	ProxyUrl string `conf:"proxy_url"`
