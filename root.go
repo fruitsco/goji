@@ -49,6 +49,14 @@ func NewCommand[C any](params RootParams) *Root {
 				fmt.Sprintf("%s_LOG_LEVEL", params.Prefix),
 			},
 		},
+		&cli.StringFlag{
+			Name:    "log-name",
+			Aliases: []string{"n"},
+			EnvVars: []string{
+				fmt.Sprintf("%s.LOG_NAME", params.Prefix),
+				fmt.Sprintf("%s_LOG_NAME", params.Prefix),
+			},
+		},
 	}, params.Flags...)
 
 	cliApp := &cli.App{
@@ -59,8 +67,14 @@ func NewCommand[C any](params RootParams) *Root {
 			// get env from parsed cli flags
 			environment := GetEnvFromCLI(ctx)
 
+			// get log name from parsed cli flags
+			logName := params.AppName
+			if name := ctx.String("log-name"); name != "" {
+				logName = name
+			}
+
 			// create the logger
-			log, err := createLogger(ctx, params.AppName, environment)
+			log, err := createLogger(ctx, logName, environment)
 			if err != nil {
 				return err
 			}
