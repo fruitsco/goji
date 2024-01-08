@@ -120,16 +120,16 @@ func (r *Root) AddCommand(cmd *cli.Command) {
 	r.CLI.Commands = append(r.CLI.Commands, cmd)
 }
 
-func (r *Root) Run(args []string) error {
-	return r.RunContext(context.Background(), args)
+func (r *Root) Run(args []string) {
+	r.RunContext(context.Background(), args)
 }
 
-func (r *Root) RunContext(ctx context.Context, args []string) error {
+func (r *Root) RunContext(ctx context.Context, args []string) {
 	err := r.CLI.RunContext(ctx, args)
 
 	// if app exited without error, return
 	if err == nil {
-		return nil
+		return
 	}
 
 	fmt.Printf("exit error: %s\n", err.Error())
@@ -141,8 +141,6 @@ func (r *Root) RunContext(ctx context.Context, args []string) error {
 
 	// otherwise, exit with exit code 1
 	os.Exit(1)
-
-	return nil
 }
 
 func init() {

@@ -37,11 +37,11 @@ type Shell struct {
 	options []fx.Option
 }
 
-func New(log *zap.Logger, options ...fx.Option) (*Shell, error) {
+func New(log *zap.Logger, options ...fx.Option) *Shell {
 	return &Shell{
 		log:     log,
 		options: options,
-	}, nil
+	}
 }
 
 func (s *Shell) Run(ctx context.Context, options ...fx.Option) error {
