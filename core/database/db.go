@@ -39,9 +39,9 @@ func NewDB(params DBParams) (*EntDB, error) {
 	}
 
 	cloudSql := CloudSQLConnectorParams{
-		Enabled:   params.Config.CloudSQLConnector,
-		IAM:       params.Config.CloudSQLConnectorIAM,
-		PrivateIP: params.Config.CloudSQLConnectorPrivateIP,
+		Enabled:   params.Config.CloudSQL,
+		IAM:       params.Config.CloudSQLIAM,
+		PrivateIP: params.Config.CloudSQLPrivateIP,
 	}
 
 	mainConnection, err := NewConnection(ConnectionParams{
