@@ -26,6 +26,10 @@ type Config struct {
 
 	MigrationPath        string `conf:"migration_path"`
 	MigrationDevDatabase string `conf:"migration_dev_database"`
+
+	CloudSQLConnector          bool `conf:"cloudsql_connector_enabled"`
+	CloudSQLConnectorIAM       bool `conf:"cloudsql_connector_iam"`
+	CloudSQLConnectorPrivateIP bool `conf:"cloudsql_connector_private_ip"`
 }
 
 var DefaultConfig = conf.DefaultConfig{

@@ -1,18 +1,15 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 
 	"entgo.io/ent/dialect"
-	entsql "entgo.io/ent/dialect/sql"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"go.uber.org/fx"
 )
 
 type EntDB struct {
-	driver dialect.Driver
-	config *Config
+	connection Connection
 }
 
 type DBParams struct {
@@ -21,12 +18,33 @@ type DBParams struct {
 	Config *Config
 }
 
+func NewLifecycleDB(lc fx.Lifecycle, params DBParams) (*EntDB, error) {
+	db, err := NewDB(params)
+	if err != nil {
+		return nil, err
+	}
+
+	lc.Append(fx.Hook{
+		OnStop: func(_ context.Context) error {
+			return db.Close()
+		},
+	})
+
+	return db, nil
+}
+
 func NewDB(params DBParams) (*EntDB, error) {
 	if params.Config == nil {
 		return nil, fmt.Errorf("no db config provided")
 	}
 
-	mainInstanceDriver, err := createInstanceDriver(DBInstanceParams{
+	cloudSql := CloudSQLConnectorParams{
+		Enabled:   params.Config.CloudSQLConnector,
+		IAM:       params.Config.CloudSQLConnectorIAM,
+		PrivateIP: params.Config.CloudSQLConnectorPrivateIP,
+	}
+
+	mainConnection, err := NewConnection(ConnectionParams{
 		Username:      params.Config.Username,
 		Password:      params.Config.Password,
 		Name:          params.Config.Name,
@@ -37,15 +55,16 @@ func NewDB(params DBParams) (*EntDB, error) {
 		SslRootCert:   params.Config.SslRootCert,
 		SslClientCert: params.Config.SslClientCert,
 		SslClientKey:  params.Config.SslClientKey,
+		CloudSQL:      cloudSql,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	driver := mainInstanceDriver
+	var connection Connection = mainConnection
 
 	if params.Config.Replica {
-		replicaInstanceDriver, err := createInstanceDriver(DBInstanceParams{
+		replicaConnection, err := NewConnection(ConnectionParams{
 			Username:      params.Config.Username,
 			Password:      params.Config.Password,
 			Name:          params.Config.Name,
@@ -56,64 +75,27 @@ func NewDB(params DBParams) (*EntDB, error) {
 			SslRootCert:   params.Config.ReplicaSslRootCert,
 			SslClientCert: params.Config.ReplicaSslClientCert,
 			SslClientKey:  params.Config.ReplicaSslClientKey,
+			CloudSQL:      cloudSql,
 		})
 		if err != nil {
 			return nil, err
 		}
 
-		driver = &multiDriver{
-			r: replicaInstanceDriver,
-			w: mainInstanceDriver,
+		connection = &multiConnection{
+			w: mainConnection,
+			r: replicaConnection,
 		}
 	}
 
 	return &EntDB{
-		driver: driver,
-		config: params.Config,
+		connection: connection,
 	}, nil
 }
 
 func (db *EntDB) Driver() dialect.Driver {
-	return db.driver
+	return db.connection.Driver()
 }
 
-type DBInstanceParams struct {
-	Username      string
-	Password      string
-	Name          string
-	Host          string
-	Port          int
-	Schema        string
-	Ssl           bool
-	SslRootCert   string
-	SslClientCert string
-	SslClientKey  string
-}
-
-func createInstanceDriver(params DBInstanceParams) (dialect.Driver, error) {
-	dsn := buildDSN(params)
-
-	db, err := sql.Open("pgx", dsn)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return entsql.OpenDB(dialect.Postgres, db), nil
-}
-
-func buildDSN(params DBInstanceParams) string {
-	dbURI := fmt.Sprintf(
-		"user=%s password=%s dbname=%s host=%s port=%d search_path=%s",
-		params.Username, params.Password, params.Name, params.Host, params.Port, params.Schema,
-	)
-
-	if params.Ssl {
-		dbURI += fmt.Sprintf(
-			" sslmode=require sslrootcert=%s sslcert=%s sslkey=%s",
-			params.SslRootCert, params.SslClientCert, params.SslClientKey,
-		)
-	}
-
-	return dbURI
+func (db *EntDB) Close() error {
+	return db.connection.Close()
 }
