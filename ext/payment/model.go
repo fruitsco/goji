@@ -45,15 +45,15 @@ type BalanceTransaction struct {
 }
 
 type Account struct {
-	Email                     *string
-	AddressCity               *string
-	AddressCountryCode        *string
-	AddressStreet             *string
-	AddressZip                *string
-	BusinessName              *string
-	BusinessVATID             *string
-	ContactCountrynationality *string
-	BusinessType              BusinessType
+	Email              *string
+	AddressCity        *string
+	AddressCountryCode *string
+	AddressStreet      *string
+	AddressZip         *string
+	BusinessName       *string
+	BusinessVATID      *string
+	CountryCode        *string
+	BusinessType       BusinessType
 }
 
 type Customer struct {

@@ -356,7 +356,7 @@ func (s *StripeDriver) UpdateAccount(
 	params := &stripe.AccountParams{
 		Email: account.Email,
 		// BusinessType: stripe.String(string(account.BusinessType)),
-		// Country:      stripe.,
+		Country: account.CountryCode,
 		Company: &stripe.AccountCompanyParams{
 			Address: &stripe.AddressParams{
 				City:       account.AddressCity,
