@@ -354,9 +354,9 @@ func (s *StripeDriver) UpdateAccount(
 	account Account,
 ) error {
 	params := &stripe.AccountParams{
-		Email: account.Email,
-		// BusinessType: stripe.String(string(account.BusinessType)),
-		Country: account.CountryCode,
+		Email:        account.Email,
+		BusinessType: stripe.String(string(account.BusinessType)),
+		// Country: stripe.Country(),
 		Company: &stripe.AccountCompanyParams{
 			Address: &stripe.AddressParams{
 				City:       account.AddressCity,
