@@ -38,7 +38,7 @@ func NewDB(params DBParams) (*EntDB, error) {
 		return nil, fmt.Errorf("no db config provided")
 	}
 
-	cloudSql := CloudSQLConnectorParams{
+	cloudSql := CloudSQLDriverParams{
 		Enabled:   params.Config.CloudSQL,
 		IAM:       params.Config.CloudSQLIAM,
 		PrivateIP: params.Config.CloudSQLPrivateIP,
@@ -55,6 +55,8 @@ func NewDB(params DBParams) (*EntDB, error) {
 		SslRootCert:   params.Config.SslRootCert,
 		SslClientCert: params.Config.SslClientCert,
 		SslClientKey:  params.Config.SslClientKey,
+		MaxIdleConns:  params.Config.MaxIdleConnections,
+		MaxOpenConns:  params.Config.MaxOpenConnections,
 		CloudSQL:      cloudSql,
 	})
 	if err != nil {
@@ -75,6 +77,8 @@ func NewDB(params DBParams) (*EntDB, error) {
 			SslRootCert:   params.Config.ReplicaSslRootCert,
 			SslClientCert: params.Config.ReplicaSslClientCert,
 			SslClientKey:  params.Config.ReplicaSslClientKey,
+			MaxIdleConns:  params.Config.MaxIdleConnections,
+			MaxOpenConns:  params.Config.MaxOpenConnections,
 			CloudSQL:      cloudSql,
 		})
 		if err != nil {

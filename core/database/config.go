@@ -3,18 +3,16 @@ package database
 import "github.com/fruitsco/goji/x/conf"
 
 type Config struct {
-	Host           string `conf:"host"`
-	Port           int    `conf:"port"`
-	Name           string `conf:"name"`
-	Username       string `conf:"username"`
-	Password       string `conf:"password"`
-	Schema         string `conf:"schema"`
-	Ssl            bool   `conf:"ssl"`
-	SslRootCert    string `conf:"ssl_root_cert"`
-	SslClientKey   string `conf:"ssl_client_key"`
-	SslClientCert  string `conf:"ssl_client_cert"`
-	MaxIdleSeconds int    `conf:"max_idle_seconds"`
-	MaxConnections int    `conf:"max_connections"`
+	Host          string `conf:"host"`
+	Port          int    `conf:"port"`
+	Name          string `conf:"name"`
+	Username      string `conf:"username"`
+	Password      string `conf:"password"`
+	Schema        string `conf:"schema"`
+	Ssl           bool   `conf:"ssl"`
+	SslRootCert   string `conf:"ssl_root_cert"`
+	SslClientKey  string `conf:"ssl_client_key"`
+	SslClientCert string `conf:"ssl_client_cert"`
 
 	Replica              bool   `conf:"replica"`
 	ReplicaHost          string `conf:"replica_host"`
@@ -23,6 +21,9 @@ type Config struct {
 	ReplicaSslRootCert   string `conf:"replica_ssl_root_cert"`
 	ReplicaSslClientKey  string `conf:"replica_ssl_client_key"`
 	ReplicaSslClientCert string `conf:"replica_ssl_client_cert"`
+
+	MaxIdleConnections int `conf:"max_idle_connections"`
+	MaxOpenConnections int `conf:"max_open_connections"`
 
 	MigrationPath        string `conf:"migration_path"`
 	MigrationDevDatabase string `conf:"migration_dev_database"`

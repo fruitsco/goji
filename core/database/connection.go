@@ -4,14 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"cloud.google.com/go/cloudsqlconn"
-	"cloud.google.com/go/cloudsqlconn/postgres/pgxv5"
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
-
-type CleanupFn func() error
 
 type ConnectionParams struct {
 	Username      string
@@ -25,13 +21,10 @@ type ConnectionParams struct {
 	SslClientCert string
 	SslClientKey  string
 
-	CloudSQL CloudSQLConnectorParams
-}
+	MaxIdleConns int
+	MaxOpenConns int
 
-type CloudSQLConnectorParams struct {
-	Enabled   bool
-	IAM       bool
-	PrivateIP bool
+	CloudSQL CloudSQLDriverParams
 }
 
 type Connection interface {
@@ -81,30 +74,6 @@ func (c *singleConnection) Close() error {
 	return nil
 }
 
-func createDB(params ConnectionParams) (*sql.DB, CleanupFn, error) {
-	if params.CloudSQL.Enabled {
-		return createCloudSQLConnectorDB(params)
-	}
-
-	return createBasicDB(params)
-}
-
-var dummyCleanup = func() error { return nil }
-
-// createBasicDB creates a basic DB connection using the pgx driver.
-// This method does not use any connector. SSL certificates must be
-// provided manually. IAM authentication is not supported.
-func createBasicDB(params ConnectionParams) (*sql.DB, CleanupFn, error) {
-	dbURI := buildDSN(params)
-
-	db, err := sql.Open("pgx", dbURI)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return db, dummyCleanup, nil
-}
-
 // MARK: - Multi Connection
 
 type multiConnection struct {
@@ -137,41 +106,36 @@ func (c *multiConnection) Close() error {
 
 // MARK: - Create Connections
 
-// createCloudSQLConnectorDB creates a DB connection using the pgx driver
-// and the underlying Cloud SQL Connector. SSL certificates are not required
-// as they are managed by the connector. IAM authentication is supported.
+// createDB creates a DB connection using the pgx driver.
+//
+// In default mode, no connector is used. SSL certificates must be
+// provided manually. IAM authentication is not supported.
+//
+// If CloudSQL is enabled, the connection is made using an underlying
+// Cloud SQL Connector. SSL certificates are not required as they are
+// managed by the connector. IAM authentication is supported.
 // See https://github.com/GoogleCloudPlatform/cloud-sql-go-connector
-func createCloudSQLConnectorDB(params ConnectionParams) (*sql.DB, CleanupFn, error) {
-	dialOpts := []cloudsqlconn.DialOption{}
-
-	if params.CloudSQL.PrivateIP {
-		dialOpts = append(dialOpts, cloudsqlconn.WithPrivateIP())
-	}
-
-	dialerOpts := []cloudsqlconn.Option{}
-
-	if len(dialOpts) > 0 {
-		dialerOpts = append(dialerOpts, cloudsqlconn.WithDefaultDialOptions(dialOpts...))
-	}
-
-	if params.CloudSQL.IAM {
-		dialerOpts = append(dialerOpts, cloudsqlconn.WithIAMAuthN())
-	}
-
-	close, err := pgxv5.RegisterDriver("cloudsql-postgres", dialerOpts...)
-	if err != nil {
-		return nil, nil, err
-	}
-
+func createDB(params ConnectionParams) (*sql.DB, CleanupFn, error) {
 	dbURI := buildDSN(params)
 
-	db, err := sql.Open("cloudsql-postgres", dbURI)
+	driverParams := &DriverParams{
+		CloudSQL: params.CloudSQL,
+	}
+
+	cleanup, err := registerDriver("goji", driverParams)
 	if err != nil {
-		close()
 		return nil, nil, err
 	}
 
-	return db, close, nil
+	db, err := sql.Open("goji", dbURI)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	db.SetMaxIdleConns(params.MaxIdleConns)
+	db.SetMaxOpenConns(params.MaxOpenConns)
+
+	return db, cleanup, nil
 }
 
 func buildDSN(params ConnectionParams) string {
