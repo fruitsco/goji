@@ -311,15 +311,13 @@ func (s *StripeDriver) CreateAccount(
 	ctx context.Context,
 	email string,
 	payoutDelay int64,
-	account Account,
 ) (string, error) {
 	// FIXME: Not correct if we should define default payout values here, but i guess so.
 	// See https://github.com/fruitsco/roma/issues/31
 	params := &stripe.AccountParams{
-		Type:         stripe.String("custom"),
-		BusinessType: stripe.String(string(account.BusinessType)),
-		Country:      account.CountryCode,
-		Email:        stripe.String(email),
+		Type: stripe.String("custom"),
+		// BusinessType: stripe.String(string(businessType)),
+		Email: stripe.String(email),
 		Capabilities: &stripe.AccountCapabilitiesParams{
 			CardPayments: &stripe.AccountCapabilitiesCardPaymentsParams{
 				Requested: stripe.Bool(true),
@@ -327,16 +325,6 @@ func (s *StripeDriver) CreateAccount(
 			Transfers: &stripe.AccountCapabilitiesTransfersParams{
 				Requested: stripe.Bool(true),
 			},
-		},
-		Company: &stripe.AccountCompanyParams{
-			Address: &stripe.AddressParams{
-				City:       account.AddressCity,
-				Country:    account.AddressCountryCode,
-				Line1:      account.AddressStreet,
-				PostalCode: account.AddressZip,
-			},
-			Name:  account.BusinessName,
-			VATID: account.BusinessVATID,
 		},
 		Settings: &stripe.AccountSettingsParams{
 			Payouts: &stripe.AccountSettingsPayoutsParams{
@@ -350,13 +338,13 @@ func (s *StripeDriver) CreateAccount(
 		},
 	}
 
-	newAccount, err := s.client.Accounts.New(params)
+	account, err := s.client.Accounts.New(params)
 
 	if err != nil {
 		return "", err
 	}
 
-	return newAccount.ID, nil
+	return account.ID, nil
 }
 
 // UpdateAccount updates an account with a payment provider

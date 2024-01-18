@@ -14,7 +14,7 @@ type Driver interface {
 	UpdatePaymentIntent(ctx context.Context, paymentIntentID string, amount int64, currency string, country string) (*PaymentIntentResult, error)
 	GetPaymentMethod(ctx context.Context, paymentMethodID string) (string, error)
 	// Account
-	CreateAccount(ctx context.Context, email string, payoutDelay int64, account Account) (string, error)
+	CreateAccount(ctx context.Context, email string, payoutDelay int64) (string, error)
 	GetAccountVerificationLink(ctx context.Context, vendorAccountID string, returnUrl string, linkType string) (string, error)
 	GetAccountWallet(ctx context.Context, vendorAccountID string) (*Wallet, error)
 	UpdateAccount(ctx context.Context, accountID string, account Account) error
@@ -234,7 +234,6 @@ func (s *Payment) CreateAccount(
 	email string,
 	// businessType string,
 	payoutDelay int64,
-	account Account,
 ) (string, error) {
 	driver, err := s.resolveDriver()
 
@@ -242,7 +241,7 @@ func (s *Payment) CreateAccount(
 		return "", err
 	}
 
-	return driver.CreateAccount(ctx, email, payoutDelay, account)
+	return driver.CreateAccount(ctx, email, payoutDelay)
 }
 
 // UpdateAccount updates an existing account with a payment provider
