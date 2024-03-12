@@ -17,7 +17,7 @@ require (
 	github.com/knadh/koanf/v2 v2.0.1
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.12.0
-	github.com/minio/minio-go/v7 v7.0.68
+	github.com/minio/minio-go/v7 v7.0.69
 	github.com/redis/go-redis/v9 v9.3.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/stripe/stripe-go/v76 v76.9.0
