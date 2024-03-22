@@ -3,10 +3,10 @@ module github.com/fruitsco/goji
 go 1.21.5
 
 require (
-	ariga.io/atlas v0.16.0
+	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43
 	cloud.google.com/go/pubsub v1.34.0
 	cloud.google.com/go/storage v1.38.0
-	entgo.io/ent v0.12.5
+	entgo.io/ent v0.13.1
 	github.com/go-playground/validator/v10 v10.19.0
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/knadh/koanf/parsers/dotenv v0.1.0
@@ -82,7 +82,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/mod v0.15.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
