@@ -1,6 +1,6 @@
 module github.com/fruitsco/goji
 
-go 1.21.5
+go 1.22.2
 
 require (
 	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43
