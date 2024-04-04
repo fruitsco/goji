@@ -23,7 +23,7 @@ require (
 	github.com/stripe/stripe-go/v76 v76.22.0
 	go.uber.org/fx v1.21.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/oauth2 v0.18.0
+	golang.org/x/oauth2 v0.19.0
 	google.golang.org/api v0.171.0
 )
 
