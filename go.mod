@@ -1,9 +1,11 @@
 module github.com/fruitsco/goji
 
-go 1.21.5
+go 1.22
+
+toolchain go1.22.2
 
 require (
-	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43
+	ariga.io/atlas v0.21.1
 	cloud.google.com/go/pubsub v1.36.1
 	cloud.google.com/go/storage v1.39.1
 	entgo.io/ent v0.13.1
