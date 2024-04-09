@@ -6,7 +6,7 @@ toolchain go1.22.2
 
 require (
 	ariga.io/atlas v0.21.1
-	cloud.google.com/go/pubsub v1.36.1
+	cloud.google.com/go/pubsub v1.37.0
 	cloud.google.com/go/storage v1.40.0
 	entgo.io/ent v0.13.1
 	github.com/go-playground/validator/v10 v10.19.0
