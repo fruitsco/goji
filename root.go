@@ -13,6 +13,7 @@ import (
 
 type RootParams struct {
 	AppName        string
+	Version        string
 	Description    string
 	Prefix         string
 	Flags          []cli.Flag
@@ -60,9 +61,10 @@ func NewCommand[C any](params RootParams) *Root {
 	}, params.Flags...)
 
 	cliApp := &cli.App{
-		Name:  params.AppName,
-		Usage: params.Description,
-		Flags: flags,
+		Name:    params.AppName,
+		Version: params.Version,
+		Usage:   params.Description,
+		Flags:   flags,
 		Before: func(ctx *cli.Context) error {
 			// get env from parsed cli flags
 			environment := GetEnvFromCLI(ctx)

@@ -12,13 +12,13 @@ type EntDB struct {
 	connection Connection
 }
 
-type DBParams struct {
+type EntDBParams struct {
 	fx.In
 
 	Config *Config
 }
 
-func NewLifecycleDB(lc fx.Lifecycle, params DBParams) (*EntDB, error) {
+func NewLifecycleDB(lc fx.Lifecycle, params EntDBParams) (*EntDB, error) {
 	db, err := NewDB(params)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func NewLifecycleDB(lc fx.Lifecycle, params DBParams) (*EntDB, error) {
 	return db, nil
 }
 
-func NewDB(params DBParams) (*EntDB, error) {
+func NewDB(params EntDBParams) (*EntDB, error) {
 	if params.Config == nil {
 		return nil, fmt.Errorf("no db config provided")
 	}
