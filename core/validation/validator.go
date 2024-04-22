@@ -48,7 +48,7 @@ func Init(v *validator.Validate) {
 
 	v.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
 		if valuer, ok := field.Interface().(decimal.Decimal); ok {
-			return valuer.String()
+			return valuer.InexactFloat64()
 		}
 		return nil
 	}, decimal.Decimal{})
