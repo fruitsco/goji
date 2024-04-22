@@ -5,12 +5,19 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/shopspring/decimal"
 )
 
 func New() *validator.Validate {
 	validate := validator.New()
 
-	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
+	Init(validate)
+
+	return validate
+}
+
+func Init(v *validator.Validate) {
+	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		// If the field has a protobuf tag, use that.
 		if protoTagName := fld.Tag.Get("protobuf"); protoTagName != "" {
 			options := strings.Split(protoTagName, ",")
@@ -39,5 +46,10 @@ func New() *validator.Validate {
 		return ""
 	})
 
-	return validate
+	v.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
+		if valuer, ok := field.Interface().(decimal.Decimal); ok {
+			return valuer.String()
+		}
+		return nil
+	}, decimal.Decimal{})
 }
