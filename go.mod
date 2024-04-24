@@ -23,7 +23,7 @@ require (
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/stripe/stripe-go/v76 v76.24.0
-	go.uber.org/fx v1.21.0
+	go.uber.org/fx v1.21.1
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.19.0
 	google.golang.org/api v0.177.0
