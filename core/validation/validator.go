@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -40,6 +41,17 @@ func Init(v *validator.Validate) {
 			}
 
 			return name
+		}
+
+		// If the field has a header tag, use that.
+		if headerTagName := fld.Tag.Get("header"); headerTagName != "" {
+			name := strings.SplitN(headerTagName, ",", 2)[0]
+
+			if name == "-" {
+				return ""
+			}
+
+			return fmt.Sprintf("header.%s", name)
 		}
 
 		// TODO: handle other tag types
