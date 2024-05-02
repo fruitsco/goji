@@ -22,7 +22,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.69
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/stripe/stripe-go/v76 v76.24.0
+	github.com/stripe/stripe-go/v76 v76.25.0
 	go.uber.org/fx v1.21.1
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.19.0
