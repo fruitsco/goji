@@ -19,7 +19,7 @@ require (
 	github.com/knadh/koanf/v2 v2.1.1
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.12.0
-	github.com/minio/minio-go/v7 v7.0.69
+	github.com/minio/minio-go/v7 v7.0.70
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/stripe/stripe-go/v76 v76.25.0
@@ -50,6 +50,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-test/deep v1.0.4 // indirect
 	github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1 // indirect
+	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
