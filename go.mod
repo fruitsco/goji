@@ -2,7 +2,7 @@ module github.com/fruitsco/goji
 
 go 1.22
 
-toolchain go1.22.2
+toolchain go1.22.5
 
 require (
 	ariga.io/atlas v0.22.0
