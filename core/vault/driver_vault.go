@@ -7,6 +7,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
+	"github.com/fruitsco/goji/x/driver"
 	vault "github.com/hashicorp/vault/api"
 	gcpAuth "github.com/hashicorp/vault/api/auth/gcp"
 )
@@ -58,7 +59,7 @@ type HCPVaultConfig struct {
 	MountPath string `conf:"mount_path"`
 
 	// Auth is the configuration for the HashiCorp Vault auth strategy
-	Auth *HCPVaultAuthConfig `conf:"auth"`
+	Auth HCPVaultAuthConfig `conf:"auth"`
 }
 
 // HCPVaultDriver is the HashiCorp Vault driver
@@ -79,13 +80,29 @@ type HCPVaultDriverParams struct {
 	Log *zap.Logger
 }
 
-var _ = Driver(&HCPVaultDriver{})
+// NewHCPVaultDriverFactory creates a new HashiCorp Vault driver factory
+func NewHCPVaultDriverFactory(
+	params HCPVaultDriverParams,
+	lc fx.Lifecycle,
+) driver.FactoryResult[DriverName, Driver] {
+	return driver.NewFactory(HCPVault, func() (Driver, error) {
+		return NewHCPVaultDriver(params, lc)
+	})
+}
 
 // NewHCPVaultDriver creates a new HashiCorp Vault driver
 func NewHCPVaultDriver(
 	params HCPVaultDriverParams,
 	lc fx.Lifecycle,
-) (*HCPVaultDriver, error) {
+) (Driver, error) {
+	if params.Config == nil {
+		return nil, fmt.Errorf("config is required for HashiCorp Vault driver")
+	}
+
+	if params.Config.Address == "" {
+		return nil, fmt.Errorf("address is required for HashiCorp Vault driver")
+	}
+
 	// TODO: advanced config
 	config := vault.DefaultConfig()
 	config.Address = params.Config.Address
@@ -112,6 +129,8 @@ func NewHCPVaultDriver(
 	}, nil
 }
 
+var _ = Driver(&HCPVaultDriver{})
+
 func (d *HCPVaultDriver) kv() *vault.KVv2 {
 	return d.client.KVv2(d.config.MountPath)
 }
@@ -121,11 +140,15 @@ func (d *HCPVaultDriver) CreateSecret(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) error {
-	_, err := d.kv().Put(ctx, name, map[string]interface{}{
+) (Secret, error) {
+	secret, err := d.kv().Put(ctx, name, map[string]interface{}{
 		"data": payload,
 	})
-	return err
+	if err != nil {
+		return Secret{}, err
+	}
+
+	return d.mapSecret(name, secret)
 }
 
 // AddVersion adds a new version to a secret in HashiCorp Vault
@@ -133,11 +156,15 @@ func (d *HCPVaultDriver) AddVersion(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) error {
-	_, err := d.kv().Put(ctx, name, map[string]interface{}{
+) (Secret, error) {
+	secret, err := d.kv().Put(ctx, name, map[string]interface{}{
 		"data": payload,
 	})
-	return err
+	if err != nil {
+		return Secret{}, err
+	}
+
+	return d.mapSecret(name, secret)
 }
 
 // GetVersion gets a specific version of a secret from HashiCorp Vault
@@ -151,16 +178,7 @@ func (d *HCPVaultDriver) GetVersion(
 		return Secret{}, err
 	}
 
-	payload, ok := secret.Data["data"].([]byte)
-	if !ok {
-		return Secret{}, fmt.Errorf("unable to parse secret data")
-	}
-
-	return Secret{
-		Name:    name,
-		Version: secret.VersionMetadata.Version,
-		Payload: payload,
-	}, nil
+	return d.mapSecret(name, secret)
 }
 
 // GetLatestVersion gets the latest version of a secret from HashiCorp Vault
@@ -173,6 +191,18 @@ func (d *HCPVaultDriver) GetLatestVersion(
 		return Secret{}, err
 	}
 
+	return d.mapSecret(name, secret)
+}
+
+// DeleteSecret deletes a secret from HashiCorp Vault
+func (d *HCPVaultDriver) DeleteSecret(
+	ctx context.Context,
+	name string,
+) error {
+	return d.kv().Delete(ctx, name)
+}
+
+func (d *HCPVaultDriver) mapSecret(name string, secret *vault.KVSecret) (Secret, error) {
 	payload, ok := secret.Data["data"].([]byte)
 	if !ok {
 		return Secret{}, fmt.Errorf("unable to parse secret data")
@@ -185,24 +215,24 @@ func (d *HCPVaultDriver) GetLatestVersion(
 	}, nil
 }
 
-// DeleteSecret deletes a secret from HashiCorp Vault
-func (d *HCPVaultDriver) DeleteSecret(
-	ctx context.Context,
-	name string,
-) error {
-	return d.kv().Delete(ctx, name)
-}
-
 // hcpAuth authenticates to HashiCorp Vault
 func hcpAuth(
 	ctx context.Context,
 	client *vault.Client,
-	config *HCPVaultAuthConfig,
+	config HCPVaultAuthConfig,
 ) error {
 	switch config.Strategy {
 	case HCPVaultAuthStrategyToken:
+		if config.Token == nil {
+			return fmt.Errorf("token auth strategy requires token configuration")
+		}
+
 		client.SetToken(config.Token.Token)
 	case HCPVaultAuthStrategyGCP:
+		if config.GCP == nil {
+			return fmt.Errorf("GCP auth strategy requires GCP configuration")
+		}
+
 		loginOption := gcpAuth.WithGCEAuth()
 
 		if config.GCP.ServiceAccountEmail != "" {

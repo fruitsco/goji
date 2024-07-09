@@ -5,10 +5,11 @@ import (
 	"go.uber.org/fx"
 )
 
-func Module(config *Config) fx.Option {
+func Module(cfg *Config) fx.Option {
 	return fx.Module("crypt",
 		fx.Decorate(logging.NamedLogger("crypt")),
-		fx.Supply(config),
+
+		fx.Supply(cfg),
 		fx.Provide(New),
 	)
 }

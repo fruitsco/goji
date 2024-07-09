@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fruitsco/goji/x/driver"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
@@ -40,11 +41,25 @@ type GCPSecretManagerDriverParams struct {
 	Log *zap.Logger
 }
 
+// NewGCPSecretManagerDriverFactory creates a new Google Cloud Secret Manager driver factory
+func NewGCPSecretManagerDriverFactory(
+	params GCPSecretManagerDriverParams,
+	lc fx.Lifecycle,
+) driver.FactoryResult[DriverName, Driver] {
+	return driver.NewFactory(GCPSecretManager, func() (Driver, error) {
+		return NewGCPSecretManagerDriver(params, lc)
+	})
+}
+
 // NewGCPSecretManagerDriver creates a new Google Cloud Secret Manager driver
 func NewGCPSecretManagerDriver(
 	params GCPSecretManagerDriverParams,
 	lc fx.Lifecycle,
-) (*GCPSecretManagerDriver, error) {
+) (Driver, error) {
+	if params.Config == nil || params.Config.ProjectID == "" {
+		return nil, fmt.Errorf("project ID is required for Google Cloud Secret Manager")
+	}
+
 	client, err := secretmanager.NewClient(params.Context)
 	if err != nil {
 		return nil, err
@@ -72,7 +87,7 @@ func (d *GCPSecretManagerDriver) CreateSecret(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) error {
+) (Secret, error) {
 	createSecretReq := &secretmanagerpb.CreateSecretRequest{
 		Parent:   fmt.Sprintf("projects/%s", d.config.ProjectID),
 		SecretId: name,
@@ -88,7 +103,7 @@ func (d *GCPSecretManagerDriver) CreateSecret(
 
 	_, err := d.client.CreateSecret(ctx, createSecretReq)
 	if err != nil {
-		return err
+		return Secret{}, err
 	}
 
 	return d.AddVersion(ctx, name, payload)
@@ -99,7 +114,7 @@ func (d *GCPSecretManagerDriver) AddVersion(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) error {
+) (Secret, error) {
 	addSecretVersionReq := &secretmanagerpb.AddSecretVersionRequest{
 		Parent: fmt.Sprintf("projects/%s/secrets/%s", d.config.ProjectID, name),
 		Payload: &secretmanagerpb.SecretPayload{
@@ -107,8 +122,21 @@ func (d *GCPSecretManagerDriver) AddVersion(
 		},
 	}
 
-	_, err := d.client.AddSecretVersion(ctx, addSecretVersionReq)
-	return err
+	addSecretVersionResp, err := d.client.AddSecretVersion(ctx, addSecretVersionReq)
+	if err != nil {
+		return Secret{}, err
+	}
+
+	version, err := d.getVersionFromName(addSecretVersionResp.Name)
+	if err != nil {
+		return Secret{}, err
+	}
+
+	return Secret{
+		Name:    name,
+		Version: version,
+		Payload: payload,
+	}, nil
 }
 
 // GetVersion retrieves a specific version of a secret from Google Cloud Secret Manager
@@ -128,6 +156,21 @@ func (d *GCPSecretManagerDriver) GetLatestVersion(
 	return d.getSecretVersion(ctx, name, "latest")
 }
 
+// DeleteSecret deletes a secret from Google Cloud Secret Manager
+func (d *GCPSecretManagerDriver) DeleteSecret(ctx context.Context, name string) error {
+	deleteSecretReq := &secretmanagerpb.DeleteSecretRequest{
+		Name: fmt.Sprintf("projects/%s/secrets/%s", d.config.ProjectID, name),
+	}
+
+	return d.client.DeleteSecret(ctx, deleteSecretReq)
+}
+
+// Close closes the Google Cloud Secret Manager driver
+func (d *GCPSecretManagerDriver) Close() error {
+	return d.client.Close()
+}
+
+// getSecretVersion retrieves a specific version of a secret from Google Cloud Secret Manager
 func (d *GCPSecretManagerDriver) getSecretVersion(
 	ctx context.Context,
 	name string,
@@ -142,9 +185,7 @@ func (d *GCPSecretManagerDriver) getSecretVersion(
 		return Secret{}, err
 	}
 
-	nameParts := strings.Split(accessSecretVersionResp.Name, "/")
-	versionStr := nameParts[len(nameParts)-1]
-	versionParsed, err := strconv.Atoi(versionStr)
+	versionParsed, err := d.getVersionFromName(accessSecretVersionResp.Name)
 	if err != nil {
 		return Secret{}, err
 	}
@@ -156,16 +197,14 @@ func (d *GCPSecretManagerDriver) getSecretVersion(
 	}, nil
 }
 
-// DeleteSecret deletes a secret from Google Cloud Secret Manager
-func (d *GCPSecretManagerDriver) DeleteSecret(ctx context.Context, name string) error {
-	deleteSecretReq := &secretmanagerpb.DeleteSecretRequest{
-		Name: fmt.Sprintf("projects/%s/secrets/%s", d.config.ProjectID, name),
+// getVersionFromName extracts the version from a secret version name
+func (d *GCPSecretManagerDriver) getVersionFromName(name string) (int, error) {
+	nameParts := strings.Split(name, "/")
+	versionStr := nameParts[len(nameParts)-1]
+	versionParsed, err := strconv.Atoi(versionStr)
+	if err != nil {
+		return 0, err
 	}
 
-	return d.client.DeleteSecret(ctx, deleteSecretReq)
-}
-
-// Close closes the Google Cloud Secret Manager driver
-func (d *GCPSecretManagerDriver) Close() error {
-	return d.client.Close()
+	return versionParsed, nil
 }

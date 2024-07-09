@@ -12,7 +12,10 @@ const (
 	Infisical DriverName = "infisical"
 
 	// Vault is a driver for HashiCorp Vault
-	HCPVault DriverName = "vault"
+	HCPVault DriverName = "hcp_vault"
+
+	// Redis is a driver for Redis
+	Redis DriverName = "redis"
 )
 
 type Config struct {
@@ -27,9 +30,12 @@ type Config struct {
 
 	// HCPVault is the configuration for HashiCorp Vault
 	HCPVault *HCPVaultConfig `conf:"vault"`
+
+	// Redis is the configuration for Redis
+	Redis *RedisDriverConfig `conf:"redis"`
 }
 
 // DefaultConfig is the default configuration for the vault
 var DefaultConfig = conf.DefaultConfig{
-	"driver": Infisical,
+	"vault.driver": "infisical",
 }

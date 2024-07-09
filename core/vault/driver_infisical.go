@@ -8,7 +8,9 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
+	"github.com/fruitsco/goji/x/driver"
 	infisical "github.com/infisical/go-sdk"
+	infisicalModels "github.com/infisical/go-sdk/packages/models"
 )
 
 // InfisicalAuthStrategy is the strategy for authentication
@@ -51,8 +53,8 @@ type InfisicalAuthConfig struct {
 	// Universal is the configuration for the universal auth strategy
 	Universal *InfisicalUniversalAuthConfig `conf:"universal"`
 
-	// GCPIam is the configuration for the GCP auth strategy
-	GCPIam *InfisicalGCPAuthConfig `conf:"gcp"`
+	// GCP is the configuration for the GCP auth strategies
+	GCP *InfisicalGCPAuthConfig `conf:"gcp"`
 }
 
 // InfisicalConfig is the configuration for the Infisical driver
@@ -67,7 +69,7 @@ type InfisicalConfig struct {
 	Environment string `conf:"environment"`
 
 	// Auth is the configuration for authentication
-	Auth *InfisicalAuthConfig `conf:"auth"`
+	Auth InfisicalAuthConfig `conf:"auth"`
 }
 
 // InfisicalDriver is the vault driver for Infisical
@@ -88,13 +90,25 @@ type InfisicalDriverParams struct {
 	Log *zap.Logger
 }
 
-var _ = Driver(&InfisicalDriver{})
+// NewInfisicalDriverFactory creates a new Infisical driver factory
+func NewInfisicalDriverFactory(
+	params InfisicalDriverParams,
+	lc fx.Lifecycle,
+) driver.FactoryResult[DriverName, Driver] {
+	return driver.NewFactory(Infisical, func() (Driver, error) {
+		return NewInfisicalDriver(params, lc)
+	})
+}
 
 // NewInfisicalDriver creates a new Infisical driver
 func NewInfisicalDriver(
 	params InfisicalDriverParams,
 	lc fx.Lifecycle,
-) (*InfisicalDriver, error) {
+) (Driver, error) {
+	if params.Config == nil {
+		return nil, fmt.Errorf("config is required for Infisical driver")
+	}
+
 	client := infisical.NewInfisicalClient(infisical.Config{
 		SiteUrl: params.Config.SiteURL,
 	})
@@ -112,15 +126,17 @@ func NewInfisicalDriver(
 	}, nil
 }
 
+var _ = Driver(&InfisicalDriver{})
+
 // CreateSecret creates a new secret in Infisical
 func (d *InfisicalDriver) CreateSecret(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) error {
-	path, key := getSecretPathAndKey(name)
+) (Secret, error) {
+	path, key := d.getSecretPathAndKey(name)
 
-	_, err := d.client.Secrets().Create(infisical.CreateSecretOptions{
+	secret, err := d.client.Secrets().Create(infisical.CreateSecretOptions{
 		ProjectID:   d.config.ProjectID,
 		Environment: d.config.Environment,
 
@@ -128,7 +144,11 @@ func (d *InfisicalDriver) CreateSecret(
 		SecretPath:  path,
 		SecretValue: string(payload),
 	})
-	return err
+	if err != nil {
+		return Secret{}, err
+	}
+
+	return d.mapSecret(secret), nil
 }
 
 // AddVersion adds a new version to a secret in Infisical
@@ -136,10 +156,10 @@ func (d *InfisicalDriver) AddVersion(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) error {
-	path, key := getSecretPathAndKey(name)
+) (Secret, error) {
+	path, key := d.getSecretPathAndKey(name)
 
-	_, err := d.client.Secrets().Update(infisical.UpdateSecretOptions{
+	secret, err := d.client.Secrets().Update(infisical.UpdateSecretOptions{
 		ProjectID:   d.config.ProjectID,
 		Environment: d.config.Environment,
 
@@ -147,7 +167,11 @@ func (d *InfisicalDriver) AddVersion(
 		SecretPath:     path,
 		NewSecretValue: string(payload),
 	})
-	return err
+	if err != nil {
+		return Secret{}, err
+	}
+
+	return d.mapSecret(secret), nil
 }
 
 // GetVersion retrieves a specific version of a secret from Infisical
@@ -156,7 +180,7 @@ func (d *InfisicalDriver) GetVersion(
 	name string,
 	version int,
 ) (Secret, error) {
-	path, key := getSecretPathAndKey(name)
+	path, key := d.getSecretPathAndKey(name)
 
 	secret, err := d.client.Secrets().Retrieve(infisical.RetrieveSecretOptions{
 		ProjectID:   d.config.ProjectID,
@@ -171,11 +195,7 @@ func (d *InfisicalDriver) GetVersion(
 		return Secret{}, err
 	}
 
-	return Secret{
-		Name:    fmt.Sprintf("%s/%s", secret.SecretPath, secret.SecretKey),
-		Version: secret.Version,
-		Payload: []byte(secret.SecretValue),
-	}, nil
+	return d.mapSecret(secret), nil
 }
 
 // GetLatestVersion retrieves the latest version of a secret from Infisical
@@ -183,7 +203,7 @@ func (d *InfisicalDriver) GetLatestVersion(
 	ctx context.Context,
 	name string,
 ) (Secret, error) {
-	path, key := getSecretPathAndKey(name)
+	path, key := d.getSecretPathAndKey(name)
 
 	secret, err := d.client.Secrets().Retrieve(infisical.RetrieveSecretOptions{
 		ProjectID:   d.config.ProjectID,
@@ -196,11 +216,7 @@ func (d *InfisicalDriver) GetLatestVersion(
 		return Secret{}, err
 	}
 
-	return Secret{
-		Name:    fmt.Sprintf("%s/%s", secret.SecretPath, secret.SecretKey),
-		Version: secret.Version,
-		Payload: []byte(secret.SecretValue),
-	}, nil
+	return d.mapSecret(secret), nil
 }
 
 // DeleteSecret deletes a secret from Infisical
@@ -208,7 +224,7 @@ func (d *InfisicalDriver) DeleteSecret(
 	ctx context.Context,
 	name string,
 ) error {
-	path, key := getSecretPathAndKey(name)
+	path, key := d.getSecretPathAndKey(name)
 
 	_, err := d.client.Secrets().Delete(infisical.DeleteSecretOptions{
 		ProjectID:   d.config.ProjectID,
@@ -221,7 +237,7 @@ func (d *InfisicalDriver) DeleteSecret(
 }
 
 // getSecretPathAndKey splits the secret name into path and key
-func getSecretPathAndKey(name string) (string, string) {
+func (d *InfisicalDriver) getSecretPathAndKey(name string) (string, string) {
 	lastSlash := strings.LastIndex(name, "/")
 	if lastSlash == -1 {
 		return "", name
@@ -230,27 +246,48 @@ func getSecretPathAndKey(name string) (string, string) {
 	return name[:lastSlash], name[lastSlash+1:]
 }
 
+// mapSecret maps an Infisical secret to a vault secret
+func (d *InfisicalDriver) mapSecret(secret infisicalModels.Secret) Secret {
+	return Secret{
+		Name:    fmt.Sprintf("%s/%s", secret.SecretPath, secret.SecretKey),
+		Version: secret.Version,
+		Payload: []byte(secret.SecretValue),
+	}
+}
+
 // infisicalAuth authenticates the infisical client based on the configuration
 func infisicalAuth(
 	client infisical.AuthInterface,
-	config *InfisicalAuthConfig,
+	config InfisicalAuthConfig,
 ) error {
 	switch config.Strategy {
 	case InfisicalAuthStrategyUniversal:
+		if config.Universal == nil {
+			return fmt.Errorf("universal auth strategy requires configuration")
+		}
+
 		_, err := client.UniversalAuthLogin(
 			config.Universal.ClientID,
 			config.Universal.ClientSecret,
 		)
 		return err
 	case InfisicalAuthStrategyGCPIam:
+		if config.GCP == nil {
+			return fmt.Errorf("gcp iam auth strategy requires configuration")
+		}
+
 		_, err := client.GcpIamAuthLogin(
-			config.GCPIam.IdentityID,
-			config.GCPIam.ServiceAccountKeyFilePath,
+			config.GCP.IdentityID,
+			config.GCP.ServiceAccountKeyFilePath,
 		)
 		return err
 	case InfisicalAuthStrategyGCPIdToken:
+		if config.GCP == nil {
+			return fmt.Errorf("gcp id token auth strategy requires configuration")
+		}
+
 		_, err := client.GcpIdTokenAuthLogin(
-			config.GCPIam.IdentityID,
+			config.GCP.IdentityID,
 		)
 		return err
 	}

@@ -9,8 +9,8 @@ import (
 )
 
 type Driver interface {
-	CreateSecret(context.Context, string, []byte) error
-	AddVersion(context.Context, string, []byte) error
+	CreateSecret(context.Context, string, []byte) (Secret, error)
+	AddVersion(context.Context, string, []byte) (Secret, error)
 	GetLatestVersion(context.Context, string) (Secret, error)
 	GetVersion(context.Context, string, int) (Secret, error)
 	DeleteSecret(context.Context, string) error
@@ -46,19 +46,19 @@ func (v *Vault) resolveDriver() (Driver, error) {
 	return v.drivers.Resolve(v.config.Driver)
 }
 
-func (v *Vault) CreateSecret(ctx context.Context, name string, payload []byte) error {
+func (v *Vault) CreateSecret(ctx context.Context, name string, payload []byte) (Secret, error) {
 	driver, err := v.resolveDriver()
 	if err != nil {
-		return err
+		return Secret{}, err
 	}
 
 	return driver.CreateSecret(ctx, name, payload)
 }
 
-func (v *Vault) AddVersion(ctx context.Context, name string, payload []byte) error {
+func (v *Vault) AddVersion(ctx context.Context, name string, payload []byte) (Secret, error) {
 	driver, err := v.resolveDriver()
 	if err != nil {
-		return err
+		return Secret{}, err
 	}
 
 	return driver.AddVersion(ctx, name, payload)
