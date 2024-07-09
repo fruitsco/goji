@@ -4,6 +4,10 @@ import "github.com/fruitsco/goji/x/conf"
 
 type ConnectionName string
 
+const (
+	DefaultConnectionName ConnectionName = "default"
+)
+
 type ConnectionConfig struct {
 	Name     string `conf:"name"`
 	Host     string `conf:"host"`

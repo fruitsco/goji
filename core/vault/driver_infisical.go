@@ -109,6 +109,22 @@ func NewInfisicalDriver(
 		return nil, fmt.Errorf("config is required for Infisical driver")
 	}
 
+	if params.Config.SiteURL == "" {
+		return nil, fmt.Errorf("site URL is required for Infisical driver")
+	}
+
+	if params.Config.ProjectID == "" {
+		return nil, fmt.Errorf("project ID is required for Infisical driver")
+	}
+
+	if params.Config.Environment == "" {
+		return nil, fmt.Errorf("environment is required for Infisical driver")
+	}
+
+	if params.Config.Auth.Strategy == "" {
+		params.Config.Auth.Strategy = InfisicalAuthStrategyUniversal
+	}
+
 	client := infisical.NewInfisicalClient(infisical.Config{
 		SiteUrl: params.Config.SiteURL,
 	})

@@ -42,7 +42,7 @@ type RedisParams struct {
 func New(params RedisParams) *Redis {
 	// init default connections
 	connections := map[ConnectionName]*Connection{
-		"default": NewConnection(params.Config.Connections[params.Config.DefaultConnection]),
+		(DefaultConnectionName): NewConnection(params.Config.Connections[params.Config.DefaultConnection]),
 	}
 
 	return &Redis{

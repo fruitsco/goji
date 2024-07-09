@@ -16,7 +16,7 @@ import (
 // RedisDriverConfig is the configuration for the Redis driver
 type RedisDriverConfig struct {
 	// ConnectionName is the name of the Redis connection to use
-	ConnectionName string `conf:"connection_name"`
+	ConnectionName redis.ConnectionName `conf:"connection_name"`
 
 	// EncryptionKey is the key to use for encryption
 	EncryptionKey string `conf:"encryption_key"`
@@ -61,7 +61,7 @@ func NewRedisDriver(params RedisDriverParams) (Driver, error) {
 	}
 
 	if params.Config.ConnectionName == "" {
-		params.Config.ConnectionName = "default"
+		params.Config.ConnectionName = redis.DefaultConnectionName
 	}
 
 	connectionName := redis.ConnectionName(params.Config.ConnectionName)

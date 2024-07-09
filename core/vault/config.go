@@ -37,5 +37,6 @@ type Config struct {
 
 // DefaultConfig is the default configuration for the vault
 var DefaultConfig = conf.DefaultConfig{
-	"vault.driver": "infisical",
+	"vault.driver":                       "redis",
+	"vault.driver.redis.connection_name": "default",
 }

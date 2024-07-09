@@ -103,6 +103,10 @@ func NewHCPVaultDriver(
 		return nil, fmt.Errorf("address is required for HashiCorp Vault driver")
 	}
 
+	if params.Config.Auth.Strategy == "" {
+		params.Config.Auth.Strategy = HCPVaultAuthStrategyToken
+	}
+
 	// TODO: advanced config
 	config := vault.DefaultConfig()
 	config.Address = params.Config.Address
