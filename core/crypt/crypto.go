@@ -42,6 +42,10 @@ func (c *Crypto) Encrypt(ctx context.Context, data []byte, keyName string) (Caps
 		return Capsule{}, fmt.Errorf("failed to get encryption key: %w", err)
 	}
 
+	return c.encryptWithKey(data, key)
+}
+
+func (c *Crypto) encryptWithKey(data []byte, key Key) (Capsule, error) {
 	aes, err := aes.NewCipher([]byte(key.Data))
 	if err != nil {
 		return Capsule{}, fmt.Errorf("failed to create AES cipher: %w", err)
@@ -74,6 +78,10 @@ func (c *Crypto) Decrypt(ctx context.Context, capsule Capsule) ([]byte, error) {
 		return nil, fmt.Errorf("failed to get encryption key: %w", err)
 	}
 
+	return c.decryptWithKey(capsule, key)
+}
+
+func (c *Crypto) decryptWithKey(capsule Capsule, key Key) ([]byte, error) {
 	aes, err := aes.NewCipher([]byte(key.Data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create AES cipher: %w", err)
@@ -96,11 +104,26 @@ func (c *Crypto) Decrypt(ctx context.Context, capsule Capsule) ([]byte, error) {
 }
 
 // Recrypt re-encrypts the given capsule with the latest version of the key.
+// If the key version of the capsule is the same as the latest version,
+// the capsule is returned as is.
 func (c *Crypto) Recrypt(ctx context.Context, capsule Capsule) (Capsule, error) {
+	// get the latest encryption key version
+	latestKey, err := c.keyProvider.GetKey(ctx, capsule.KeyName)
+	if err != nil {
+		return Capsule{}, fmt.Errorf("failed to get latest encryption key: %w", err)
+	}
+
+	// return early if the key version is the same
+	if latestKey.Version == capsule.KeyVersion {
+		return capsule, nil
+	}
+
+	// decrypt the capsule with the current key version
 	plaintext, err := c.Decrypt(ctx, capsule)
 	if err != nil {
 		return Capsule{}, fmt.Errorf("failed to decrypt capsule: %w", err)
 	}
 
-	return c.Encrypt(ctx, plaintext, capsule.KeyName)
+	// re-encrypt the plaintext with the latest key version
+	return c.encryptWithKey(plaintext, latestKey)
 }
