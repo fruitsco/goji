@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/fruitsco/goji/core/redis"
@@ -91,7 +92,7 @@ func (d *RedisDriver) CreateSecret(
 		return Secret{}, fmt.Errorf("failed to encrypt payload: %w", err)
 	}
 
-	res := d.redis.LPush(ctx, d.getKeyName(name), string(encryptedPayload))
+	res := d.redis.LPush(ctx, d.getKeyName(name), encryptedPayload)
 	if res.Err() != nil {
 		return Secret{}, res.Err()
 	}
@@ -118,7 +119,7 @@ func (d *RedisDriver) AddVersion(
 		return Secret{}, fmt.Errorf("failed to encrypt payload: %w", err)
 	}
 
-	res := d.redis.LPush(ctx, d.getKeyName(name), string(encryptedPayload))
+	res := d.redis.LPush(ctx, d.getKeyName(name), encryptedPayload)
 
 	// `lpush` returns the length of the list after the push,
 	// which corresponds to the 1-based version number
@@ -142,7 +143,7 @@ func (d *RedisDriver) GetVersion(
 		return Secret{}, res.Err()
 	}
 
-	decryptedPayload, err := d.decrypt([]byte(res.Val()))
+	decryptedPayload, err := d.decrypt(res.Val())
 	if err != nil {
 		return Secret{}, fmt.Errorf("failed to decrypt payload: %w", err)
 	}
@@ -164,11 +165,13 @@ func (d *RedisDriver) GetLatestVersion(
 		return Secret{}, itemRes.Err()
 	}
 
-	decryptedPayload, err := d.decrypt([]byte(itemRes.Val()))
+	// decrypt the payload
+	decryptedPayload, err := d.decrypt(itemRes.Val())
 	if err != nil {
 		return Secret{}, fmt.Errorf("failed to decrypt payload: %w", err)
 	}
 
+	// get the length of the list, which corresponds to the version number
 	lenRes := d.redis.LLen(ctx, d.getKeyName(name))
 	if lenRes.Err() != nil {
 		return Secret{}, lenRes.Err()
@@ -192,27 +195,37 @@ func (d *RedisDriver) getKeyName(name string) string {
 	return fmt.Sprintf("vault:%s", name)
 }
 
-func (d *RedisDriver) encrypt(data []byte) ([]byte, error) {
+func (d *RedisDriver) encrypt(data []byte) (string, error) {
 	aes, err := aes.NewCipher([]byte(d.config.EncryptionKey))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create AES cipher: %w", err)
+		return "", fmt.Errorf("failed to create AES cipher: %w", err)
 	}
 
 	gcm, err := cipher.NewGCM(aes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create GCM cipher: %w", err)
+		return "", fmt.Errorf("failed to create GCM cipher: %w", err)
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 	_, err = rand.Read(nonce)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate nonce: %w", err)
+		return "", fmt.Errorf("failed to generate nonce: %w", err)
 	}
 
-	return gcm.Seal(nonce, nonce, data, nil), nil
+	encryptedPayload := gcm.Seal(nonce, nonce, data, nil)
+
+	// encode the encrypted payload to base64
+	encodedPayload := base64.StdEncoding.EncodeToString(encryptedPayload)
+
+	return encodedPayload, nil
 }
 
-func (d *RedisDriver) decrypt(data []byte) ([]byte, error) {
+func (d *RedisDriver) decrypt(data string) ([]byte, error) {
+	decodedData, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to base64decode data: %w", err)
+	}
+
 	aes, err := aes.NewCipher([]byte(d.config.EncryptionKey))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create AES cipher: %w", err)
@@ -224,7 +237,7 @@ func (d *RedisDriver) decrypt(data []byte) ([]byte, error) {
 	}
 
 	nonceSize := gcm.NonceSize()
-	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
+	nonce, ciphertext := decodedData[:nonceSize], decodedData[nonceSize:]
 
 	plaintext, err := gcm.Open(nil, []byte(nonce), []byte(ciphertext), nil)
 	if err != nil {

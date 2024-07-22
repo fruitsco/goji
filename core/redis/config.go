@@ -28,5 +28,5 @@ var DefaultConfig = conf.DefaultConfig{
 	"redis.connections.default.host":     "localhost",
 	"redis.connections.default.port":     "6379",
 	"redis.connections.default.password": "",
-	"redis.connections.default.DB":       "0",
+	"redis.connections.default.db":       "0",
 }
