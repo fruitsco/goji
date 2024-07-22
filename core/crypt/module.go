@@ -9,6 +9,8 @@ func Module(cfg *Config) fx.Option {
 	return fx.Module("crypt",
 		fx.Decorate(logging.NamedLogger("crypt")),
 
+		fx.Provide(NewVaultKeyProvider),
+
 		fx.Supply(cfg),
 		fx.Provide(New),
 	)
