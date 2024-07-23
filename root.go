@@ -12,13 +12,12 @@ import (
 )
 
 type RootParams struct {
-	AppName        string
-	Version        string
-	Description    string
-	Prefix         string
-	Flags          []cli.Flag
-	DefaultConfig  conf.DefaultConfig
-	ConfigFileName string
+	AppName       string
+	Version       string
+	Description   string
+	Prefix        string
+	Flags         []cli.Flag
+	DefaultConfig conf.DefaultConfig
 }
 
 type Root struct {
@@ -38,7 +37,7 @@ func NewCommand[C any](params RootParams) *Root {
 			Aliases: []string{"e"},
 			EnvVars: []string{
 				fmt.Sprintf("%s.ENV", params.Prefix),
-				fmt.Sprintf("%s_ENV", params.Prefix),
+				fmt.Sprintf("%s__ENV", params.Prefix),
 			},
 			Value: "development",
 		},
@@ -47,15 +46,15 @@ func NewCommand[C any](params RootParams) *Root {
 			EnvVars: []string{
 				"LOG_LEVEL",
 				fmt.Sprintf("%s.LOG_LEVEL", params.Prefix),
-				fmt.Sprintf("%s_LOG_LEVEL", params.Prefix),
+				fmt.Sprintf("%s__LOG_LEVEL", params.Prefix),
 			},
 		},
 		&cli.StringFlag{
-			Name:    "log-name",
-			Aliases: []string{"n"},
+			Name: "log-name",
 			EnvVars: []string{
+				"LOG_NAME",
 				fmt.Sprintf("%s.LOG_NAME", params.Prefix),
-				fmt.Sprintf("%s_LOG_NAME", params.Prefix),
+				fmt.Sprintf("%s__LOG_NAME", params.Prefix),
 			},
 		},
 	}, params.Flags...)
@@ -83,7 +82,6 @@ func NewCommand[C any](params RootParams) *Root {
 				Environment: environment,
 				Defaults:    params.DefaultConfig,
 				Prefix:      params.Prefix,
-				FileName:    params.ConfigFileName,
 				Log:         log,
 			})
 			if err != nil {
@@ -152,8 +150,6 @@ func createLogger(
 	name string,
 	environment conf.Environment,
 ) (*zap.Logger, error) {
-	level := GetLevelFromCLI(ctx)
-
 	// get log name from parsed cli flags
 	logName := name
 	if name := ctx.String("log-name"); name != "" {
@@ -172,7 +168,7 @@ func createLogger(
 		"env": environment,
 	}
 
-	config.Level = level
+	config.Level = GetLevelFromCLI(ctx)
 
 	return config.Build()
 }

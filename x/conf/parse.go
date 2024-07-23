@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/knadh/koanf/parsers/dotenv"
-	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
@@ -23,50 +22,46 @@ type ParseOptions struct {
 	Environment Environment
 	Defaults    DefaultConfig
 	Prefix      string
-	FileName    string
 	Log         *zap.Logger
 }
 
 func Parse[C any](opt ParseOptions) (*C, error) {
 	var config C
 
-	var log *zap.Logger
+	log := zap.L()
 	if opt.Log != nil {
 		log = opt.Log
-	} else {
-		log = zap.NewNop()
 	}
 
 	k := koanf.New(".")
 
-	k.Load(confmap.Provider(opt.Defaults, "."), nil)
-
-	k.Load(confmap.Provider(DefaultConfig{
-		"environment": opt.Environment,
-	}, "."), nil)
-
-	if opt.FileName != "" {
-		if err := k.Load(file.Provider(opt.FileName), json.Parser()); err != nil {
-			log.With(zap.Error(err), zap.String("file", opt.FileName)).Error("error loading file")
-		}
-	}
-
 	dotenvParser := dotenv.ParserEnv(opt.Prefix, ".", transformEnv)
 
+	// PRIO 0 - defaults
+	k.Load(confmap.Provider(opt.Defaults, "."), nil)
+
+	// PRIO 1 - load .env.dev if in development
 	if opt.Environment == EnvironmentDevelopment {
 		if err := k.Load(file.Provider(".env.dev"), dotenvParser); err != nil {
 			log.Debug(".env.dev not found")
 		}
 	}
 
+	// PRIO 2 - load .env
 	if err := k.Load(file.Provider(".env"), dotenvParser); err != nil {
 		log.Debug(".env not found")
 	}
 
+	// PRIO 3 - load env vars
 	if err := k.Load(env.Provider(opt.Prefix, ".", transformEnv), nil); err != nil {
 		log.Error("error loading env vars", zap.Error(err))
 		return nil, err
 	}
+
+	// PRIO 4 - set actual environment
+	k.Load(confmap.Provider(DefaultConfig{
+		"environment": opt.Environment,
+	}, "."), nil)
 
 	if err := k.UnmarshalWithConf("", &config, koanf.UnmarshalConf{Tag: "conf"}); err != nil {
 		log.Error("error unmarshalling config", zap.Error(err))

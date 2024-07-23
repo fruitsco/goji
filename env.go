@@ -23,17 +23,19 @@ func GetEnvFromCLI(ctx *cli.Context) conf.Environment {
 func GetLevelFromCLI(ctx *cli.Context) zap.AtomicLevel {
 	lvl := ctx.String("log-level")
 
-	if atom, err := zap.ParseAtomicLevel(lvl); err == nil {
-		return atom
+	if lvl != "" {
+		if atom, err := zap.ParseAtomicLevel(lvl); err == nil {
+			return atom
+		}
 	}
 
 	env := GetEnvFromCLI(ctx)
 
 	var fallbackLevel zapcore.Level
-	if env == conf.EnvironmentDevelopment {
-		fallbackLevel = zap.DebugLevel
-	} else {
+	if env == conf.EnvironmentProduction {
 		fallbackLevel = zap.InfoLevel
+	} else {
+		fallbackLevel = zap.DebugLevel
 	}
 
 	return zap.NewAtomicLevelAt(fallbackLevel)
