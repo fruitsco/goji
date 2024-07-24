@@ -1,6 +1,6 @@
 package payment
 
-import "github.com/fruitsco/goji/x/conf"
+import "github.com/fruitsco/goji/conf"
 
 type PaymentDriver string
 

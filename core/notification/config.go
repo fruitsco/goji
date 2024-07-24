@@ -1,6 +1,6 @@
 package notification
 
-import "github.com/fruitsco/goji/x/conf"
+import "github.com/fruitsco/goji/conf"
 
 type NotificationDriver string
 

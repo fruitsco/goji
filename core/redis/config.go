@@ -1,6 +1,6 @@
 package redis
 
-import "github.com/fruitsco/goji/x/conf"
+import "github.com/fruitsco/goji/conf"
 
 type ConnectionName string
 

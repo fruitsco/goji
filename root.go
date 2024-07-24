@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fruitsco/goji/x/conf"
-	"github.com/fruitsco/goji/x/logging"
+	"github.com/fruitsco/goji/conf"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 )
 
 type RootParams struct {
-	AppName       string
-	Version       string
-	Description   string
-	Prefix        string
-	Flags         []cli.Flag
-	DefaultConfig conf.DefaultConfig
+	AppName        string
+	Version        string
+	Description    string
+	Prefix         string
+	Flags          []cli.Flag
+	DefaultConfig  conf.DefaultConfig
+	ConfigFileName string
 }
 
 type Root struct {
@@ -75,13 +75,15 @@ func NewCommand[C any](params RootParams) *Root {
 			}
 
 			// inject logger into cli context
-			ctx.Context = logging.ContextWithLogger(ctx.Context, log)
+			ctx.Context = contextWithLogger(ctx.Context, log)
 
 			// parse config using env
-			cfg, err := conf.Parse[C](conf.ParseOptions{
-				Environment: environment,
+			cfg, err := conf.Parse[config[C]](conf.ParseOptions{
+				AppName:     params.AppName,
+				Environment: string(environment),
 				Defaults:    params.DefaultConfig,
 				Prefix:      params.Prefix,
+				FileName:    params.ConfigFileName,
 				Log:         log,
 			})
 			if err != nil {
@@ -89,12 +91,12 @@ func NewCommand[C any](params RootParams) *Root {
 			}
 
 			// inject the config into the cli context
-			ctx.Context = conf.ContextWithConfig(ctx.Context, cfg)
+			ctx.Context = contextWithRootConfig(ctx.Context, cfg)
 
 			return nil
 		},
 		After: func(ctx *cli.Context) error {
-			log, err := logging.LoggerFromContext(ctx.Context)
+			log, err := loggerFromContext(ctx.Context)
 			if err != nil {
 				return err
 			}
@@ -148,7 +150,7 @@ func init() {
 func createLogger(
 	ctx *cli.Context,
 	name string,
-	environment conf.Environment,
+	environment Environment,
 ) (*zap.Logger, error) {
 	// get log name from parsed cli flags
 	logName := name
@@ -157,7 +159,7 @@ func createLogger(
 	}
 
 	var config zap.Config
-	if environment == conf.EnvironmentProduction {
+	if environment == EnvironmentProduction {
 		config = zap.NewProductionConfig()
 	} else {
 		config = zap.NewDevelopmentConfig()
@@ -168,7 +170,7 @@ func createLogger(
 		"env": environment,
 	}
 
-	config.Level = GetLevelFromCLI(ctx)
+	config.Level = getLevelFromCLI(ctx)
 
 	return config.Build()
 }

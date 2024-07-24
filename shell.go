@@ -31,58 +31,68 @@ func IsExitError(err error) bool {
 	return errors.As(err, &exitErr)
 }
 
-type Shell struct {
-	log     *zap.Logger
+type Shell[C any] struct {
 	fxApp   *fx.App
 	options []fx.Option
 }
 
-func New(log *zap.Logger, options ...fx.Option) *Shell {
-	return &Shell{
-		log:     log,
+func New[C any](options ...fx.Option) *Shell[C] {
+	return &Shell[C]{
 		options: options,
 	}
 }
 
-func (s *Shell) Run(ctx context.Context, options ...fx.Option) error {
-	// 0. after run ends, flush the logger
-	defer s.log.Sync()
+func (s *Shell[C]) Run(ctx context.Context, options ...fx.Option) error {
+	// 0. get logger from context
+	log, err := loggerFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
-	// 1. create execution context
+	// 1. get config from context
+	config, err := rootConfigFromContext[C](ctx)
+	if err != nil {
+		return err
+	}
+
+	// 2. after run ends, flush the logger
+	defer log.Sync()
+
+	// 3. create execution context
 	shellCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// 2. create fx application
-	fxApp := s.createFxApp(shellCtx, options...)
+	// 4. create fx application
+	fxApp := s.createFxApp(shellCtx, config, log, options...)
 	s.fxApp = fxApp
 
-	// 3. create start context w/ timeout
+	// 5. create start context w/ timeout
 	startCtx, cancel := context.WithTimeout(shellCtx, fxApp.StartTimeout())
 	defer cancel()
 
-	// 4. start the application, exit on error
+	// 6. start the application, exit on error
 	if err := fxApp.Start(startCtx); err != nil {
 		return NewShellExitError(1)
 	}
 
-	// 5. wait for done signal by OS
+	// 7. wait for done signal by OS
 	sig := <-fxApp.Wait()
 	exitCode := sig.ExitCode
 
-	// 6. create shutdown context
+	// 8. create shutdown context
 	stopCtx, cancel := context.WithTimeout(shellCtx, fxApp.StopTimeout())
 	defer cancel()
 
-	// 7. gracefully shutdown the app, exit on error
+	// 9. gracefully shutdown the app, exit on error
 	if err := fxApp.Stop(stopCtx); err != nil {
 		return NewShellExitError(1)
 	}
 
-	// 8. return with 0 exit code
+	// 10. return with 0 exit code
 	return NewShellExitError(exitCode)
 }
 
-func (s *Shell) PrintGraph(ctx context.Context) error {
+func (s *Shell[C]) PrintGraph(ctx context.Context) error {
 	return s.Run(ctx, fx.Options(
 		fx.NopLogger,
 		fx.Invoke(func(graph fx.DotGraph, shutdown fx.Shutdowner) {
@@ -94,24 +104,38 @@ func (s *Shell) PrintGraph(ctx context.Context) error {
 	)
 }
 
-func (s *Shell) createFxApp(ctx context.Context, options ...fx.Option) *fx.App {
+func (s *Shell[C]) createFxApp(
+	ctx context.Context,
+	config *config[C],
+	log *zap.Logger,
+	options ...fx.Option,
+) *fx.App {
 	// 1. create fx application
 	return fx.New(
 		// 2. inject global execution context
 		fx.Supply(fx.Annotate(ctx, fx.As(new(context.Context)))),
 
 		// 3. inject the logger
-		fx.Supply(s.log),
+		fx.Supply(log),
 
-		// 4. use the logger also for fx' logs
+		// 4. inject the app config
+		fx.Supply(config.App),
+
+		// 5. inject the log config
+		fx.Supply(config.Log),
+
+		// 6. inject the child config
+		fx.Supply(&config.Child),
+
+		// 7. use the logger also for fx' logs
 		fx.WithLogger(func() fxevent.Logger {
-			return &fxevent.ZapLogger{Logger: s.log.Named("fx")}
+			return &fxevent.ZapLogger{Logger: log.Named("fx")}
 		}),
 
-		// 5. provide user-provided options
+		// 8. provide user-provided options
 		fx.Options(s.options...),
 
-		// 5. provide user-provided run options
+		// 9. provide user-provided run options
 		fx.Options(options...),
 	)
 }

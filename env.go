@@ -1,42 +1,12 @@
 package goji
 
-import (
-	"github.com/fruitsco/goji/x/conf"
-	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+// Environment represents the environment of the application.
+type Environment string
+
+const (
+	// EnvironmentDevelopment represents the development environment.
+	EnvironmentDevelopment Environment = "development"
+
+	// EnvironmentProduction represents the production environment.
+	EnvironmentProduction Environment = "production"
 )
-
-var envMap = map[string]conf.Environment{
-	"development": conf.EnvironmentDevelopment,
-	"production":  conf.EnvironmentProduction,
-}
-
-func GetEnvFromCLI(ctx *cli.Context) conf.Environment {
-	if env, ok := envMap[ctx.String("env")]; ok {
-		return env
-	}
-
-	return conf.EnvironmentDevelopment
-}
-
-func GetLevelFromCLI(ctx *cli.Context) zap.AtomicLevel {
-	lvl := ctx.String("log-level")
-
-	if lvl != "" {
-		if atom, err := zap.ParseAtomicLevel(lvl); err == nil {
-			return atom
-		}
-	}
-
-	env := GetEnvFromCLI(ctx)
-
-	var fallbackLevel zapcore.Level
-	if env == conf.EnvironmentProduction {
-		fallbackLevel = zap.InfoLevel
-	} else {
-		fallbackLevel = zap.DebugLevel
-	}
-
-	return zap.NewAtomicLevelAt(fallbackLevel)
-}

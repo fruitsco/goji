@@ -1,6 +1,6 @@
 package email
 
-import "github.com/fruitsco/goji/x/conf"
+import "github.com/fruitsco/goji/conf"
 
 type MailDriver string
 

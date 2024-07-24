@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/knadh/koanf/parsers/dotenv"
+	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
@@ -11,18 +12,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type Environment string
-
-const (
-	EnvironmentDevelopment Environment = "development"
-	EnvironmentProduction  Environment = "production"
-)
-
 type ParseOptions struct {
-	Environment Environment
+	AppName     string
+	Environment string
 	Defaults    DefaultConfig
 	Prefix      string
 	Log         *zap.Logger
+	FileName    string
 }
 
 func Parse[C any](opt ParseOptions) (*C, error) {
@@ -40,27 +36,35 @@ func Parse[C any](opt ParseOptions) (*C, error) {
 	// PRIO 0 - defaults
 	k.Load(confmap.Provider(opt.Defaults, "."), nil)
 
-	// PRIO 1 - load .env.dev if in development
-	if opt.Environment == EnvironmentDevelopment {
+	// PRIO 1 - config file
+	if opt.FileName != "" {
+		if err := k.Load(file.Provider(opt.FileName), json.Parser()); err != nil {
+			log.With(zap.Error(err), zap.String("file", opt.FileName)).Error("error loading file")
+		}
+	}
+
+	// PRIO 2 - load .env.dev if in development
+	if opt.Environment != "production" {
 		if err := k.Load(file.Provider(".env.dev"), dotenvParser); err != nil {
 			log.Debug(".env.dev not found")
 		}
 	}
 
-	// PRIO 2 - load .env
+	// PRIO 3 - load .env
 	if err := k.Load(file.Provider(".env"), dotenvParser); err != nil {
 		log.Debug(".env not found")
 	}
 
-	// PRIO 3 - load env vars
+	// PRIO 4 - load env vars
 	if err := k.Load(env.Provider(opt.Prefix, ".", transformEnv), nil); err != nil {
 		log.Error("error loading env vars", zap.Error(err))
 		return nil, err
 	}
 
-	// PRIO 4 - set actual environment
+	// PRIO 5 - set actual environment
 	k.Load(confmap.Provider(DefaultConfig{
-		"environment": opt.Environment,
+		"app.name": opt.AppName,
+		"app.env":  opt.Environment,
 	}, "."), nil)
 
 	if err := k.UnmarshalWithConf("", &config, koanf.UnmarshalConf{Tag: "conf"}); err != nil {
