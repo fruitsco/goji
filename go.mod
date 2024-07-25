@@ -1,11 +1,9 @@
 module github.com/fruitsco/goji
 
-go 1.22
-
-toolchain go1.22.5
+go 1.22.5
 
 require (
-	ariga.io/atlas v0.22.0
+	ariga.io/atlas v0.25.0
 	cloud.google.com/go/pubsub v1.40.0
 	cloud.google.com/go/secretmanager v1.13.5
 	cloud.google.com/go/storage v1.43.0
@@ -40,6 +38,7 @@ require (
 	cloud.google.com/go/iam v1.1.11 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.27.2 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.27.18 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.18 // indirect
@@ -109,7 +108,7 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
-	github.com/zclconf/go-cty v1.8.0 // indirect
+	github.com/zclconf/go-cty v1.14.4 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
