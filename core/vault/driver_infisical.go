@@ -129,11 +129,9 @@ func NewInfisicalDriver(
 		SiteUrl: params.Config.SiteURL,
 	})
 
-	lc.Append(fx.Hook{
-		OnStart: func(context.Context) error {
-			return infisicalAuth(client.Auth(), params.Config.Auth)
-		},
-	})
+	if err := infisicalAuth(client.Auth(), params.Config.Auth); err != nil {
+		return nil, err
+	}
 
 	return &InfisicalDriver{
 		client: client,
