@@ -17,6 +17,8 @@ cloud.google.com/go/auth/oauth2adapt v0.2.3 h1:MlxF+Pd3OmSudg/b1yZ5lJwoXCEaeedAg
 cloud.google.com/go/auth/oauth2adapt v0.2.3/go.mod h1:tMQXOfZzFuNuUxOypHlQEXgdfX5cuhwU+ffUuXRJE8I=
 cloud.google.com/go/cloudsqlconn v1.9.0 h1:8SD1uVFIlf14zRYR37nOuU1GNFACl+2DV4QqHvulqn0=
 cloud.google.com/go/cloudsqlconn v1.9.0/go.mod h1:v/iXjBaIicYodtSXpXGkImPf/4lCL/IZ4E5KWg67AWw=
+cloud.google.com/go/cloudsqlconn v1.11.1 h1:bWIYhsSv9Nqpvhy7CyKJLf5rPeSMsU5aHGXdXEuYQ5E=
+cloud.google.com/go/cloudsqlconn v1.11.1/go.mod h1:SInCUgNOQy5EuVT0U5iS+eDEJi/YSAutqlPSyUETwa0=
 cloud.google.com/go/compute/metadata v0.3.0 h1:Tz+eQXMEqDIKRsmY3cHTL6FVaynIjX2QxYC4trgAKZc=
 cloud.google.com/go/compute/metadata v0.3.0/go.mod h1:zFmK7XCadkQkj6TtorcaGlCW1hT1fIilQDwofLpJ20k=
 cloud.google.com/go/compute/metadata v0.5.0 h1:Zr0eK8JbFv6+Wi4ilXAR8FJ3wyNdpxHKJNPos6LTZOY=
