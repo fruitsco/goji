@@ -23,6 +23,8 @@ cloud.google.com/go/iam v1.1.8 h1:r7umDwhj+BQyz0ScZMp4QrGXjSTI3ZINnpgU2nlB/K0=
 cloud.google.com/go/iam v1.1.8/go.mod h1:GvE6lyMmfxXauzNq8NbgJbeVQNspG+tcdL/W8QO1+zE=
 cloud.google.com/go/iam v1.1.10 h1:ZSAr64oEhQSClwBL670MsJAW5/RLiC6kfw3Bqmd5ZDI=
 cloud.google.com/go/iam v1.1.10/go.mod h1:iEgMq62sg8zx446GCaijmA2Miwg5o3UbO+nI47WHJps=
+cloud.google.com/go/iam v1.1.11 h1:0mQ8UKSfdHLut6pH9FM3bI55KWR46ketn0PuXleDyxw=
+cloud.google.com/go/iam v1.1.11/go.mod h1:biXoiLWYIKntto2joP+62sd9uW5EpkZmKIvfNcTWlnQ=
 cloud.google.com/go/kms v1.17.1 h1:5k0wXqkxL+YcXd4viQzTqCgzzVKKxzgrK+rCZJytEQs=
 cloud.google.com/go/kms v1.17.1/go.mod h1:DCMnCF/apA6fZk5Cj4XsD979OyHAqFasPuA5Sd0kGlQ=
 cloud.google.com/go/longrunning v0.5.7 h1:WLbHekDbjK1fVFD3ibpFFVoyizlLRl73I7YKuAKilhU=
@@ -225,6 +227,8 @@ github.com/hashicorp/vault/api/auth/gcp v0.7.0 h1:ZzEIgDkvfHnrdApk9RAWGYxu6tByiJ
 github.com/hashicorp/vault/api/auth/gcp v0.7.0/go.mod h1:QZMUzwd7GZ3vrXGR3L/M3bwEFVk3kQjNAn3F3usvzPk=
 github.com/infisical/go-sdk v0.2.0 h1:n1/KNdYpeQavSqVwC9BfeV8VRzf3N2X9zO1tzQOSj5Q=
 github.com/infisical/go-sdk v0.2.0/go.mod h1:vHTDVw3k+wfStXab513TGk1n53kaKF2xgLqpw/xvtl4=
+github.com/infisical/go-sdk v0.3.3 h1:TE2WNMmiDej+TCkPKgHk3h8zVlEQUtM5rz8ouVnXTcU=
+github.com/infisical/go-sdk v0.3.3/go.mod h1:6fWzAwTPIoKU49mQ2Oxu+aFnJu9n7k2JcNrZjzhHM2M=
 github.com/jackc/chunkreader/v2 v2.0.1 h1:i+RDz65UE+mmpjTfyz0MoVTnzeYxroil2G82ki7MGG8=
 github.com/jackc/chunkreader/v2 v2.0.1/go.mod h1:odVSm741yZoC3dpHEUXIqA9tQRhFrgOHwnPIn9lDKlk=
 github.com/jackc/pgconn v1.14.3 h1:bVoTr12EGANZz66nZPkMInAV/KHD2TxH9npjXXgiB3w=
