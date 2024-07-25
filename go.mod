@@ -16,7 +16,7 @@ require (
 	github.com/knadh/koanf/parsers/json v0.1.0
 	github.com/knadh/koanf/providers/confmap v0.1.0
 	github.com/knadh/koanf/providers/env v0.1.0
-	github.com/knadh/koanf/providers/file v0.1.0
+	github.com/knadh/koanf/providers/file v1.0.0
 	github.com/knadh/koanf/v2 v2.1.1
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.12.0
@@ -133,7 +133,7 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.11.1
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/infisical/go-sdk v0.3.3
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/knadh/koanf/maps v0.1.1 // indirect
