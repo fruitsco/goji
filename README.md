@@ -1,14 +1,16 @@
 # goji
 
-A pluggable application framework for Go.
+A pluggable application framework for Go, to be open-sourced eventually.
 
 <div align="center">
-  <img src="./logo.png" width="256px" />
+  <img src="./logo.png" width="192px" />
 </div>
 
 ## Overview
 
 Goji is a lightweight, modular and composable application framework that provides the basic building blocks for building applications.
+
+The framework is designed to be reusable and extensible for building applications of any size, in any context.
 
 Each of the components is considered a DI module that can be composed into the application using the `fx` framework introduced earlier.
 
