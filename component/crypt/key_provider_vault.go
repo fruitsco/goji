@@ -8,13 +8,13 @@ import (
 )
 
 type VaultKeyProvider struct {
-	vault *vault.Vault
+	vault vault.Vault
 }
 
 type VaultKeyProviderParams struct {
 	fx.In
 
-	Vault *vault.Vault
+	Vault vault.Vault
 }
 
 func NewVaultKeyProvider(params VaultKeyProviderParams) KeyProvider {

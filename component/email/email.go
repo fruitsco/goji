@@ -12,10 +12,8 @@ type Driver interface {
 	Send(ctx context.Context, msg Message) error
 }
 
-type Email struct {
-	drivers *driver.Pool[MailDriver, Driver]
-	config  *Config
-	log     *zap.Logger
+type Email interface {
+	Driver
 }
 
 type EmailParams struct {
@@ -26,19 +24,27 @@ type EmailParams struct {
 	Log     *zap.Logger
 }
 
-func New(params EmailParams) *Email {
-	return &Email{
+type Manager struct {
+	drivers *driver.Pool[MailDriver, Driver]
+	config  *Config
+	log     *zap.Logger
+}
+
+var _ = Email(&Manager{})
+
+func New(params EmailParams) Email {
+	return &Manager{
 		drivers: driver.NewPool(params.Drivers),
 		config:  params.Config,
 		log:     params.Log,
 	}
 }
 
-func (q *Email) resolveDriver() (Driver, error) {
+func (q *Manager) resolveDriver() (Driver, error) {
 	return q.drivers.Resolve(q.config.Driver)
 }
 
-func (q *Email) Send(ctx context.Context, message Message) error {
+func (q *Manager) Send(ctx context.Context, message Message) error {
 	driver, err := q.resolveDriver()
 
 	if err != nil {

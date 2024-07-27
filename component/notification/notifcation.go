@@ -12,10 +12,8 @@ type Driver interface {
 	Send(ctx context.Context, msg Message) error
 }
 
-type Notifcation struct {
-	drivers *driver.Pool[NotificationDriver, Driver]
-	config  *Config
-	log     *zap.Logger
+type Notification interface {
+	Driver
 }
 
 type NotifcationParams struct {
@@ -26,19 +24,27 @@ type NotifcationParams struct {
 	Log     *zap.Logger
 }
 
-func New(params NotifcationParams) *Notifcation {
-	return &Notifcation{
+type Manager struct {
+	drivers *driver.Pool[NotificationDriver, Driver]
+	config  *Config
+	log     *zap.Logger
+}
+
+var _ = Notification(&Manager{})
+
+func New(params NotifcationParams) Notification {
+	return &Manager{
 		drivers: driver.NewPool(params.Drivers),
 		config:  params.Config,
 		log:     params.Log,
 	}
 }
 
-func (q *Notifcation) resolveDriver() (Driver, error) {
+func (q *Manager) resolveDriver() (Driver, error) {
 	return q.drivers.Resolve(q.config.Driver)
 }
 
-func (q *Notifcation) Send(ctx context.Context, message Message) error {
+func (q *Manager) Send(ctx context.Context, message Message) error {
 	driver, err := q.resolveDriver()
 
 	if err != nil {

@@ -13,10 +13,8 @@ type Driver interface {
 	RecievePush(ctx context.Context, topic string, data []byte) (Message, error)
 }
 
-type Queue struct {
-	drivers *driver.Pool[QueueDriver, Driver]
-	config  *Config
-	log     *zap.Logger
+type Queue interface {
+	Driver
 }
 
 type QueueParams struct {
@@ -27,19 +25,27 @@ type QueueParams struct {
 	Log     *zap.Logger
 }
 
-func New(params QueueParams) *Queue {
-	return &Queue{
+type Manager struct {
+	drivers *driver.Pool[QueueDriver, Driver]
+	config  *Config
+	log     *zap.Logger
+}
+
+var _ = Queue(&Manager{})
+
+func New(params QueueParams) Queue {
+	return &Manager{
 		drivers: driver.NewPool(params.Drivers),
 		config:  params.Config,
 		log:     params.Log.Named("queue"),
 	}
 }
 
-func (q *Queue) resolveDriver() (Driver, error) {
+func (q *Manager) resolveDriver() (Driver, error) {
 	return q.drivers.Resolve(q.config.Driver)
 }
 
-func (q *Queue) Publish(ctx context.Context, message Message) error {
+func (q *Manager) Publish(ctx context.Context, message Message) error {
 	driver, err := q.resolveDriver()
 
 	if err != nil {
@@ -49,7 +55,7 @@ func (q *Queue) Publish(ctx context.Context, message Message) error {
 	return driver.Publish(ctx, message)
 }
 
-func (q *Queue) RecievePush(ctx context.Context, topic string, data []byte) (Message, error) {
+func (q *Manager) RecievePush(ctx context.Context, topic string, data []byte) (Message, error) {
 	driver, err := q.resolveDriver()
 
 	if err != nil {

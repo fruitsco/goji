@@ -30,6 +30,12 @@ type Driver interface {
 	Upload(ctx context.Context, bucketName string, name string, data []byte) error
 }
 
+type Storage interface {
+	Driver
+
+	Driver(name StorageDriver) (Driver, error)
+}
+
 type StorageParams struct {
 	fx.In
 
@@ -38,31 +44,33 @@ type StorageParams struct {
 	Log     *zap.Logger
 }
 
-type Storage struct {
+type Manager struct {
 	drivers *driver.Pool[StorageDriver, Driver]
 	config  *Config
 	log     *zap.Logger
 }
 
-func New(params StorageParams) *Storage {
-	return &Storage{
+var _ = Storage(&Manager{})
+
+func New(params StorageParams) Storage {
+	return &Manager{
 		drivers: driver.NewPool(params.Drivers),
 		config:  params.Config,
 		log:     params.Log.Named("storage"),
 	}
 }
 
-func (s *Storage) Driver(name StorageDriver) (Driver, error) {
+func (s *Manager) Driver(name StorageDriver) (Driver, error) {
 	return s.drivers.Resolve(name)
 }
 
 // MARK: - Default Driver
 
-func (s *Storage) defaultDriver() (Driver, error) {
+func (s *Manager) defaultDriver() (Driver, error) {
 	return s.drivers.Resolve(s.config.Driver)
 }
 
-func (s *Storage) Exists(ctx context.Context, bucketName string, name string) (bool, error) {
+func (s *Manager) Exists(ctx context.Context, bucketName string, name string) (bool, error) {
 	driver, err := s.defaultDriver()
 	if err != nil {
 		return false, err
@@ -71,7 +79,7 @@ func (s *Storage) Exists(ctx context.Context, bucketName string, name string) (b
 	return driver.Exists(ctx, bucketName, name)
 }
 
-func (s *Storage) Delete(ctx context.Context, bucketName string, name string) error {
+func (s *Manager) Delete(ctx context.Context, bucketName string, name string) error {
 	driver, err := s.defaultDriver()
 	if err != nil {
 		return err
@@ -80,7 +88,7 @@ func (s *Storage) Delete(ctx context.Context, bucketName string, name string) er
 	return driver.Delete(ctx, bucketName, name)
 }
 
-func (s *Storage) SignedUpload(ctx context.Context, bucketName string, name string, options *SignedUploadOptions) (*SignResult, error) {
+func (s *Manager) SignedUpload(ctx context.Context, bucketName string, name string, options *SignedUploadOptions) (*SignResult, error) {
 	driver, err := s.defaultDriver()
 	if err != nil {
 		return nil, err
@@ -89,7 +97,7 @@ func (s *Storage) SignedUpload(ctx context.Context, bucketName string, name stri
 	return driver.SignedUpload(ctx, bucketName, name, options)
 }
 
-func (s *Storage) SignedDownload(ctx context.Context, bucketName string, name string) (*SignResult, error) {
+func (s *Manager) SignedDownload(ctx context.Context, bucketName string, name string) (*SignResult, error) {
 	driver, err := s.defaultDriver()
 	if err != nil {
 		return nil, err
@@ -97,7 +105,7 @@ func (s *Storage) SignedDownload(ctx context.Context, bucketName string, name st
 
 	return driver.SignedDownload(ctx, bucketName, name)
 }
-func (s *Storage) Download(ctx context.Context, bucketName string, name string) ([]byte, error) {
+func (s *Manager) Download(ctx context.Context, bucketName string, name string) ([]byte, error) {
 	driver, err := s.defaultDriver()
 	if err != nil {
 		return nil, err
@@ -106,7 +114,7 @@ func (s *Storage) Download(ctx context.Context, bucketName string, name string) 
 	return driver.Download(ctx, bucketName, name)
 }
 
-func (s *Storage) Upload(ctx context.Context, bucketName string, name string, data []byte) error {
+func (s *Manager) Upload(ctx context.Context, bucketName string, name string, data []byte) error {
 	driver, err := s.defaultDriver()
 	if err != nil {
 		return err

@@ -16,14 +16,15 @@ type Driver interface {
 	DeleteSecret(context.Context, string) error
 }
 
-type Closer interface {
+type Vault interface {
+	Driver
+
 	Close() error
+	Driver(name DriverName) (Driver, error)
 }
 
-type Vault struct {
-	drivers *driver.Pool[DriverName, Driver]
-	config  *Config
-	log     *zap.Logger
+type Closer interface {
+	Close() error
 }
 
 type VaultParams struct {
@@ -34,19 +35,27 @@ type VaultParams struct {
 	Log     *zap.Logger
 }
 
-func New(params VaultParams) *Vault {
-	return &Vault{
+type Manager struct {
+	drivers *driver.Pool[DriverName, Driver]
+	config  *Config
+	log     *zap.Logger
+}
+
+var _ = Vault(&Manager{})
+
+func New(params VaultParams) Vault {
+	return &Manager{
 		drivers: driver.NewPool(params.Drivers),
 		config:  params.Config,
 		log:     params.Log.Named("vault"),
 	}
 }
 
-func (v *Vault) resolveDriver() (Driver, error) {
+func (v *Manager) resolveDriver() (Driver, error) {
 	return v.drivers.Resolve(v.config.Driver)
 }
 
-func (v *Vault) CreateSecret(ctx context.Context, name string, payload []byte) (Secret, error) {
+func (v *Manager) CreateSecret(ctx context.Context, name string, payload []byte) (Secret, error) {
 	driver, err := v.resolveDriver()
 	if err != nil {
 		return Secret{}, err
@@ -55,7 +64,7 @@ func (v *Vault) CreateSecret(ctx context.Context, name string, payload []byte) (
 	return driver.CreateSecret(ctx, name, payload)
 }
 
-func (v *Vault) AddVersion(ctx context.Context, name string, payload []byte) (Secret, error) {
+func (v *Manager) AddVersion(ctx context.Context, name string, payload []byte) (Secret, error) {
 	driver, err := v.resolveDriver()
 	if err != nil {
 		return Secret{}, err
@@ -64,7 +73,7 @@ func (v *Vault) AddVersion(ctx context.Context, name string, payload []byte) (Se
 	return driver.AddVersion(ctx, name, payload)
 }
 
-func (v *Vault) GetLatestVersion(ctx context.Context, name string) (Secret, error) {
+func (v *Manager) GetLatestVersion(ctx context.Context, name string) (Secret, error) {
 	driver, err := v.resolveDriver()
 	if err != nil {
 		return Secret{}, err
@@ -73,7 +82,7 @@ func (v *Vault) GetLatestVersion(ctx context.Context, name string) (Secret, erro
 	return driver.GetLatestVersion(ctx, name)
 }
 
-func (v *Vault) GetVersion(ctx context.Context, name string, version int) (Secret, error) {
+func (v *Manager) GetVersion(ctx context.Context, name string, version int) (Secret, error) {
 	driver, err := v.resolveDriver()
 	if err != nil {
 		return Secret{}, err
@@ -82,7 +91,7 @@ func (v *Vault) GetVersion(ctx context.Context, name string, version int) (Secre
 	return driver.GetVersion(ctx, name, version)
 }
 
-func (v *Vault) DeleteSecret(ctx context.Context, name string) error {
+func (v *Manager) DeleteSecret(ctx context.Context, name string) error {
 	driver, err := v.resolveDriver()
 	if err != nil {
 		return err
@@ -91,7 +100,7 @@ func (v *Vault) DeleteSecret(ctx context.Context, name string) error {
 	return driver.DeleteSecret(ctx, name)
 }
 
-func (v *Vault) Close() error {
+func (v *Manager) Close() error {
 	driver, err := v.resolveDriver()
 	if err != nil {
 		return err
@@ -104,6 +113,6 @@ func (v *Vault) Close() error {
 	return nil
 }
 
-func (v *Vault) Driver(name DriverName) (Driver, error) {
+func (v *Manager) Driver(name DriverName) (Driver, error) {
 	return v.drivers.Resolve(name)
 }
