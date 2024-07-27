@@ -1,14 +1,14 @@
 package core
 
 import (
-	"github.com/fruitsco/goji/core/crypt"
-	"github.com/fruitsco/goji/core/database"
-	"github.com/fruitsco/goji/core/email"
-	"github.com/fruitsco/goji/core/notification"
-	"github.com/fruitsco/goji/core/queue"
-	"github.com/fruitsco/goji/core/redis"
-	"github.com/fruitsco/goji/core/storage"
-	"github.com/fruitsco/goji/core/vault"
+	"github.com/fruitsco/goji/component/crypt"
+	"github.com/fruitsco/goji/component/database"
+	"github.com/fruitsco/goji/component/email"
+	"github.com/fruitsco/goji/component/notification"
+	"github.com/fruitsco/goji/component/queue"
+	"github.com/fruitsco/goji/component/redis"
+	"github.com/fruitsco/goji/component/storage"
+	"github.com/fruitsco/goji/component/vault"
 	"github.com/fruitsco/goji/util"
 )
 

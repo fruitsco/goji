@@ -66,7 +66,7 @@ func NewCommand[C any](params RootParams) *Root {
 		Flags:   flags,
 		Before: func(ctx *cli.Context) error {
 			// get env from parsed cli flags
-			environment := GetEnvFromCLI(ctx)
+			environment := getEnvFromCLI(ctx)
 
 			// create the logger
 			log, err := createLogger(ctx, params.AppName, environment)
@@ -78,7 +78,7 @@ func NewCommand[C any](params RootParams) *Root {
 			ctx.Context = contextWithLogger(ctx.Context, log)
 
 			// parse config using env
-			cfg, err := conf.Parse[config[C]](conf.ParseOptions{
+			cfg, err := conf.Parse[rootConfig[C]](conf.ParseOptions{
 				AppName:     params.AppName,
 				Environment: string(environment),
 				Defaults:    params.DefaultConfig,

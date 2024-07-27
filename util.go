@@ -11,7 +11,7 @@ var envMap = map[string]Environment{
 	"production":  EnvironmentProduction,
 }
 
-func GetEnvFromCLI(ctx *cli.Context) Environment {
+func getEnvFromCLI(ctx *cli.Context) Environment {
 	if env, ok := envMap[ctx.String("env")]; ok {
 		return env
 	}
@@ -28,7 +28,7 @@ func getLevelFromCLI(ctx *cli.Context) zap.AtomicLevel {
 		}
 	}
 
-	env := GetEnvFromCLI(ctx)
+	env := getEnvFromCLI(ctx)
 
 	var fallbackLevel zapcore.Level
 	if env == EnvironmentProduction {

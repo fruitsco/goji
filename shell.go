@@ -106,7 +106,7 @@ func (s *Shell[C]) PrintGraph(ctx context.Context) error {
 
 func (s *Shell[C]) createFxApp(
 	ctx context.Context,
-	config *config[C],
+	config *rootConfig[C],
 	log *zap.Logger,
 	options ...fx.Option,
 ) *fx.App {

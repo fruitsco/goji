@@ -3,7 +3,7 @@ package crypt
 import (
 	"context"
 
-	"github.com/fruitsco/goji/core/vault"
+	"github.com/fruitsco/goji/component/vault"
 	"go.uber.org/fx"
 )
 
