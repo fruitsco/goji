@@ -53,95 +53,95 @@ func New[C any](
 	}
 }
 
-func (t *Shell[C]) MockType(mockType reflect.Type, mock any) {
-	if t.app != nil {
-		t.tb.Fatalf("cannot add mock after app has started")
+func (s *Shell[C]) MockType(mockType reflect.Type, mock any) {
+	if s.app != nil {
+		s.tb.Fatalf("cannot add mock after app has started")
 	}
 
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	t.mocks[mockType] = mock
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.mocks[mockType] = mock
 }
 
-func (t *Shell[C]) Mock(mock any) {
-	t.MockType(reflect.TypeOf(mock), mock)
+func (s *Shell[C]) Mock(mock any) {
+	s.MockType(reflect.TypeOf(mock), mock)
 }
 
-func (t *Shell[C]) GetMock(mockType reflect.Type) (any, bool) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	mock, ok := t.mocks[mockType]
+func (s *Shell[C]) GetMock(mockType reflect.Type) (any, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	mock, ok := s.mocks[mockType]
 	return mock, ok
 }
 
-func (t *Shell[C]) Start() error {
-	return t.StartCtx(context.Background())
+func (s *Shell[C]) Start() error {
+	return s.StartCtx(context.Background())
 }
 
-func (t *Shell[C]) StartCtx(ctx context.Context) error {
-	cfg, err := t.parseConfig()
+func (s *Shell[C]) StartCtx(ctx context.Context) error {
+	cfg, err := s.parseConfig()
 	if err != nil {
 		return fmt.Errorf("failed to parse config: %w", err)
 	}
 
 	// create list of options for mocks
-	mocks := make([]any, 0, len(t.mocks))
-	for mockType, mock := range t.mocks {
+	mocks := make([]any, 0, len(s.mocks))
+	for mockType, mock := range s.mocks {
 		mocks = append(mocks, fx.Annotate(mock, fx.As(mockType)))
 	}
 
 	fxOptions := []fx.Option{}
 
 	// add the user options
-	fxOptions = append(fxOptions, t.options...)
+	fxOptions = append(fxOptions, s.options...)
 
 	// wrap the mocks in a fx.Replace option
 	fxOptions = append(fxOptions, fx.Replace(mocks...))
 
 	// create the user module
-	if t.params != nil && t.params.ModuleFn != nil {
-		fxOptions = append(fxOptions, t.params.ModuleFn(cfg.Child))
+	if s.params != nil && s.params.ModuleFn != nil {
+		fxOptions = append(fxOptions, s.params.ModuleFn(cfg.Child))
 	}
 
 	// create the root module by composing the mocks and the user module
-	fxRootModule := goji.NewRootModule(ctx, cfg, t.log, fxOptions...)
+	fxRootModule := goji.NewRootModule(ctx, cfg, s.log, fxOptions...)
 
 	// create the fx application
-	t.app = fxtest.New(t.tb, fxRootModule)
+	s.app = fxtest.New(s.tb, fxRootModule)
 
 	// start the application
-	t.app.RequireStart()
+	s.app.RequireStart()
 
 	return nil
 }
 
-func (t *Shell[C]) Stop() {
-	defer t.log.Sync()
+func (s *Shell[C]) Stop() {
+	defer s.log.Sync()
 
-	if t.app != nil {
-		t.app.RequireStop()
+	if s.app != nil {
+		s.app.RequireStop()
 	}
 }
 
-func (t *Shell[C]) parseConfig() (*goji.RootConfig[C], error) {
+func (s *Shell[C]) parseConfig() (*goji.RootConfig[C], error) {
 	appName := "Goji Test Shell"
-	if t.params != nil && t.params.AppName != "" {
-		appName = t.params.AppName
+	if s.params != nil && s.params.AppName != "" {
+		appName = s.params.AppName
 	}
 
 	defaultConfig := conf.DefaultConfig{}
-	if t.params != nil && t.params.DefaultConfig != nil {
-		defaultConfig = t.params.DefaultConfig
+	if s.params != nil && s.params.DefaultConfig != nil {
+		defaultConfig = s.params.DefaultConfig
 	}
 
 	envPrefix := ""
-	if t.params != nil && t.params.EnvPrefix != "" {
-		envPrefix = t.params.EnvPrefix
+	if s.params != nil && s.params.EnvPrefix != "" {
+		envPrefix = s.params.EnvPrefix
 	}
 
 	configFileName := ""
-	if t.params != nil && t.params.ConfigFileName == "" {
-		configFileName = t.params.ConfigFileName
+	if s.params != nil && s.params.ConfigFileName == "" {
+		configFileName = s.params.ConfigFileName
 	}
 
 	// parse config using env
@@ -151,15 +151,15 @@ func (t *Shell[C]) parseConfig() (*goji.RootConfig[C], error) {
 		Defaults:    defaultConfig,
 		Prefix:      envPrefix,
 		FileName:    configFileName,
-		Log:         t.log,
+		Log:         s.log,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
 
 	// apply user config function
-	if t.params != nil && t.params.ConfigFn != nil {
-		cfg.Child = t.params.ConfigFn(cfg.Child)
+	if s.params != nil && s.params.ConfigFn != nil {
+		cfg.Child = s.params.ConfigFn(cfg.Child)
 	}
 
 	return cfg, nil
