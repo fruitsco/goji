@@ -87,7 +87,9 @@ func (s *Shell[C]) StartCtx(ctx context.Context) error {
 	// create list of options for mocks
 	mocks := make([]any, 0, len(s.mocks))
 	for mockType, mock := range s.mocks {
-		mocks = append(mocks, fx.Annotate(mock, fx.As(mockType)))
+		// create new empty value of type and it as an `any`
+		mockValue := reflect.New(mockType).Interface()
+		mocks = append(mocks, fx.Annotate(mock, fx.As(mockValue)))
 	}
 
 	fxOptions := []fx.Option{}
