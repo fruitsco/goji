@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 )
 
@@ -63,28 +62,27 @@ func (s *Shell[C]) Run(ctx context.Context, options ...fx.Option) error {
 	defer cancel()
 
 	// 4. create fx application
-	fxApp := s.createFxApp(shellCtx, config, log, options...)
-	s.fxApp = fxApp
+	s.fxApp = s.createFxApp(shellCtx, config, log, options...)
 
 	// 5. create start context w/ timeout
-	startCtx, cancel := context.WithTimeout(shellCtx, fxApp.StartTimeout())
+	startCtx, cancel := context.WithTimeout(shellCtx, s.fxApp.StartTimeout())
 	defer cancel()
 
 	// 6. start the application, exit on error
-	if err := fxApp.Start(startCtx); err != nil {
+	if err := s.fxApp.Start(startCtx); err != nil {
 		return NewShellExitError(1)
 	}
 
 	// 7. wait for done signal by OS
-	sig := <-fxApp.Wait()
+	sig := <-s.fxApp.Wait()
 	exitCode := sig.ExitCode
 
 	// 8. create shutdown context
-	stopCtx, cancel := context.WithTimeout(shellCtx, fxApp.StopTimeout())
+	stopCtx, cancel := context.WithTimeout(shellCtx, s.fxApp.StopTimeout())
 	defer cancel()
 
 	// 9. gracefully shutdown the app, exit on error
-	if err := fxApp.Stop(stopCtx); err != nil {
+	if err := s.fxApp.Stop(stopCtx); err != nil {
 		return NewShellExitError(1)
 	}
 
@@ -106,36 +104,18 @@ func (s *Shell[C]) PrintGraph(ctx context.Context) error {
 
 func (s *Shell[C]) createFxApp(
 	ctx context.Context,
-	config *rootConfig[C],
+	config *RootConfig[C],
 	log *zap.Logger,
 	options ...fx.Option,
 ) *fx.App {
-	// 1. create fx application
-	return fx.New(
-		// 2. inject global execution context
-		fx.Supply(fx.Annotate(ctx, fx.As(new(context.Context)))),
+	// merge together options
+	mergedOptions := make([]fx.Option, 0, len(s.options)+len(options))
+	mergedOptions = append(mergedOptions, s.options...)
+	mergedOptions = append(mergedOptions, options...)
 
-		// 3. inject the logger
-		fx.Supply(log),
+	// create root module
+	fxModule := NewRootModule(ctx, config, log, mergedOptions...)
 
-		// 4. inject the app config
-		fx.Supply(config.App),
-
-		// 5. inject the log config
-		fx.Supply(config.Log),
-
-		// 6. inject the child config
-		fx.Supply(&config.Child),
-
-		// 7. use the logger also for fx' logs
-		fx.WithLogger(func() fxevent.Logger {
-			return &fxevent.ZapLogger{Logger: log.Named("fx")}
-		}),
-
-		// 8. provide user-provided options
-		fx.Options(s.options...),
-
-		// 9. provide user-provided run options
-		fx.Options(options...),
-	)
+	// create fx application
+	return fx.New(fxModule)
 }

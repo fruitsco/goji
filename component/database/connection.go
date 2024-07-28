@@ -37,11 +37,13 @@ type CloudSQLConnectorParams struct {
 type Connection interface {
 	Driver() dialect.Driver
 	Close() error
+	DB() *sql.DB
 }
 
 // MARK: - Single Connection
 
 type singleConnection struct {
+	db      *sql.DB
 	driver  *entsql.Driver
 	cleanup CleanupFn
 }
@@ -57,9 +59,14 @@ func NewConnection(params ConnectionParams) (*singleConnection, error) {
 	driver := entsql.OpenDB(dialect.Postgres, db)
 
 	return &singleConnection{
+		db:      db,
 		driver:  driver,
 		cleanup: cleanup,
 	}, nil
+}
+
+func (c *singleConnection) DB() *sql.DB {
+	return c.db
 }
 
 func (c *singleConnection) Driver() dialect.Driver {
@@ -95,7 +102,7 @@ var dummyCleanup = func() error { return nil }
 // This method does not use any connector. SSL certificates must be
 // provided manually. IAM authentication is not supported.
 func createBasicDB(params ConnectionParams) (*sql.DB, CleanupFn, error) {
-	dbURI := buildDSN(params)
+	dbURI := DsnForConnection(params)
 
 	db, err := sql.Open("pgx", dbURI)
 	if err != nil {
@@ -112,6 +119,11 @@ type multiConnection struct {
 }
 
 var _ Connection = (*multiConnection)(nil)
+
+func (c *multiConnection) DB() *sql.DB {
+	// return the write connection for multi connection
+	return c.w.DB()
+}
 
 func (c *multiConnection) Driver() dialect.Driver {
 	return &multiDriver{
@@ -163,7 +175,7 @@ func createCloudSQLConnectorDB(params ConnectionParams) (*sql.DB, CleanupFn, err
 		return nil, nil, err
 	}
 
-	dbURI := buildDSN(params)
+	dbURI := DsnForConnection(params)
 
 	db, err := sql.Open("cloudsql-postgres", dbURI)
 	if err != nil {
@@ -174,7 +186,7 @@ func createCloudSQLConnectorDB(params ConnectionParams) (*sql.DB, CleanupFn, err
 	return db, close, nil
 }
 
-func buildDSN(params ConnectionParams) string {
+func DsnForConnection(params ConnectionParams) string {
 	dbURI := fmt.Sprintf(
 		"user=%s dbname=%s host=%s port=%d search_path=%s",
 		params.Username, params.Name, params.Host, params.Port, params.Schema,

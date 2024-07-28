@@ -25,8 +25,8 @@ func ConfigFromContext[C any](ctx context.Context) (*C, error) {
 	return &config.Child, nil
 }
 
-func rootConfigFromContext[C any](ctx context.Context) (*rootConfig[C], error) {
-	var c *rootConfig[C]
+func rootConfigFromContext[C any](ctx context.Context) (*RootConfig[C], error) {
+	var c *RootConfig[C]
 
 	configValue := ctx.Value(configKey)
 
@@ -34,14 +34,14 @@ func rootConfigFromContext[C any](ctx context.Context) (*rootConfig[C], error) {
 		return c, errors.New("config not found in context")
 	}
 
-	if config, ok := configValue.(*rootConfig[C]); ok {
+	if config, ok := configValue.(*RootConfig[C]); ok {
 		return config, nil
 	}
 
 	return c, fmt.Errorf("config has unexpected type: %T", configValue)
 }
 
-func contextWithRootConfig[C any](ctx context.Context, config *rootConfig[C]) context.Context {
+func contextWithRootConfig[C any](ctx context.Context, config *RootConfig[C]) context.Context {
 	return context.WithValue(ctx, configKey, config)
 }
 

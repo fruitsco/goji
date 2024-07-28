@@ -9,4 +9,7 @@ const (
 
 	// EnvironmentProduction represents the production environment.
 	EnvironmentProduction Environment = "production"
+
+	// EnvironmentTest represents the test environment.
+	EnvironmentTest Environment = "test"
 )

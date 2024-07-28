@@ -12,7 +12,7 @@ type LogConfig struct {
 	Level string `conf:"level"`
 }
 
-type rootConfig[C any] struct {
+type RootConfig[C any] struct {
 	App *AppConfig `conf:"app"`
 	Log *LogConfig `conf:"log"`
 

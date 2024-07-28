@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"entgo.io/ent/dialect"
@@ -90,6 +91,10 @@ func NewDB(params EntDBParams) (*EntDB, error) {
 	return &EntDB{
 		connection: connection,
 	}, nil
+}
+
+func (db *EntDB) DB() *sql.DB {
+	return db.connection.DB()
 }
 
 func (db *EntDB) Driver() dialect.Driver {

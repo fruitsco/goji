@@ -78,7 +78,7 @@ func NewCommand[C any](params RootParams) *Root {
 			ctx.Context = contextWithLogger(ctx.Context, log)
 
 			// parse config using env
-			cfg, err := conf.Parse[rootConfig[C]](conf.ParseOptions{
+			cfg, err := conf.Parse[RootConfig[C]](conf.ParseOptions{
 				AppName:     params.AppName,
 				Environment: string(environment),
 				Defaults:    params.DefaultConfig,
