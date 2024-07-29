@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/pubsub v1.40.0
 	cloud.google.com/go/secretmanager v1.13.5
 	cloud.google.com/go/storage v1.43.0
-	entgo.io/ent v0.13.1
+	entgo.io/ent v0.14.0
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/hashicorp/vault/api v1.14.0
 	github.com/hashicorp/vault/api/auth/gcp v0.7.0
