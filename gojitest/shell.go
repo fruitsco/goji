@@ -167,17 +167,17 @@ func (s *Shell[C]) parseConfig() (*goji.RootConfig[C], error) {
 	return cfg, nil
 }
 
-func GetMock[T any, C any](t *Shell[C]) (T, error) {
-	var ret T
+func GetMock[T, M, C any](t *Shell[C]) (*M, error) {
+	var ret *M
 
-	mockType := reflect.TypeOf(ret)
+	mockType := reflect.TypeFor[T]()
 
 	mock, ok := t.GetMock(mockType)
 	if !ok {
 		return ret, fmt.Errorf("no mock found for %T", ret)
 	}
 
-	if ret, ok = mock.(T); !ok {
+	if ret, ok = mock.(*M); !ok {
 		// this should never happen
 		return ret, fmt.Errorf("mock is not of type %T", ret)
 	}
