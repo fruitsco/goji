@@ -10,7 +10,7 @@ import (
 )
 
 type Driver interface {
-	Submit(context.Context, CreateTaskRequest) error
+	Submit(context.Context, *CreateTaskRequest) error
 	ReceivePush(context.Context, PushRequest) (*Task, error)
 }
 
@@ -46,7 +46,7 @@ func (q *Manager) resolveDriver() (Driver, error) {
 	return q.drivers.Resolve(q.config.Driver)
 }
 
-func (q *Manager) Submit(ctx context.Context, req CreateTaskRequest) error {
+func (q *Manager) Submit(ctx context.Context, req *CreateTaskRequest) error {
 	driver, err := q.resolveDriver()
 	if err != nil {
 		return err

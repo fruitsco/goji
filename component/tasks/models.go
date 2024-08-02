@@ -2,52 +2,34 @@ package tasks
 
 import "time"
 
-type CreateTaskRequest interface {
-	GetName() string
-	GetScheduleTime() *time.Time
-	isCreateTaskRequest()
-}
+type CreateTaskRequest struct {
+	// Name is the name of the task
+	Name string
 
-type CreateHttpTaskRequest struct {
-	Name         string
+	// Data is the payload of the task.
+	Data []byte
+
+	// Queue is the name of the queue.
+	//  - For cloud tasks, this is the queue name.
+	//  - For pubsub, this is the topic name.
+	Queue string
+
+	// ScheduleTime is the time the task should be executed.
+	// This option is not supported / ignored by the queue driver.
 	ScheduleTime *time.Time
-	Queue        string
-	Url          string
-	Method       string
-	Headers      map[string]string
-	Body         []byte
+
+	// Url is the URL to send the request to.
+	// This option is not supported / ignored by the queue driver.
+	Url string
+
+	// Method is the HTTP method to use.
+	// This option is not supported / ignored by the queue driver.
+	Method string
+
+	// Headers are the HTTP headers to send with the request.
+	// This option is not supported / ignored by the queue driver.
+	Headers map[string]string
 }
-
-var _ = CreateTaskRequest(&CreateHttpTaskRequest{})
-
-func (r *CreateHttpTaskRequest) GetName() string {
-	return r.Name
-}
-
-func (r *CreateHttpTaskRequest) GetScheduleTime() *time.Time {
-	return r.ScheduleTime
-}
-
-func (r *CreateHttpTaskRequest) isCreateTaskRequest() {}
-
-type CreateQueueTaskRequest struct {
-	Name         string
-	ScheduleTime *time.Time
-	Topic        string
-	Data         []byte
-}
-
-var _ = CreateTaskRequest(&CreateQueueTaskRequest{})
-
-func (r *CreateQueueTaskRequest) GetName() string {
-	return r.Name
-}
-
-func (r *CreateQueueTaskRequest) GetScheduleTime() *time.Time {
-	return r.ScheduleTime
-}
-
-func (r *CreateQueueTaskRequest) isCreateTaskRequest() {}
 
 type Task struct {
 	TaskName       string

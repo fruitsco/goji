@@ -51,37 +51,31 @@ func (d *QueueDriver) Name() TaskDriver {
 	return Queue
 }
 
-func (d *QueueDriver) Submit(ctx context.Context, req CreateTaskRequest) error {
-	queueReq, ok := req.(*CreateQueueTaskRequest)
-	if !ok {
-		return fmt.Errorf("invalid request type, expected *CreateHttpTaskRequest, got %T", req)
+func (d *QueueDriver) Submit(ctx context.Context, req *CreateTaskRequest) error {
+	if req.Queue == "" {
+		return fmt.Errorf("queue name / topic is required")
 	}
 
-	if queueReq.Topic == "" {
-		return fmt.Errorf("topic is required")
-	}
-
-	if queueReq.Data == nil {
+	if req.Data == nil {
 		return fmt.Errorf("data is required")
 	}
 
-	message := queue.NewGenericMessage(queueReq.Topic, queueReq.Data)
+	message := queue.NewGenericMessage(req.Queue, req.Data)
 
-	name := queueReq.Name
+	name := req.Name
 	if name == "" {
-		name = fmt.Sprint("task-", randy.Numeric(8))
+		name = fmt.Sprintf("task-%s-%s", req.Queue, randy.Numeric(8))
 	}
 
 	scheduleTime := time.Now()
-	if queueReq.ScheduleTime != nil {
-		scheduleTime = *queueReq.ScheduleTime
+	if req.ScheduleTime != nil {
+		scheduleTime = *req.ScheduleTime
 	}
 
 	// pubsub does not have the concept of scheduling messages or task names.
 	// for sake of consistency, we add these fields to the message metadata.
 	// this is not used by the pubsub driver itself, but the information will
 	// eventually be delivered to the consumer.
-	message.Meta["queue_name"] = queueReq.Topic
 	message.Meta["task_name"] = name
 	message.Meta["schedule_time"] = scheduleTime.Format(time.RFC3339)
 

@@ -79,43 +79,36 @@ func (d *CloudTasksDriver) Name() TaskDriver {
 	return CloudTasks
 }
 
-func (d *CloudTasksDriver) Submit(ctx context.Context, req CreateTaskRequest) error {
-	httpReq, ok := req.(*CreateHttpTaskRequest)
-	if !ok {
-		return fmt.Errorf("invalid request type, expected *CreateHttpTaskRequest, got %T", req)
-	}
-
-	if httpReq.Queue == "" {
+func (d *CloudTasksDriver) Submit(ctx context.Context, req *CreateTaskRequest) error {
+	if req.Queue == "" {
 		return fmt.Errorf("queue name is required")
 	}
 
 	url := d.config.DefaultUrl
-	if httpReq.Url != "" {
-		url = httpReq.Url
+	if req.Url != "" {
+		url = req.Url
 	}
-
 	if url == "" {
 		return fmt.Errorf("url is required")
 	}
 
-	if httpReq.Method == "" {
-		httpReq.Method = http.MethodPost
+	if req.Method == "" {
+		req.Method = http.MethodPost
+	}
+	if _, ok := httpMethodMap[req.Method]; !ok {
+		return fmt.Errorf("invalid http method: %s", req.Method)
 	}
 
-	if _, ok := httpMethodMap[httpReq.Method]; !ok {
-		return fmt.Errorf("invalid http method: %s", httpReq.Method)
-	}
-
-	queuePath := fmt.Sprintf("projects/%s/locations/%s/queues/%s", d.config.ProjectID, d.config.Region, httpReq.Queue)
+	queuePath := fmt.Sprintf("projects/%s/locations/%s/queues/%s", d.config.ProjectID, d.config.Region, req.Queue)
 
 	var taskName string
-	if req.GetName() != "" {
-		taskName = fmt.Sprintf("%s/tasks/%s", queuePath, req.GetName())
+	if req.Name != "" {
+		taskName = fmt.Sprintf("%s/tasks/%s", queuePath, req.Name)
 	}
 
 	var scheduleTime *timestamppb.Timestamp
-	if req.GetScheduleTime() != nil {
-		scheduleTime = timestamppb.New(*req.GetScheduleTime())
+	if req.ScheduleTime != nil {
+		scheduleTime = timestamppb.New(*req.ScheduleTime)
 	}
 
 	var authHeader *taskspb.HttpRequest_OidcToken
@@ -134,10 +127,10 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req CreateTaskRequest) er
 			ScheduleTime: scheduleTime,
 			MessageType: &taskspb.Task_HttpRequest{
 				HttpRequest: &taskspb.HttpRequest{
-					HttpMethod:          httpMethodMap[httpReq.Method],
+					HttpMethod:          httpMethodMap[req.Method],
 					Url:                 url,
-					Body:                httpReq.Body,
-					Headers:             httpReq.Headers,
+					Body:                req.Data,
+					Headers:             req.Headers,
 					AuthorizationHeader: authHeader,
 				},
 			},

@@ -38,7 +38,7 @@ func (q *NoOpDriver) Name() TaskDriver {
 	return NoOp
 }
 
-func (q *NoOpDriver) Submit(ctx context.Context, req CreateTaskRequest) error {
+func (q *NoOpDriver) Submit(context.Context, *CreateTaskRequest) error {
 	return errors.New("not implemented")
 }
 
