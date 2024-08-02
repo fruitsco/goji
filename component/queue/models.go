@@ -55,7 +55,7 @@ func NewGenericMessage(topic string, data []byte) *GenericMessage {
 }
 
 type PushRequest struct {
-	TaskName string
-	Data     []byte
-	Meta     map[string]string
+	QueueName string
+	Data      []byte
+	Headers   map[string]string
 }

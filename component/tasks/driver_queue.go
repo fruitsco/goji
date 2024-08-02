@@ -3,11 +3,13 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
 	"github.com/fruitsco/goji/component/queue"
+	"github.com/fruitsco/goji/util/randy"
 	"github.com/fruitsco/goji/x/driver"
 )
 
@@ -65,6 +67,23 @@ func (d *QueueDriver) Submit(ctx context.Context, req CreateTaskRequest) error {
 
 	message := queue.NewGenericMessage(queueReq.Topic, queueReq.Data)
 
+	name := queueReq.Name
+	if name == "" {
+		name = fmt.Sprint("task-", randy.Numeric(8))
+	}
+
+	scheduleTime := time.Now()
+	if queueReq.ScheduleTime != nil {
+		scheduleTime = *queueReq.ScheduleTime
+	}
+
+	// pubsub does not have the concept of scheduling messages or task names.
+	// for sake of consistency, we add these fields to the message metadata.
+	// this is not used by the pubsub driver itself, but the information will
+	// eventually be delivered to the consumer.
+	message.Meta["task_name"] = name
+	message.Meta["schedule_time"] = scheduleTime.Format(time.RFC3339)
+
 	return d.queue.Publish(ctx, message)
 }
 
@@ -74,7 +93,11 @@ func (d *QueueDriver) ReceivePush(
 ) (*Task, error) {
 	// the interfaces of queue.PushRequest and tasks.PushRequest match,
 	// so we can just cast it here. May diverge in the future.
-	message, err := d.queue.ReceivePush(ctx, queue.PushRequest(req))
+	message, err := d.queue.ReceivePush(ctx, queue.PushRequest{
+		QueueName: req.EndpointName,
+		Data:      req.Data,
+		Headers:   req.Meta,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to receive message: %w", err)
 	}
@@ -90,8 +113,15 @@ func (d *QueueDriver) ReceivePush(
 	// time to the publish time.
 	scheduleTime := message.GetPublishTime()
 
+	// extract task name from message metadata. this is not used by pubsub itself,
+	// but rather attached when publishing for consistency with other drivers.
+	meta := message.GetMeta()
+
+	taskName := meta["task_name"]
+
 	return &Task{
-		TaskName:       message.GetTopic(),
+		TaskName:       taskName,
+		QueueName:      message.GetTopic(),
 		ScheduleTime:   scheduleTime,
 		RetryCount:     deliveryAttempt,
 		ExecutionCount: deliveryAttempt,

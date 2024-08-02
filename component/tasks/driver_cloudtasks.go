@@ -11,6 +11,7 @@ import (
 	taskspb "cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/fruitsco/goji/x/driver"
 )
@@ -90,9 +91,21 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req CreateTaskRequest) er
 
 	queuePath := fmt.Sprintf("projects/%s/locations/%s/queues/%s", d.config.ProjectID, d.config.Region, httpReq.Queue)
 
+	var taskName string
+	if req.GetName() != "" {
+		taskName = fmt.Sprintf("%s/tasks/%s", queuePath, req.GetName())
+	}
+
+	var scheduleTime *timestamppb.Timestamp
+	if req.GetScheduleTime() != nil {
+		scheduleTime = timestamppb.New(*req.GetScheduleTime())
+	}
+
 	taskReq := &taskspb.CreateTaskRequest{
 		Parent: queuePath,
 		Task: &taskspb.Task{
+			Name:         taskName,
+			ScheduleTime: scheduleTime,
 			MessageType: &taskspb.Task_HttpRequest{
 				HttpRequest: &taskspb.HttpRequest{
 					HttpMethod: httpMethodMap[httpReq.Method],
@@ -115,21 +128,31 @@ func (d *CloudTasksDriver) ReceivePush(
 	ctx context.Context,
 	req PushRequest,
 ) (*Task, error) {
+	taskName, ok := req.Meta["X-CloudTasks-TaskName"]
+	if !ok {
+		return nil, fmt.Errorf("invalid cloud tasks request: missing task name")
+	}
+
+	queueName, ok := req.Meta["X-CloudTasks-QueueName"]
+	if !ok {
+		return nil, fmt.Errorf("invalid cloud tasks request: missing queue name")
+	}
+
 	scheduleTimeValue, ok := req.Meta["X-CloudTasks-TaskETA"]
 	if !ok {
-		return nil, fmt.Errorf("missing schedule time")
+		return nil, fmt.Errorf("invalid cloud tasks request: missing schedule time")
 	}
 
 	scheduleTimeSeconds, err := strconv.ParseInt(scheduleTimeValue, 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("invalid schedule time: %v", err)
+		return nil, fmt.Errorf("invalid cloud tasks request: invalid schedule time: %v", err)
 	}
 
 	retryCount := 0
 	if retryCountValue, ok := req.Meta["X-CloudTasks-TaskRetryCount"]; ok {
 		retryCount, err = strconv.Atoi(retryCountValue)
 		if err != nil {
-			return nil, fmt.Errorf("invalid retry count: %v", err)
+			return nil, fmt.Errorf("invalid cloud tasks request: invalid retry count: %v", err)
 		}
 	}
 
@@ -137,12 +160,13 @@ func (d *CloudTasksDriver) ReceivePush(
 	if executionCountValue, ok := req.Meta["X-CloudTasks-TaskExecutionCount"]; ok {
 		executionCount, err = strconv.Atoi(executionCountValue)
 		if err != nil {
-			return nil, fmt.Errorf("invalid execution count: %v", err)
+			return nil, fmt.Errorf("invalid cloud tasks request: invalid execution count: %v", err)
 		}
 	}
 
 	return &Task{
-		TaskName:       req.TaskName,
+		TaskName:       taskName,
+		QueueName:      queueName,
 		Data:           req.Data,
 		ScheduleTime:   time.Unix(scheduleTimeSeconds, 0),
 		RetryCount:     retryCount,
@@ -150,18 +174,6 @@ func (d *CloudTasksDriver) ReceivePush(
 		Meta:           req.Meta,
 	}, nil
 }
-
-// Header	Description
-// X-CloudTasks-QueueName	The name of the queue.
-// X-CloudTasks-TaskName	The "short" name of the task, or, if no name was specified at creation, a unique system-generated id. This is the my-task-id value in the complete task name, ie, task_name = projects/my-project-id/locations/my-location/queues/my-queue-id/tasks/my-task-id.
-// X-CloudTasks-TaskRetryCount	The number of times this task has been retried. For the first attempt, this value is 0. This number includes attempts where the task failed due to 5XX error codes and never reached the execution phase.
-// X-CloudTasks-TaskExecutionCount	The total number of times that the task has received a response from the handler. Since Cloud Tasks deletes the task once a successful response has been received, all previous handler responses were failures. This number does not include failures due to 5XX error codes.
-// X-CloudTasks-TaskETA	The schedule time of the task, specified in seconds since January 1st 1970.
-// In addition, requests from Cloud Tasks might contain the following headers:
-
-// Header	Description
-// X-CloudTasks-TaskPreviousResponse	The HTTP response code from the previous retry.
-// X-CloudTasks-TaskRetryReason	The reason for retrying the task.
 
 var httpMethodMap = map[string]taskspb.HttpMethod{
 	http.MethodGet:     taskspb.HttpMethod_GET,
