@@ -81,6 +81,7 @@ func (d *QueueDriver) Submit(ctx context.Context, req CreateTaskRequest) error {
 	// for sake of consistency, we add these fields to the message metadata.
 	// this is not used by the pubsub driver itself, but the information will
 	// eventually be delivered to the consumer.
+	message.Meta["queue_name"] = queueReq.Topic
 	message.Meta["task_name"] = name
 	message.Meta["schedule_time"] = scheduleTime.Format(time.RFC3339)
 
@@ -94,9 +95,8 @@ func (d *QueueDriver) ReceivePush(
 	// the interfaces of queue.PushRequest and tasks.PushRequest match,
 	// so we can just cast it here. May diverge in the future.
 	message, err := d.queue.ReceivePush(ctx, queue.PushRequest{
-		QueueName: req.EndpointName,
-		Data:      req.Data,
-		Headers:   req.Meta,
+		Data:    req.Data,
+		Headers: req.Meta,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to receive message: %w", err)
@@ -117,11 +117,12 @@ func (d *QueueDriver) ReceivePush(
 	// but rather attached when publishing for consistency with other drivers.
 	meta := message.GetMeta()
 
+	queueName := meta["queue_name"]
 	taskName := meta["task_name"]
 
 	return &Task{
+		QueueName:      queueName,
 		TaskName:       taskName,
-		QueueName:      message.GetTopic(),
 		ScheduleTime:   scheduleTime,
 		RetryCount:     deliveryAttempt,
 		ExecutionCount: deliveryAttempt,

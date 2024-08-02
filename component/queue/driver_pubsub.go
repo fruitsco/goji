@@ -109,7 +109,6 @@ func (q *PubSubDriver) ReceivePush(ctx context.Context, req PushRequest) (Messag
 	}
 
 	return &GenericMessage{
-		Topic:           req.QueueName,
 		ID:              message.Message.ID,
 		Data:            message.Message.Data,
 		DeliveryAttempt: message.Message.DeliveryAttempt,

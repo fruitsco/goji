@@ -60,7 +60,6 @@ type Task struct {
 }
 
 type PushRequest struct {
-	EndpointName string
-	Data         []byte
-	Meta         map[string]string
+	Data []byte
+	Meta map[string]string
 }
