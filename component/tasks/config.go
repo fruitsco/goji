@@ -11,8 +11,9 @@ const (
 )
 
 type CloudTasksConfig struct {
-	ProjectID string `conf:"project_id"`
-	Region    string `conf:"region"`
+	ProjectID               string `conf:"project_id"`
+	Region                  string `conf:"region"`
+	AuthServiceAccountEmail string `conf:"auth_service_account_email"`
 }
 
 type Config struct {

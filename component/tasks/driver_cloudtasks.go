@@ -101,6 +101,15 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req CreateTaskRequest) er
 		scheduleTime = timestamppb.New(*req.GetScheduleTime())
 	}
 
+	var authHeader *taskspb.HttpRequest_OidcToken
+	if d.config.AuthServiceAccountEmail != "" {
+		authHeader = &taskspb.HttpRequest_OidcToken{
+			OidcToken: &taskspb.OidcToken{
+				ServiceAccountEmail: d.config.AuthServiceAccountEmail,
+			},
+		}
+	}
+
 	taskReq := &taskspb.CreateTaskRequest{
 		Parent: queuePath,
 		Task: &taskspb.Task{
@@ -108,10 +117,11 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req CreateTaskRequest) er
 			ScheduleTime: scheduleTime,
 			MessageType: &taskspb.Task_HttpRequest{
 				HttpRequest: &taskspb.HttpRequest{
-					HttpMethod: httpMethodMap[httpReq.Method],
-					Url:        httpReq.Url,
-					Body:       httpReq.Body,
-					Headers:    httpReq.Headers,
+					HttpMethod:          httpMethodMap[httpReq.Method],
+					Url:                 httpReq.Url,
+					Body:                httpReq.Body,
+					Headers:             httpReq.Headers,
+					AuthorizationHeader: authHeader,
 				},
 			},
 		},

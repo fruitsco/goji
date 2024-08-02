@@ -8,6 +8,7 @@ import (
 	"github.com/fruitsco/goji/component/queue"
 	"github.com/fruitsco/goji/component/redis"
 	"github.com/fruitsco/goji/component/storage"
+	"github.com/fruitsco/goji/component/tasks"
 	"github.com/fruitsco/goji/component/validation"
 	"github.com/fruitsco/goji/component/vault"
 	"go.uber.org/fx"
@@ -24,5 +25,6 @@ func Module(config *Config) fx.Option {
 		validation.Module(),
 		vault.Module(config.Vault),
 		crypt.Module(config.Crypt),
+		tasks.Module(config.Tasks),
 	)
 }
