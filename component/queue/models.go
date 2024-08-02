@@ -8,17 +8,19 @@ type Message interface {
 	GetID() string
 	GetPublishTime() time.Time
 	GetDeliveryAttempt() *int
+	GetMeta() map[string]string
 }
 
 type GenericMessage struct {
-	Message
-
 	ID              string
 	Topic           string
 	Data            []byte
 	PublishTime     time.Time
 	DeliveryAttempt *int
+	Meta            map[string]string
 }
+
+var _ = Message(&GenericMessage{})
 
 func (m *GenericMessage) GetTopic() string {
 	return m.Topic
@@ -40,9 +42,20 @@ func (m *GenericMessage) GetDeliveryAttempt() *int {
 	return m.DeliveryAttempt
 }
 
+func (m *GenericMessage) GetMeta() map[string]string {
+	return m.Meta
+}
+
 func NewGenericMessage(topic string, data []byte) *GenericMessage {
 	return &GenericMessage{
 		Topic: topic,
 		Data:  data,
+		Meta:  make(map[string]string),
 	}
+}
+
+type PushRequest struct {
+	TaskName string
+	Data     []byte
+	Meta     map[string]string
 }

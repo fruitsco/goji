@@ -15,7 +15,8 @@ type PubSubConfig struct {
 }
 
 type Config struct {
-	Driver QueueDriver   `conf:"driver"`
+	Driver QueueDriver `conf:"driver"`
+
 	PubSub *PubSubConfig `conf:"pubsub"`
 }
 
