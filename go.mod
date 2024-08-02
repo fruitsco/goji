@@ -36,7 +36,7 @@ require (
 	cloud.google.com/go v0.115.0 // indirect
 	cloud.google.com/go/auth v0.7.2 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.3 // indirect
-	cloud.google.com/go/cloudtasks v1.12.10
+	cloud.google.com/go/cloudtasks v1.12.12
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/iam v1.1.11 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
