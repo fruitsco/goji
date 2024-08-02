@@ -45,6 +45,18 @@ func NewCloudTasksDriver(params CloudTasksDriverParams, lc fx.Lifecycle) (Driver
 	// 	os.Setenv("PUBSUB_PROJECT_ID", params.Config.ProjectID)
 	// }
 
+	if params.Config == nil {
+		return nil, fmt.Errorf("missing cloud tasks config")
+	}
+
+	if params.Config.ProjectID == "" {
+		return nil, fmt.Errorf("cloudtasks is missing project id")
+	}
+
+	if params.Config.Region == "" {
+		return nil, fmt.Errorf("cloudtasks is missing region")
+	}
+
 	client, err := cloudtasks.NewClient(params.Context)
 	if err != nil {
 		return nil, err
