@@ -13,6 +13,7 @@ const (
 type CloudTasksConfig struct {
 	ProjectID               string `conf:"project_id"`
 	Region                  string `conf:"region"`
+	DefaultUrl              string `conf:"default_url"`
 	AuthServiceAccountEmail string `conf:"auth_service_account_email"`
 }
 

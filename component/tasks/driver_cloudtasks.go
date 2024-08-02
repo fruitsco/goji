@@ -89,7 +89,12 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req CreateTaskRequest) er
 		return fmt.Errorf("queue name is required")
 	}
 
-	if httpReq.Url == "" {
+	url := d.config.DefaultUrl
+	if httpReq.Url != "" {
+		url = httpReq.Url
+	}
+
+	if url == "" {
 		return fmt.Errorf("url is required")
 	}
 
@@ -130,7 +135,7 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req CreateTaskRequest) er
 			MessageType: &taskspb.Task_HttpRequest{
 				HttpRequest: &taskspb.HttpRequest{
 					HttpMethod:          httpMethodMap[httpReq.Method],
-					Url:                 httpReq.Url,
+					Url:                 url,
 					Body:                httpReq.Body,
 					Headers:             httpReq.Headers,
 					AuthorizationHeader: authHeader,
