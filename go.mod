@@ -5,7 +5,7 @@ go 1.22.5
 require (
 	ariga.io/atlas v0.25.0
 	cloud.google.com/go/cloudsqlconn v1.11.1
-	cloud.google.com/go/pubsub v1.40.0
+	cloud.google.com/go/pubsub v1.41.0
 	cloud.google.com/go/secretmanager v1.13.5
 	cloud.google.com/go/storage v1.43.0
 	entgo.io/ent v0.14.0
@@ -138,5 +138,5 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240722135656-d784300faade // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240722135656-d784300faade // indirect
 	google.golang.org/grpc v1.64.1 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	google.golang.org/protobuf v1.34.2
 )
