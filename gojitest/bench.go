@@ -19,6 +19,7 @@ type MockRegistry interface {
 	Mock(mock any)
 	MockType(mockType reflect.Type, mock any)
 	GetMock(mockType reflect.Type) (any, bool)
+	RemoveMock(mockType reflect.Type)
 }
 
 type ConfigFn[C any] func(cfg C) C
@@ -110,6 +111,12 @@ func (s *Bench[C]) GetMock(mockType reflect.Type) (any, bool) {
 	defer s.mu.Unlock()
 	mock, ok := s.mocks[mockType]
 	return mock, ok
+}
+
+func (s *Bench[C]) RemoveMock(mockType reflect.Type) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.mocks, mockType)
 }
 
 func (s *Bench[C]) Start() {
