@@ -7,6 +7,7 @@ import (
 	"github.com/fruitsco/goji/component/notification"
 	"github.com/fruitsco/goji/component/queue"
 	"github.com/fruitsco/goji/component/redis"
+	"github.com/fruitsco/goji/component/search"
 	"github.com/fruitsco/goji/component/storage"
 	"github.com/fruitsco/goji/component/tasks"
 	"github.com/fruitsco/goji/component/vault"
@@ -23,6 +24,7 @@ type Config struct {
 	Vault        *vault.Config        `conf:"vault"`
 	Crypt        *crypt.Config        `conf:"crypt"`
 	Tasks        *tasks.Config        `conf:"tasks"`
+	Search       *search.Config       `conf:"search"`
 }
 
 var DefaultConfig = util.MergeMap(
@@ -35,4 +37,5 @@ var DefaultConfig = util.MergeMap(
 	vault.DefaultConfig,
 	crypt.DefaultConfig,
 	tasks.DefaultConfig,
+	search.DefaultConfig,
 )

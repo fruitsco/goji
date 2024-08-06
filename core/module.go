@@ -7,6 +7,7 @@ import (
 	"github.com/fruitsco/goji/component/notification"
 	"github.com/fruitsco/goji/component/queue"
 	"github.com/fruitsco/goji/component/redis"
+	"github.com/fruitsco/goji/component/search"
 	"github.com/fruitsco/goji/component/storage"
 	"github.com/fruitsco/goji/component/tasks"
 	"github.com/fruitsco/goji/component/validation"
@@ -26,5 +27,6 @@ func Module(config *Config) fx.Option {
 		vault.Module(config.Vault),
 		crypt.Module(config.Crypt),
 		tasks.Module(config.Tasks),
+		search.Module(config.Search),
 	)
 }
