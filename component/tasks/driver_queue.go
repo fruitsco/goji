@@ -28,19 +28,13 @@ type QueueDriverParams struct {
 	Log     *zap.Logger
 }
 
-func NewQueueDriverFactory(params CloudTasksDriverParams, lc fx.Lifecycle) driver.FactoryResult[TaskDriver, Driver] {
+func NewQueueDriverFactory(params QueueDriverParams, lc fx.Lifecycle) driver.FactoryResult[TaskDriver, Driver] {
 	return driver.NewFactory(Queue, func() (Driver, error) {
-		return NewCloudTasksDriver(params, lc)
+		return NewQueueDriver(params, lc)
 	})
 }
 
 func NewQueueDriver(params QueueDriverParams, lc fx.Lifecycle) (Driver, error) {
-	// NOTE: Cloud Tasks does not have an emulator (yet)
-	// if params.Config != nil && params.Config.EmulatorHost != nil {
-	// 	os.Setenv("PUBSUB_EMULATOR_HOST", *params.Config.EmulatorHost)
-	// 	os.Setenv("PUBSUB_PROJECT_ID", params.Config.ProjectID)
-	// }
-
 	return &QueueDriver{
 		queue: params.Queue,
 		log:   params.Log.Named("queue"),
