@@ -69,7 +69,7 @@ func NewCommand[C any](params RootParams) *Root {
 			environment := getEnvFromCLI(ctx)
 
 			// create the logger
-			log, err := createLogger(ctx, params.AppName, environment)
+			log, err := createLogger(ctx, ctx.App.Name, environment)
 			if err != nil {
 				return err
 			}
@@ -79,7 +79,7 @@ func NewCommand[C any](params RootParams) *Root {
 
 			// parse config using env
 			cfg, err := conf.Parse[RootConfig[C]](conf.ParseOptions{
-				AppName:     params.AppName,
+				AppName:     ctx.App.Name,
 				Environment: string(environment),
 				Defaults:    params.DefaultConfig,
 				Prefix:      params.Prefix,
