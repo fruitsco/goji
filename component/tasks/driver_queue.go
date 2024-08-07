@@ -29,7 +29,7 @@ type QueueDriverParams struct {
 }
 
 func NewQueueDriverFactory(params CloudTasksDriverParams, lc fx.Lifecycle) driver.FactoryResult[TaskDriver, Driver] {
-	return driver.NewFactory(CloudTasks, func() (Driver, error) {
+	return driver.NewFactory(Queue, func() (Driver, error) {
 		return NewCloudTasksDriver(params, lc)
 	})
 }
