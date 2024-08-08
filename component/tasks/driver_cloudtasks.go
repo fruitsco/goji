@@ -12,6 +12,8 @@ import (
 	taskspb "cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"google.golang.org/api/option"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/fruitsco/goji/x/driver"
@@ -28,18 +30,39 @@ var _ = Driver(&CloudTasksDriver{})
 type CloudTasksDriverParams struct {
 	fx.In
 
+	// Context is the context to use for the driver.
 	Context context.Context
-	Config  *CloudTasksConfig
-	Log     *zap.Logger
+
+	// Config is the cloud tasks configuration.
+	Config *CloudTasksConfig
+
+	// GRPCConn is the gRPC connection to use for the driver.
+	GRPCConn *grpc.ClientConn
+
+	// Log is the logger to use for the driver.
+	Log *zap.Logger
 }
 
 func NewCloudTasksDriverFactory(params CloudTasksDriverParams, lc fx.Lifecycle) driver.FactoryResult[TaskDriver, Driver] {
-	return driver.NewFactory(CloudTasks, func() (Driver, error) {
-		return NewCloudTasksDriver(params, lc)
+	factory := driver.NewFactory(CloudTasks, func() (Driver, error) {
+		driver, err := NewCloudTasksDriver(params)
+		if err != nil {
+			return nil, err
+		}
+
+		lc.Append(fx.Hook{
+			OnStop: func(context.Context) error {
+				return driver.Close()
+			},
+		})
+
+		return driver, nil
 	})
+
+	return factory
 }
 
-func NewCloudTasksDriver(params CloudTasksDriverParams, lc fx.Lifecycle) (Driver, error) {
+func NewCloudTasksDriver(params CloudTasksDriverParams) (*CloudTasksDriver, error) {
 	// NOTE: Cloud Tasks does not have an emulator (yet)
 	// if params.Config != nil && params.Config.EmulatorHost != nil {
 	// 	os.Setenv("PUBSUB_EMULATOR_HOST", *params.Config.EmulatorHost)
@@ -58,16 +81,20 @@ func NewCloudTasksDriver(params CloudTasksDriverParams, lc fx.Lifecycle) (Driver
 		return nil, fmt.Errorf("cloudtasks is missing region")
 	}
 
-	client, err := cloudtasks.NewClient(params.Context)
+	options := make([]option.ClientOption, 0)
+
+	if params.Config.Endpoint != "" {
+		options = append(options, option.WithEndpoint(params.Config.Endpoint))
+	}
+
+	if params.GRPCConn != nil {
+		options = append(options, option.WithGRPCConn(params.GRPCConn))
+	}
+
+	client, err := cloudtasks.NewClient(params.Context, options...)
 	if err != nil {
 		return nil, err
 	}
-
-	lc.Append(fx.Hook{
-		OnStop: func(ctx context.Context) error {
-			return client.Close()
-		},
-	})
 
 	return &CloudTasksDriver{
 		client: client,
@@ -158,36 +185,45 @@ func (d *CloudTasksDriver) ReceivePush(
 	if taskName == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing task name")
 	}
+	req.Header.Del("X-CloudTasks-TaskName")
 
 	queueName := req.Header.Get("X-CloudTasks-QueueName")
 	if queueName == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing queue name")
 	}
+	req.Header.Del("X-CloudTasks-QueueName")
 
 	scheduleTimeValue := req.Header.Get("X-CloudTasks-TaskETA")
 	if scheduleTimeValue == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing schedule time")
 	}
+	req.Header.Del("X-CloudTasks-TaskETA")
 
 	scheduleTimeSeconds, err := strconv.ParseInt(scheduleTimeValue, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid cloud tasks request: invalid schedule time: %v", err)
 	}
 
-	retryCount := 0
-	if retryCountValue := req.Header.Get("X-CloudTasks-TaskRetryCount"); retryCountValue != "" {
-		retryCount, err = strconv.Atoi(retryCountValue)
-		if err != nil {
-			return nil, fmt.Errorf("invalid cloud tasks request: invalid retry count: %v", err)
-		}
+	retryCountValue := req.Header.Get("X-CloudTasks-TaskRetryCount")
+	if retryCountValue == "" {
+		return nil, fmt.Errorf("invalid cloud tasks request: missing retry count")
+	}
+	req.Header.Del("X-CloudTasks-TaskRetryCount")
+
+	retryCount, err := strconv.Atoi(retryCountValue)
+	if err != nil {
+		return nil, fmt.Errorf("invalid cloud tasks request: invalid retry count: %v", err)
 	}
 
-	executionCount := 0
-	if executionCountValue := req.Header.Get("X-CloudTasks-TaskExecutionCount"); executionCountValue != "" {
-		executionCount, err = strconv.Atoi(executionCountValue)
-		if err != nil {
-			return nil, fmt.Errorf("invalid cloud tasks request: invalid execution count: %v", err)
-		}
+	executionCountValue := req.Header.Get("X-CloudTasks-TaskExecutionCount")
+	if executionCountValue == "" {
+		return nil, fmt.Errorf("invalid cloud tasks request: missing execution count")
+	}
+	req.Header.Del("X-CloudTasks-TaskExecutionCount")
+
+	executionCount, err := strconv.Atoi(executionCountValue)
+	if err != nil {
+		return nil, fmt.Errorf("invalid cloud tasks request: invalid execution count: %v", err)
 	}
 
 	return &Task{
@@ -199,6 +235,10 @@ func (d *CloudTasksDriver) ReceivePush(
 		ExecutionCount: executionCount,
 		Header:         req.Header,
 	}, nil
+}
+
+func (d *CloudTasksDriver) Close() error {
+	return d.client.Close()
 }
 
 var httpMethodMap = map[string]taskspb.HttpMethod{
