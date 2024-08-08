@@ -40,7 +40,7 @@ func NewGrpcServer(t *testing.T, setupFn func(*grpc.Server)) (*grpc.Server, *grp
 
 	// create a gRPC client that connects to the mock server
 	c, err := grpc.NewClient(
-		"localhost",
+		"localhost", // NOTE: using `lis.Addr()` will cause DNS lookup error in the CI
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
