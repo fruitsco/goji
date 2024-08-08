@@ -37,7 +37,7 @@ type CloudTasksDriverParams struct {
 	Config *CloudTasksConfig
 
 	// GRPCConn is the gRPC connection to use for the driver.
-	GRPCConn *grpc.ClientConn
+	GRPCConn *grpc.ClientConn `optional:"true"`
 
 	// NoAuth is a flag to disable authentication.
 	// This flag should be set to `true` only for testing purposes.
