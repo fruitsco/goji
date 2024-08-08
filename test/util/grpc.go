@@ -40,7 +40,7 @@ func NewGrpcServer(t *testing.T, setupFn func(*grpc.Server)) (*grpc.Server, *grp
 
 	// create a gRPC client that connects to the mock server
 	c, err := grpc.NewClient(
-		lis.Addr().String(),
+		"localhost",
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
