@@ -49,6 +49,7 @@ func TestCloudTasksDriver_Submit(t *testing.T) {
 			DefaultUrl: "http://test.local",
 			Endpoint:   client.Target(),
 		},
+		NoAuth:   true,
 		GRPCConn: client,
 		Log:      zap.NewNop(),
 	})
@@ -71,7 +72,8 @@ func TestCloudTasksDriver_ReceivePush(t *testing.T) {
 			Region:     "test-region",
 			DefaultUrl: "http://test.local",
 		},
-		Log: zap.NewNop(),
+		NoAuth: true,
+		Log:    zap.NewNop(),
 	})
 	require.NoError(t, err)
 	defer driver.Close()
@@ -105,7 +107,8 @@ func TestCloudTasksDriver_ReceivePush_FailsForInvalidHeaders(t *testing.T) {
 			Region:     "test-region",
 			DefaultUrl: "http://test.local",
 		},
-		Log: zap.NewNop(),
+		NoAuth: true,
+		Log:    zap.NewNop(),
 	})
 	require.NoError(t, err)
 	defer driver.Close()
