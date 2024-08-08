@@ -39,6 +39,10 @@ type CloudTasksDriverParams struct {
 	// GRPCConn is the gRPC connection to use for the driver.
 	GRPCConn *grpc.ClientConn
 
+	// NoAuth is a flag to disable authentication.
+	// This flag should be set to `true` only for testing purposes.
+	NoAuth bool
+
 	// Log is the logger to use for the driver.
 	Log *zap.Logger
 }
@@ -85,6 +89,10 @@ func NewCloudTasksDriver(params CloudTasksDriverParams) (*CloudTasksDriver, erro
 
 	if params.Config.Endpoint != "" {
 		options = append(options, option.WithEndpoint(params.Config.Endpoint))
+	}
+
+	if params.NoAuth {
+		options = append(options, option.WithoutAuthentication())
 	}
 
 	if params.GRPCConn != nil {
