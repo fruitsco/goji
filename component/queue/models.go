@@ -1,6 +1,9 @@
 package queue
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 type Message interface {
 	GetTopic() string
@@ -55,6 +58,6 @@ func NewGenericMessage(topic string, data []byte) *GenericMessage {
 }
 
 type PushRequest struct {
-	Data    []byte
-	Headers map[string]string
+	Data   []byte
+	Header http.Header
 }

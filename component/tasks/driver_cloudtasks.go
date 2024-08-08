@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
@@ -46,7 +47,7 @@ func NewCloudTasksDriver(params CloudTasksDriverParams, lc fx.Lifecycle) (Driver
 	// }
 
 	if params.Config == nil {
-		return nil, fmt.Errorf("missing cloud tasks config")
+		return nil, fmt.Errorf("missing cloudtasks config")
 	}
 
 	if params.Config.ProjectID == "" {
@@ -120,6 +121,11 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req *CreateTaskRequest) e
 		}
 	}
 
+	headers := make(map[string]string)
+	for k, v := range req.Header {
+		headers[k] = strings.Join(v, ",")
+	}
+
 	taskReq := &taskspb.CreateTaskRequest{
 		Parent: queuePath,
 		Task: &taskspb.Task{
@@ -130,7 +136,7 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req *CreateTaskRequest) e
 					HttpMethod:          httpMethodMap[req.Method],
 					Url:                 url,
 					Body:                req.Data,
-					Headers:             req.Headers,
+					Headers:             headers,
 					AuthorizationHeader: authHeader,
 				},
 			},
@@ -148,18 +154,18 @@ func (d *CloudTasksDriver) ReceivePush(
 	ctx context.Context,
 	req PushRequest,
 ) (*Task, error) {
-	taskName, ok := req.Meta["X-CloudTasks-TaskName"]
-	if !ok {
+	taskName := req.Header.Get("X-CloudTasks-TaskName")
+	if taskName == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing task name")
 	}
 
-	queueName, ok := req.Meta["X-CloudTasks-QueueName"]
-	if !ok {
+	queueName := req.Header.Get("X-CloudTasks-QueueName")
+	if queueName == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing queue name")
 	}
 
-	scheduleTimeValue, ok := req.Meta["X-CloudTasks-TaskETA"]
-	if !ok {
+	scheduleTimeValue := req.Header.Get("X-CloudTasks-ScheduleTime")
+	if scheduleTimeValue == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing schedule time")
 	}
 
@@ -169,7 +175,7 @@ func (d *CloudTasksDriver) ReceivePush(
 	}
 
 	retryCount := 0
-	if retryCountValue, ok := req.Meta["X-CloudTasks-TaskRetryCount"]; ok {
+	if retryCountValue := req.Header.Get("X-CloudTasks-TaskRetryCount"); retryCountValue != "" {
 		retryCount, err = strconv.Atoi(retryCountValue)
 		if err != nil {
 			return nil, fmt.Errorf("invalid cloud tasks request: invalid retry count: %v", err)
@@ -177,7 +183,7 @@ func (d *CloudTasksDriver) ReceivePush(
 	}
 
 	executionCount := 0
-	if executionCountValue, ok := req.Meta["X-CloudTasks-TaskExecutionCount"]; ok {
+	if executionCountValue := req.Header.Get("X-CloudTasks-TaskExecutionCount"); executionCountValue != "" {
 		executionCount, err = strconv.Atoi(executionCountValue)
 		if err != nil {
 			return nil, fmt.Errorf("invalid cloud tasks request: invalid execution count: %v", err)
@@ -191,7 +197,7 @@ func (d *CloudTasksDriver) ReceivePush(
 		ScheduleTime:   time.Unix(scheduleTimeSeconds, 0),
 		RetryCount:     retryCount,
 		ExecutionCount: executionCount,
-		Meta:           req.Meta,
+		Header:         req.Header,
 	}, nil
 }
 

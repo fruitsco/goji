@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"go.uber.org/fx"
@@ -83,8 +84,8 @@ func (d *QueueDriver) ReceivePush(
 	// the interfaces of queue.PushRequest and tasks.PushRequest match,
 	// so we can just cast it here. May diverge in the future.
 	message, err := d.queue.ReceivePush(ctx, queue.PushRequest{
-		Data:    req.Data,
-		Headers: req.Meta,
+		Data:   req.Data,
+		Header: req.Header,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to receive message: %w", err)
@@ -108,6 +109,11 @@ func (d *QueueDriver) ReceivePush(
 	queueName := meta["queue_name"]
 	taskName := meta["task_name"]
 
+	header := make(http.Header)
+	for k, v := range message.GetMeta() {
+		header.Set(k, v)
+	}
+
 	return &Task{
 		QueueName:      queueName,
 		TaskName:       taskName,
@@ -115,6 +121,6 @@ func (d *QueueDriver) ReceivePush(
 		RetryCount:     deliveryAttempt,
 		ExecutionCount: deliveryAttempt,
 		Data:           message.GetData(),
-		Meta:           message.GetMeta(),
+		Header:         header,
 	}, nil
 }

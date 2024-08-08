@@ -1,6 +1,9 @@
 package tasks
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 type CreateTaskRequest struct {
 	// Name is the name of the task
@@ -26,9 +29,9 @@ type CreateTaskRequest struct {
 	// This option is not supported / ignored by the queue driver.
 	Method string
 
-	// Headers are the HTTP headers to send with the request.
+	// Header are the HTTP headers to send with the request.
 	// This option is not supported / ignored by the queue driver.
-	Headers map[string]string
+	Header http.Header
 }
 
 type Task struct {
@@ -38,10 +41,10 @@ type Task struct {
 	RetryCount     int
 	ExecutionCount int
 	Data           []byte
-	Meta           map[string]string
+	Header         http.Header
 }
 
 type PushRequest struct {
-	Data []byte
-	Meta map[string]string
+	Data   []byte
+	Header http.Header
 }
