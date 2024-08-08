@@ -87,10 +87,6 @@ func NewCloudTasksDriver(params CloudTasksDriverParams) (*CloudTasksDriver, erro
 
 	options := make([]option.ClientOption, 0)
 
-	if params.Config.Endpoint != "" {
-		options = append(options, option.WithEndpoint(params.Config.Endpoint))
-	}
-
 	if params.NoAuth {
 		options = append(options, option.WithoutAuthentication())
 	}

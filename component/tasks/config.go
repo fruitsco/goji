@@ -15,7 +15,6 @@ type CloudTasksConfig struct {
 	Region                  string `conf:"region"`
 	DefaultUrl              string `conf:"default_url"`
 	AuthServiceAccountEmail string `conf:"auth_service_account_email"`
-	Endpoint                string `conf:"endpoint"`
 }
 
 type Config struct {

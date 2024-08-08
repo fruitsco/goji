@@ -47,7 +47,6 @@ func TestCloudTasksDriver_Submit(t *testing.T) {
 			ProjectID:  "test-project",
 			Region:     "test-region",
 			DefaultUrl: "http://test.local",
-			Endpoint:   client.Target(),
 		},
 		NoAuth:   true,
 		GRPCConn: client,
@@ -122,14 +121,16 @@ func TestCloudTasksDriver_ReceivePush_FailsForInvalidHeaders(t *testing.T) {
 	}
 
 	for header := range validHeaders {
-		inValidHeaders := validHeaders.Clone()
-		inValidHeaders.Del(header)
+		t.Run("missing "+header, func(t *testing.T) {
+			inValidHeaders := validHeaders.Clone()
+			inValidHeaders.Del(header)
 
-		req := tasks.PushRequest{
-			Header: inValidHeaders,
-		}
+			req := tasks.PushRequest{
+				Header: inValidHeaders,
+			}
 
-		_, err := driver.ReceivePush(context.Background(), req)
-		require.Error(t, err)
+			_, err := driver.ReceivePush(context.Background(), req)
+			require.Error(t, err)
+		})
 	}
 }
