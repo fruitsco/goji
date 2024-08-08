@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -203,10 +204,12 @@ func (d *CloudTasksDriver) ReceivePush(
 	}
 	req.Header.Del("X-CloudTasks-TaskETA")
 
-	scheduleTimeSeconds, err := strconv.ParseInt(scheduleTimeValue, 10, 64)
+	scheduleTimeDecimal, err := strconv.ParseFloat(scheduleTimeValue, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid cloud tasks request: invalid schedule time: %v", err)
 	}
+	scheduleTimeSec, scheduleTimeNsec := math.Modf(scheduleTimeDecimal)
+	scheduleTime := time.Unix(int64(scheduleTimeSec), int64(scheduleTimeNsec))
 
 	retryCountValue := req.Header.Get("X-CloudTasks-TaskRetryCount")
 	if retryCountValue == "" {
@@ -234,7 +237,7 @@ func (d *CloudTasksDriver) ReceivePush(
 		TaskName:       taskName,
 		QueueName:      queueName,
 		Data:           req.Data,
-		ScheduleTime:   time.Unix(scheduleTimeSeconds, 0),
+		ScheduleTime:   scheduleTime,
 		RetryCount:     retryCount,
 		ExecutionCount: executionCount,
 		Header:         req.Header,

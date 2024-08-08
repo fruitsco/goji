@@ -82,7 +82,7 @@ func TestCloudTasksDriver_ReceivePush(t *testing.T) {
 		Header: http.Header{
 			"X-Cloudtasks-Taskname":           []string{"test-task"},
 			"X-Cloudtasks-Queuename":          []string{"test-queue"},
-			"X-Cloudtasks-Tasketa":            []string{"0"},
+			"X-Cloudtasks-Tasketa":            []string{"1723123865.123456789"},
 			"X-Cloudtasks-Taskretrycount":     []string{"0"},
 			"X-Cloudtasks-Taskexecutioncount": []string{"1"},
 		},
@@ -93,7 +93,7 @@ func TestCloudTasksDriver_ReceivePush(t *testing.T) {
 
 	assert.Equal(t, "test-task", task.TaskName)
 	assert.Equal(t, "test-queue", task.QueueName)
-	assert.Equal(t, int64(0), task.ScheduleTime.Unix())
+	assert.Equal(t, int64(1723123865), task.ScheduleTime.Unix())
 	assert.Equal(t, 0, task.RetryCount)
 	assert.Equal(t, 1, task.ExecutionCount)
 }
@@ -115,7 +115,7 @@ func TestCloudTasksDriver_ReceivePush_FailsForInvalidHeaders(t *testing.T) {
 	validHeaders := http.Header{
 		"X-Cloudtasks-Taskname":           []string{"test-task"},
 		"X-Cloudtasks-Queuename":          []string{"test-queue"},
-		"X-Cloudtasks-Tasketa":            []string{"0"},
+		"X-Cloudtasks-Tasketa":            []string{"1723123865.123456789"},
 		"X-Cloudtasks-Taskretrycount":     []string{"0"},
 		"X-Cloudtasks-Taskexecutioncount": []string{"1"},
 	}

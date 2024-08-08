@@ -7,6 +7,6 @@ dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }}
 packages:
   cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb:
     config:
-      dir: "test/internal/mocks/googleapis/cloudtaskspb"
+      dir: "test/mocks/googleapis/cloudtaskspb"
     interfaces:
       CloudTasksServer:
