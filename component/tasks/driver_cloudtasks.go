@@ -164,7 +164,7 @@ func (d *CloudTasksDriver) ReceivePush(
 		return nil, fmt.Errorf("invalid cloud tasks request: missing queue name")
 	}
 
-	scheduleTimeValue := req.Header.Get("X-CloudTasks-ScheduleTime")
+	scheduleTimeValue := req.Header.Get("X-CloudTasks-TaskETA")
 	if scheduleTimeValue == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing schedule time")
 	}
