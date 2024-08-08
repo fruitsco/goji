@@ -41,7 +41,7 @@ type CloudTasksDriverParams struct {
 
 	// NoAuth is a flag to disable authentication.
 	// This flag should be set to `true` only for testing purposes.
-	NoAuth bool
+	NoAuth bool `optional:"true"`
 
 	// Log is the logger to use for the driver.
 	Log *zap.Logger
