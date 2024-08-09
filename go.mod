@@ -6,7 +6,7 @@ require (
 	ariga.io/atlas v0.25.0
 	cloud.google.com/go/cloudsqlconn v1.11.1
 	cloud.google.com/go/pubsub v1.41.0
-	cloud.google.com/go/secretmanager v1.13.5
+	cloud.google.com/go/secretmanager v1.13.6
 	cloud.google.com/go/storage v1.43.0
 	entgo.io/ent v0.14.0
 	github.com/go-playground/validator/v10 v10.22.0
@@ -41,7 +41,7 @@ require (
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
-	cloud.google.com/go/auth v0.7.3 // indirect
+	cloud.google.com/go/auth v0.8.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.3 // indirect
 	cloud.google.com/go/cloudtasks v1.12.12
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
