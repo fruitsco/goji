@@ -25,7 +25,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.74
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/shopspring/decimal v1.4.0
-	github.com/urfave/cli/v2 v2.27.3
+	github.com/urfave/cli/v2 v2.27.4
 	go.uber.org/fx v1.22.2
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.22.0
