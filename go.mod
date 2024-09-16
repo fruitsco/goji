@@ -21,7 +21,7 @@ require (
 	github.com/knadh/koanf/providers/file v1.1.0
 	github.com/knadh/koanf/v2 v2.1.1
 	github.com/lib/pq v1.10.9
-	github.com/mailgun/mailgun-go/v4 v4.14.0
+	github.com/mailgun/mailgun-go/v4 v4.15.1
 	github.com/minio/minio-go/v7 v7.0.74
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/shopspring/decimal v1.4.0
