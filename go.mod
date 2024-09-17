@@ -3,7 +3,7 @@ module github.com/fruitsco/goji
 go 1.23.0
 
 require (
-	ariga.io/atlas v0.26.0
+	ariga.io/atlas v0.27.0
 	cloud.google.com/go/cloudsqlconn v1.11.1
 	cloud.google.com/go/pubsub v1.42.0
 	cloud.google.com/go/secretmanager v1.14.0
