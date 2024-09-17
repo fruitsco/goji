@@ -27,6 +27,8 @@ cloud.google.com/go/cloudtasks v1.12.13 h1:SN2NqXSOdmQzQJjoMV0qLIn6GXG5SzRrRVNrN
 cloud.google.com/go/cloudtasks v1.12.13/go.mod h1:53OmmKqQTocrbeCL13cuaryBQOflyO8s4NxuRHJlXgc=
 cloud.google.com/go/cloudtasks v1.13.0 h1:rKVSsQwh0CI68n3RalLoGuW7sOtq2eil2gVZK4Pyi40=
 cloud.google.com/go/cloudtasks v1.13.0/go.mod h1:O1jFRGb1Vm3sN2u/tBdPiVGVTWIsrsbEs3K3N3nNlEU=
+cloud.google.com/go/cloudtasks v1.13.1 h1:s1JTLBD+WbzQwxYPAwa2WIxPT3kOiv7MSKyvSEgNQtg=
+cloud.google.com/go/cloudtasks v1.13.1/go.mod h1:dyRD7tEEkLMbHLagb7UugkDa77UVJp9d/6O9lm3ModI=
 cloud.google.com/go/compute/metadata v0.5.0 h1:Zr0eK8JbFv6+Wi4ilXAR8FJ3wyNdpxHKJNPos6LTZOY=
 cloud.google.com/go/compute/metadata v0.5.0/go.mod h1:aHnloV2TPI38yx4s9+wAZhHykWvVCfu7hQbF+9CWoiY=
 cloud.google.com/go/iam v1.1.11 h1:0mQ8UKSfdHLut6pH9FM3bI55KWR46ketn0PuXleDyxw=
