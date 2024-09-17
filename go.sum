@@ -53,6 +53,8 @@ cloud.google.com/go/secretmanager v1.13.6 h1:0ZEl/LuoB4xQsjVfQt3Gi/dZfOv36n4JmdP
 cloud.google.com/go/secretmanager v1.13.6/go.mod h1:x2ySyOrqv3WGFRFn2Xk10iHmNmvmcEVSSqc30eb1bhw=
 cloud.google.com/go/secretmanager v1.14.0 h1:P2RRu2NEsQyOjplhUPvWKqzDXUKzwejHLuSUBHI8c4w=
 cloud.google.com/go/secretmanager v1.14.0/go.mod h1:q0hSFHzoW7eRgyYFH8trqEFavgrMeiJI4FETNN78vhM=
+cloud.google.com/go/secretmanager v1.14.1 h1:xlWSIg8rtBn5qCr2f3XtQP19+5COyf/ll49SEvi/0vM=
+cloud.google.com/go/secretmanager v1.14.1/go.mod h1:L+gO+u2JA9CCyXpSR8gDH0o8EV7i/f0jdBOrUXcIV0U=
 cloud.google.com/go/storage v1.43.0 h1:CcxnSohZwizt4LCzQHWvBf1/kvtHUn7gk9QERXPyXFs=
 cloud.google.com/go/storage v1.43.0/go.mod h1:ajvxEa7WmZS1PxvKRq4bq0tFT3vMd502JwstCcYv0Q0=
 entgo.io/ent v0.14.0 h1:EO3Z9aZ5bXJatJeGqu/EVdnNr6K4mRq3rWe5owt0MC4=
