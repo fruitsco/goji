@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	ariga.io/atlas v0.27.0
 	cloud.google.com/go/cloudsqlconn v1.11.1
-	cloud.google.com/go/pubsub v1.42.0
+	cloud.google.com/go/pubsub v1.43.0
 	cloud.google.com/go/secretmanager v1.14.1
 	cloud.google.com/go/storage v1.43.0
 	entgo.io/ent v0.14.1
@@ -28,7 +28,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.4
 	go.uber.org/fx v1.22.2
 	go.uber.org/zap v1.27.0
-	golang.org/x/oauth2 v0.22.0
+	golang.org/x/oauth2 v0.23.0
 	google.golang.org/api v0.196.0
 )
 
