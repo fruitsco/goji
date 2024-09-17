@@ -23,6 +23,8 @@ cloud.google.com/go/auth/oauth2adapt v0.2.4 h1:0GWE/FUsXhf6C+jAkWgYm7X9tK8cuEIfy
 cloud.google.com/go/auth/oauth2adapt v0.2.4/go.mod h1:jC/jOpwFP6JBxhB3P5Rr0a9HLMC/Pe3eaL4NmdvqPtc=
 cloud.google.com/go/cloudsqlconn v1.11.1 h1:bWIYhsSv9Nqpvhy7CyKJLf5rPeSMsU5aHGXdXEuYQ5E=
 cloud.google.com/go/cloudsqlconn v1.11.1/go.mod h1:SInCUgNOQy5EuVT0U5iS+eDEJi/YSAutqlPSyUETwa0=
+cloud.google.com/go/cloudsqlconn v1.12.0 h1:XMCISMxdDy6ILnV1LlSv7RVjua6ezXGbxr6RivsvaRI=
+cloud.google.com/go/cloudsqlconn v1.12.0/go.mod h1:mwITDdyZVTBICzSWHCgGo8aaB45GUHclhI+xbR0kq2k=
 cloud.google.com/go/cloudtasks v1.12.12 h1:p91Brp4nJkyRRI/maYdO+FT+e9tU+2xoGr20s2rvalU=
 cloud.google.com/go/cloudtasks v1.12.12/go.mod h1:8UmM+duMrQpzzRREo0i3x3TrFjsgI/3FQw3664/JblA=
 cloud.google.com/go/cloudtasks v1.12.13 h1:SN2NqXSOdmQzQJjoMV0qLIn6GXG5SzRrRVNrNq2Q6zA=
