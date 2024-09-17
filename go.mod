@@ -28,7 +28,7 @@ require (
 	github.com/urfave/cli/v2 v2.27.4
 	go.uber.org/fx v1.22.2
 	go.uber.org/zap v1.27.0
-	golang.org/x/oauth2 v0.22.0
+	golang.org/x/oauth2 v0.23.0
 	google.golang.org/api v0.196.0
 )
 
