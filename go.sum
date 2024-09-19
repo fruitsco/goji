@@ -9,6 +9,8 @@ cloud.google.com/go/auth/oauth2adapt v0.2.4 h1:0GWE/FUsXhf6C+jAkWgYm7X9tK8cuEIfy
 cloud.google.com/go/auth/oauth2adapt v0.2.4/go.mod h1:jC/jOpwFP6JBxhB3P5Rr0a9HLMC/Pe3eaL4NmdvqPtc=
 cloud.google.com/go/cloudsqlconn v1.12.0 h1:XMCISMxdDy6ILnV1LlSv7RVjua6ezXGbxr6RivsvaRI=
 cloud.google.com/go/cloudsqlconn v1.12.0/go.mod h1:mwITDdyZVTBICzSWHCgGo8aaB45GUHclhI+xbR0kq2k=
+cloud.google.com/go/cloudsqlconn v1.12.1 h1:crfkYy4TsYXx+n/wELlPthDYaAmDo2olHLv9DmRuJzY=
+cloud.google.com/go/cloudsqlconn v1.12.1/go.mod h1:Y8x/9e+QsjJNkvOj9mdJ8/ixhE95Ab2H/vsyy0mXWNc=
 cloud.google.com/go/cloudtasks v1.13.1 h1:s1JTLBD+WbzQwxYPAwa2WIxPT3kOiv7MSKyvSEgNQtg=
 cloud.google.com/go/cloudtasks v1.13.1/go.mod h1:dyRD7tEEkLMbHLagb7UugkDa77UVJp9d/6O9lm3ModI=
 cloud.google.com/go/compute/metadata v0.5.0 h1:Zr0eK8JbFv6+Wi4ilXAR8FJ3wyNdpxHKJNPos6LTZOY=
