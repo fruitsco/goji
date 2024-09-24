@@ -22,7 +22,7 @@ require (
 	github.com/knadh/koanf/v2 v2.1.1
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.15.2
-	github.com/minio/minio-go/v7 v7.0.76
+	github.com/minio/minio-go/v7 v7.0.77
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/urfave/cli/v2 v2.27.4
