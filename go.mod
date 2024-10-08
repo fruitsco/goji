@@ -3,7 +3,7 @@ module github.com/fruitsco/goji
 go 1.23.0
 
 require (
-	ariga.io/atlas v0.27.0
+	ariga.io/atlas v0.28.0
 	cloud.google.com/go/cloudsqlconn v1.12.1
 	cloud.google.com/go/pubsub v1.43.0
 	cloud.google.com/go/secretmanager v1.14.1
@@ -38,6 +38,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.24.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.48.1 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.48.1 // indirect
+	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 // indirect
