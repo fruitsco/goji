@@ -83,6 +83,8 @@ type InfisicalDriver struct {
 type InfisicalDriverParams struct {
 	fx.In
 
+	Context context.Context
+
 	// Config is the configuration for the Infisical driver
 	Config *InfisicalConfig
 
@@ -125,7 +127,15 @@ func NewInfisicalDriver(
 		params.Config.Auth.Strategy = InfisicalAuthStrategyUniversal
 	}
 
-	client := infisical.NewInfisicalClient(infisical.Config{
+	if params.Log == nil {
+		params.Log = zap.NewNop()
+	}
+
+	if params.Context == nil {
+		params.Context = context.Background()
+	}
+
+	client := infisical.NewInfisicalClient(params.Context, infisical.Config{
 		SiteUrl: params.Config.SiteURL,
 	})
 
