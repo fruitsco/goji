@@ -1,11 +1,4 @@
-.PHONY: all build clean test test-unit test-race test-msan staticcheck vet
-
-all: build
-
-# MARK: - Build
-
-build:
-	go build -o ./bin/roma $(GOFLAGS) .
+.PHONY: all clean test test-unit test-race test-msan staticcheck vet
 
 # MARK: - Test
 
