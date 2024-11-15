@@ -12,7 +12,7 @@ require (
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/hashicorp/vault/api v1.15.0
 	github.com/hashicorp/vault/api/auth/gcp v0.8.0
-	github.com/infisical/go-sdk v0.3.6
+	github.com/infisical/go-sdk v0.4.3
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/knadh/koanf/parsers/dotenv v1.0.0
 	github.com/knadh/koanf/parsers/json v0.1.0
