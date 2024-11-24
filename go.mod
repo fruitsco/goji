@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.12.1
 	cloud.google.com/go/pubsub v1.45.1
 	cloud.google.com/go/secretmanager v1.14.2
-	cloud.google.com/go/storage v1.45.0
+	cloud.google.com/go/storage v1.47.0
 	entgo.io/ent v0.14.1
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/hashicorp/vault/api v1.15.0
