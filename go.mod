@@ -9,7 +9,7 @@ require (
 	cloud.google.com/go/secretmanager v1.14.2
 	cloud.google.com/go/storage v1.45.0
 	entgo.io/ent v0.14.1
-	github.com/go-playground/validator/v10 v10.22.1
+	github.com/go-playground/validator/v10 v10.23.0
 	github.com/hashicorp/vault/api v1.15.0
 	github.com/hashicorp/vault/api/auth/gcp v0.8.0
 	github.com/infisical/go-sdk v0.4.3
