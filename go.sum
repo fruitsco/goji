@@ -15,6 +15,8 @@ cloud.google.com/go/auth/oauth2adapt v0.2.5 h1:2p29+dePqsCHPP1bqDJcKj4qxRyYCcbzK
 cloud.google.com/go/auth/oauth2adapt v0.2.5/go.mod h1:AlmsELtlEBnaNTL7jCj8VQFLy6mbZv0s4Q7NGBeQ5E8=
 cloud.google.com/go/cloudsqlconn v1.12.1 h1:crfkYy4TsYXx+n/wELlPthDYaAmDo2olHLv9DmRuJzY=
 cloud.google.com/go/cloudsqlconn v1.12.1/go.mod h1:Y8x/9e+QsjJNkvOj9mdJ8/ixhE95Ab2H/vsyy0mXWNc=
+cloud.google.com/go/cloudsqlconn v1.13.1 h1:yWoXgP3jeJiHMzpfLKtf7XrPlDRaX/sYFEkyyXUAuIg=
+cloud.google.com/go/cloudsqlconn v1.13.1/go.mod h1:lP+AZa6H8aXN7oFFXybrD27X+37eeNqEMmZW/mIA9H8=
 cloud.google.com/go/cloudtasks v1.13.1 h1:s1JTLBD+WbzQwxYPAwa2WIxPT3kOiv7MSKyvSEgNQtg=
 cloud.google.com/go/cloudtasks v1.13.1/go.mod h1:dyRD7tEEkLMbHLagb7UugkDa77UVJp9d/6O9lm3ModI=
 cloud.google.com/go/cloudtasks v1.13.2 h1:x6Qw5JyNbH3reL0arUtlYf77kK6OVjZZ//8JCvUkLro=
@@ -557,6 +559,8 @@ google.golang.org/genproto/googleapis/rpc v0.0.0-20241007155032-5fefd90f89a9 h1:
 google.golang.org/genproto/googleapis/rpc v0.0.0-20241007155032-5fefd90f89a9/go.mod h1:GX3210XPVPUjJbTUbvwI8f2IpZDMZuPJWDzDuebbviI=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20241113202542-65e8d215514f h1:C1QccEa9kUwvMgEUORqQD9S17QesQijxjZ84sO82mfo=
 google.golang.org/genproto/googleapis/rpc v0.0.0-20241113202542-65e8d215514f/go.mod h1:GX3210XPVPUjJbTUbvwI8f2IpZDMZuPJWDzDuebbviI=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20241118233622-e639e219e697 h1:LWZqQOEjDyONlF1H6afSWpAL/znlREo2tHfLoe+8LMA=
+google.golang.org/genproto/googleapis/rpc v0.0.0-20241118233622-e639e219e697/go.mod h1:5uTbfoYQed2U9p3KIj2/Zzm02PYhndfdmML0qC3q3FU=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyacEbxg=
 google.golang.org/grpc v1.25.1/go.mod h1:c3i+UQWmh7LiEpx4sFZnkU36qjEYZ0imhYfXVyQciAY=
