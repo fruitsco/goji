@@ -17,6 +17,7 @@ type RootParams struct {
 	Prefix         string
 	Flags          []cli.Flag
 	DefaultConfig  conf.DefaultConfig
+	DefaultCommand string
 	ConfigFileName string
 }
 
@@ -60,10 +61,11 @@ func NewCommand[C any](params RootParams) *CLIRoot {
 	}, params.Flags...)
 
 	cliApp := &cli.App{
-		Name:    params.AppName,
-		Version: params.Version,
-		Usage:   params.Description,
-		Flags:   flags,
+		Name:           params.AppName,
+		Version:        params.Version,
+		Usage:          params.Description,
+		Flags:          flags,
+		DefaultCommand: params.DefaultCommand,
 		Before: func(ctx *cli.Context) error {
 			environment := getEnvFromCLI(ctx)
 
