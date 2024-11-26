@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
 
 	"github.com/fruitsco/goji/conf"
 )
@@ -50,14 +49,14 @@ func NewCommand[C any](params RootParams) *CLIRoot {
 				fmt.Sprintf("%s__LOG_LEVEL", params.Prefix),
 			},
 		},
-		&cli.StringFlag{
-			Name: "log-name",
-			EnvVars: []string{
-				"LOG_NAME",
-				fmt.Sprintf("%s.LOG_NAME", params.Prefix),
-				fmt.Sprintf("%s__LOG_NAME", params.Prefix),
-			},
-		},
+		// &cli.StringFlag{
+		// 	Name: "log-name",
+		// 	EnvVars: []string{
+		// 		"LOG_NAME",
+		// 		fmt.Sprintf("%s.LOG_NAME", params.Prefix),
+		// 		fmt.Sprintf("%s__LOG_NAME", params.Prefix),
+		// 	},
+		// },
 	}, params.Flags...)
 
 	cliApp := &cli.App{
@@ -68,18 +67,26 @@ func NewCommand[C any](params RootParams) *CLIRoot {
 		Before: func(ctx *cli.Context) error {
 			environment := getEnvFromCLI(ctx)
 
-			ctx.Context = Init(ctx.Context, InitParams{
+			logLevel := ctx.String("log-level")
+
+			initCtx, err := Init[C](ctx.Context, InitParams{
 				AppName:        ctx.App.Name,
+				LogLevel:       logLevel,
 				Prefix:         params.Prefix,
 				Environment:    environment,
 				DefaultConfig:  params.DefaultConfig,
 				ConfigFileName: params.ConfigFileName,
 			})
+			if err != nil {
+				return err
+			}
+
+			ctx.Context = initCtx
 
 			return nil
 		},
 		After: func(ctx *cli.Context) error {
-			log, err := loggerFromContext(ctx.Context)
+			log, err := LoggerFromContext(ctx.Context)
 			if err != nil {
 				return err
 			}
@@ -128,32 +135,4 @@ func init() {
 		Usage:              "print the version",
 		DisableDefaultText: true,
 	}
-}
-
-func createLogger(
-	ctx *cli.Context,
-	name string,
-	environment Environment,
-) (*zap.Logger, error) {
-	// get log name from parsed cli flags
-	logName := name
-	if name := ctx.String("log-name"); name != "" {
-		logName = name
-	}
-
-	var config zap.Config
-	if environment == EnvironmentProduction {
-		config = zap.NewProductionConfig()
-	} else {
-		config = zap.NewDevelopmentConfig()
-	}
-
-	config.InitialFields = map[string]any{
-		"app": logName,
-		"env": environment,
-	}
-
-	config.Level = getLevelFromCLI(ctx)
-
-	return config.Build()
 }

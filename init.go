@@ -4,21 +4,23 @@ import (
 	"context"
 
 	"github.com/fruitsco/goji/conf"
+	"go.uber.org/zap"
 )
 
 type InitParams struct {
 	AppName        string
+	LogLevel       string
 	Prefix         string
 	Environment    Environment
 	DefaultConfig  conf.DefaultConfig
 	ConfigFileName string
 }
 
-func Init(ctx context.Context, params AppParams) context.Context {
+func Init[C any](ctx context.Context, params InitParams) (context.Context, error) {
 	// create the logger
-	log, err := createLogger(ctx, params.AppName, params.Environment)
+	log, err := createLogger(ctx, params.AppName, params.LogLevel, params.Environment)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// inject logger into cli context
@@ -34,11 +36,34 @@ func Init(ctx context.Context, params AppParams) context.Context {
 		Log:         log,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// inject the config into the cli context
 	ctx = contextWithRootConfig(ctx, cfg)
 
-	return ctx
+	return ctx, nil
+}
+
+func createLogger(
+	ctx context.Context,
+	logName string,
+	logLevel string,
+	environment Environment,
+) (*zap.Logger, error) {
+	var config zap.Config
+	if environment == EnvironmentProduction {
+		config = zap.NewProductionConfig()
+	} else {
+		config = zap.NewDevelopmentConfig()
+	}
+
+	config.InitialFields = map[string]any{
+		"app": logName,
+		"env": environment,
+	}
+
+	config.Level = getLogLevel(logLevel, environment)
+
+	return config.Build()
 }

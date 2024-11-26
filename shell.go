@@ -43,7 +43,7 @@ func New[C any](options ...fx.Option) *Shell[C] {
 
 func (s *Shell[C]) Run(ctx context.Context, options ...fx.Option) error {
 	// 0. get logger from context
-	log, err := loggerFromContext(ctx)
+	log, err := LoggerFromContext(ctx)
 	if err != nil {
 		return err
 	}

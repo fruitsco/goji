@@ -13,8 +13,8 @@ var envMap = map[string]Environment{
 	"production":  EnvironmentProduction,
 }
 
-// GetAppEnv gets the application environment from the environment variables.
-func GetAppEnv() Environment {
+// GetAppEnvFromEnv gets the application environment from the environment variables.
+func GetAppEnvFromEnv() Environment {
 	v := os.Getenv("ENV")
 
 	if v == "" {
@@ -22,6 +22,11 @@ func GetAppEnv() Environment {
 	}
 
 	return Environment(v)
+}
+
+// GetLogLevelFromEnv gets the log level from the environment variables.
+func GetLogLevelFromEnv() string {
+	return os.Getenv("LOG_LEVEL")
 }
 
 func getEnvFromCLI(ctx *cli.Context) Environment {
@@ -32,19 +37,18 @@ func getEnvFromCLI(ctx *cli.Context) Environment {
 	return EnvironmentDevelopment
 }
 
-func getLevelFromCLI(ctx *cli.Context) zap.AtomicLevel {
-	lvl := ctx.String("log-level")
-
-	if lvl != "" {
-		if atom, err := zap.ParseAtomicLevel(lvl); err == nil {
+func getLogLevel(
+	logLevel string,
+	environment Environment,
+) zap.AtomicLevel {
+	if logLevel != "" {
+		if atom, err := zap.ParseAtomicLevel(logLevel); err == nil {
 			return atom
 		}
 	}
 
-	env := getEnvFromCLI(ctx)
-
 	var fallbackLevel zapcore.Level
-	if env == EnvironmentProduction {
+	if environment == EnvironmentProduction {
 		fallbackLevel = zap.InfoLevel
 	} else {
 		fallbackLevel = zap.DebugLevel
