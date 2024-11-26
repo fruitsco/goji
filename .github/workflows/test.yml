@@ -26,9 +26,6 @@ jobs:
         with:
           go-version-file: ./go.mod
 
-      - name: Setup Private Module Support
-        run: git config --global url.https://x-access-token:${{ secrets.ROOT_TOKEN }}@github.com/.insteadOf https://github.com/
-
       - name: Install dependencies
         run: go mod download
 

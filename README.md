@@ -1,6 +1,6 @@
 # goji
 
-A pluggable application framework for Go, to be open-sourced eventually.
+A pluggable application framework for Go.
 
 <div align="center">
   <img src="./logo.png" width="192px" />
