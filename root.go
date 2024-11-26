@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fruitsco/goji/conf"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
+
+	"github.com/fruitsco/goji/conf"
 )
 
 type RootParams struct {
@@ -20,11 +21,11 @@ type RootParams struct {
 	ConfigFileName string
 }
 
-type Root struct {
+type CLIRoot struct {
 	CLI *cli.App
 }
 
-func NewCommand[C any](params RootParams) *Root {
+func NewCommand[C any](params RootParams) *CLIRoot {
 	flags := append([]cli.Flag{
 		// &cli.BoolFlag{
 		// 	Name:               "verbose",
@@ -65,33 +66,15 @@ func NewCommand[C any](params RootParams) *Root {
 		Usage:   params.Description,
 		Flags:   flags,
 		Before: func(ctx *cli.Context) error {
-			// get env from parsed cli flags
 			environment := getEnvFromCLI(ctx)
 
-			// create the logger
-			log, err := createLogger(ctx, ctx.App.Name, environment)
-			if err != nil {
-				return err
-			}
-
-			// inject logger into cli context
-			ctx.Context = contextWithLogger(ctx.Context, log)
-
-			// parse config using env
-			cfg, err := conf.Parse[RootConfig[C]](conf.ParseOptions{
-				AppName:     ctx.App.Name,
-				Environment: string(environment),
-				Defaults:    params.DefaultConfig,
-				Prefix:      params.Prefix,
-				FileName:    params.ConfigFileName,
-				Log:         log,
+			ctx.Context = Init(ctx.Context, InitParams{
+				AppName:        ctx.App.Name,
+				Prefix:         params.Prefix,
+				Environment:    environment,
+				DefaultConfig:  params.DefaultConfig,
+				ConfigFileName: params.ConfigFileName,
 			})
-			if err != nil {
-				return err
-			}
-
-			// inject the config into the cli context
-			ctx.Context = contextWithRootConfig(ctx.Context, cfg)
 
 			return nil
 		},
@@ -107,20 +90,20 @@ func NewCommand[C any](params RootParams) *Root {
 		},
 	}
 
-	return &Root{
+	return &CLIRoot{
 		CLI: cliApp,
 	}
 }
 
-func (r *Root) AddCommand(cmd *cli.Command) {
+func (r *CLIRoot) AddCommand(cmd *cli.Command) {
 	r.CLI.Commands = append(r.CLI.Commands, cmd)
 }
 
-func (r *Root) Run(args []string) {
+func (r *CLIRoot) Run(args []string) {
 	r.RunContext(context.Background(), args)
 }
 
-func (r *Root) RunContext(ctx context.Context, args []string) {
+func (r *CLIRoot) RunContext(ctx context.Context, args []string) {
 	err := r.CLI.RunContext(ctx, args)
 
 	// if app exited without error, return

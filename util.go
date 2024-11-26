@@ -1,6 +1,8 @@
 package goji
 
 import (
+	"os"
+
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -9,6 +11,17 @@ import (
 var envMap = map[string]Environment{
 	"development": EnvironmentDevelopment,
 	"production":  EnvironmentProduction,
+}
+
+// GetAppEnv gets the application environment from the environment variables.
+func GetAppEnv() Environment {
+	v := os.Getenv("ENV")
+
+	if v == "" {
+		return EnvironmentDevelopment
+	}
+
+	return Environment(v)
 }
 
 func getEnvFromCLI(ctx *cli.Context) Environment {
