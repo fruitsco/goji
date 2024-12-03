@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	ariga.io/atlas v0.29.0
 	cloud.google.com/go/cloudsqlconn v1.13.1
-	cloud.google.com/go/pubsub v1.45.1
+	cloud.google.com/go/pubsub v1.45.2
 	cloud.google.com/go/secretmanager v1.14.2
 	cloud.google.com/go/storage v1.47.0
 	entgo.io/ent v0.14.1
