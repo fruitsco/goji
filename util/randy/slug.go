@@ -2,8 +2,6 @@ package randy
 
 import (
 	"math/rand"
-
-	"github.com/fruitsco/goji/util"
 )
 
 // Alphabets
@@ -18,18 +16,27 @@ var (
 // Defaults
 var (
 	DefaultSlugLength = uint8(8)
+	DefaultLength     = uint8(32)
 	DefaultAlphabet   = AlphabetAlphaNumeric
 )
 
 // Slug creates a random string of given length.
-func Slug(length *uint8) string {
-	return String(nil, util.WithDefault(length, DefaultSlugLength))
+func Slug(length uint8) string {
+	if length == 0 {
+		length = DefaultSlugLength
+	}
+
+	return String(nil, length)
 }
 
 // String creates a random string of given length using the given alphabet.
 func String(alphabet []rune, length uint8) string {
 	if len(alphabet) == 0 {
 		alphabet = DefaultAlphabet
+	}
+
+	if length == 0 {
+		length = DefaultLength
 	}
 
 	b := make([]rune, length)
