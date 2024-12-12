@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"io"
 	"net/http"
 	"time"
 )
@@ -44,7 +45,36 @@ type Task struct {
 	Header         http.Header
 }
 
-type PushRequest struct {
-	Data   []byte
-	Header http.Header
+type RawTask interface {
+	GetData() []byte
+	GetHeader() http.Header
+}
+
+type PushTaskData struct {
+	data   []byte
+	header http.Header
+}
+
+func (m *PushTaskData) GetData() []byte {
+	return m.data
+}
+
+func (m *PushTaskData) GetHeader() http.Header {
+	return m.header
+}
+
+func NewPushTaskData(data []byte, header http.Header) *PushTaskData {
+	return &PushTaskData{
+		data:   data,
+		header: header,
+	}
+}
+
+func NewPushTaskDataFromRequest(w, r *http.Request) (*PushTaskData, error) {
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewPushTaskData(data, r.Header), nil
 }

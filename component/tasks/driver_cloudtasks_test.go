@@ -77,18 +77,18 @@ func TestCloudTasksDriver_ReceivePush(t *testing.T) {
 	require.NoError(t, err)
 	defer driver.Close()
 
-	req := tasks.PushRequest{
-		Data: []byte("test"),
-		Header: http.Header{
+	req := tasks.NewPushTaskData(
+		[]byte("test"),
+		http.Header{
 			"X-Cloudtasks-Taskname":           []string{"test-task"},
 			"X-Cloudtasks-Queuename":          []string{"test-queue"},
 			"X-Cloudtasks-Tasketa":            []string{"1723123865.123456789"},
 			"X-Cloudtasks-Taskretrycount":     []string{"0"},
 			"X-Cloudtasks-Taskexecutioncount": []string{"1"},
 		},
-	}
+	)
 
-	task, err := driver.ReceivePush(context.Background(), req)
+	task, err := driver.Receive(context.Background(), req)
 	require.NoError(t, err)
 
 	assert.Equal(t, "test-task", task.TaskName)
@@ -122,14 +122,12 @@ func TestCloudTasksDriver_ReceivePush_FailsForInvalidHeaders(t *testing.T) {
 
 	for header := range validHeaders {
 		t.Run("missing "+header, func(t *testing.T) {
-			inValidHeaders := validHeaders.Clone()
-			inValidHeaders.Del(header)
+			invalidHeaders := validHeaders.Clone()
+			invalidHeaders.Del(header)
 
-			req := tasks.PushRequest{
-				Header: inValidHeaders,
-			}
+			req := tasks.NewPushTaskData(nil, invalidHeaders)
 
-			_, err := driver.ReceivePush(context.Background(), req)
+			_, err := driver.Receive(context.Background(), req)
 			require.Error(t, err)
 		})
 	}

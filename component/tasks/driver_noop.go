@@ -42,6 +42,6 @@ func (q *NoOpDriver) Submit(context.Context, *CreateTaskRequest) error {
 	return errors.New("not implemented")
 }
 
-func (q *NoOpDriver) ReceivePush(context.Context, PushRequest) (*Task, error) {
+func (q *NoOpDriver) Receive(context.Context, RawTask) (*Task, error) {
 	return nil, errors.New("not implemented")
 }

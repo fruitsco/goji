@@ -182,27 +182,29 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req *CreateTaskRequest) e
 	return nil
 }
 
-func (d *CloudTasksDriver) ReceivePush(
+func (d *CloudTasksDriver) Receive(
 	ctx context.Context,
-	req PushRequest,
+	req RawTask,
 ) (*Task, error) {
-	taskName := req.Header.Get("X-CloudTasks-TaskName")
+	meta := req.GetHeader()
+
+	taskName := meta.Get("X-CloudTasks-TaskName")
 	if taskName == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing task name")
 	}
-	req.Header.Del("X-CloudTasks-TaskName")
+	meta.Del("X-CloudTasks-TaskName")
 
-	queueName := req.Header.Get("X-CloudTasks-QueueName")
+	queueName := meta.Get("X-CloudTasks-QueueName")
 	if queueName == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing queue name")
 	}
-	req.Header.Del("X-CloudTasks-QueueName")
+	meta.Del("X-CloudTasks-QueueName")
 
-	scheduleTimeValue := req.Header.Get("X-CloudTasks-TaskETA")
+	scheduleTimeValue := meta.Get("X-CloudTasks-TaskETA")
 	if scheduleTimeValue == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing schedule time")
 	}
-	req.Header.Del("X-CloudTasks-TaskETA")
+	meta.Del("X-CloudTasks-TaskETA")
 
 	scheduleTimeDecimal, err := strconv.ParseFloat(scheduleTimeValue, 64)
 	if err != nil {
@@ -211,22 +213,22 @@ func (d *CloudTasksDriver) ReceivePush(
 	scheduleTimeSec, scheduleTimeNsec := math.Modf(scheduleTimeDecimal)
 	scheduleTime := time.Unix(int64(scheduleTimeSec), int64(scheduleTimeNsec))
 
-	retryCountValue := req.Header.Get("X-CloudTasks-TaskRetryCount")
+	retryCountValue := meta.Get("X-CloudTasks-TaskRetryCount")
 	if retryCountValue == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing retry count")
 	}
-	req.Header.Del("X-CloudTasks-TaskRetryCount")
+	meta.Del("X-CloudTasks-TaskRetryCount")
 
 	retryCount, err := strconv.Atoi(retryCountValue)
 	if err != nil {
 		return nil, fmt.Errorf("invalid cloud tasks request: invalid retry count: %v", err)
 	}
 
-	executionCountValue := req.Header.Get("X-CloudTasks-TaskExecutionCount")
+	executionCountValue := meta.Get("X-CloudTasks-TaskExecutionCount")
 	if executionCountValue == "" {
 		return nil, fmt.Errorf("invalid cloud tasks request: missing execution count")
 	}
-	req.Header.Del("X-CloudTasks-TaskExecutionCount")
+	meta.Del("X-CloudTasks-TaskExecutionCount")
 
 	executionCount, err := strconv.Atoi(executionCountValue)
 	if err != nil {
@@ -236,11 +238,11 @@ func (d *CloudTasksDriver) ReceivePush(
 	return &Task{
 		TaskName:       taskName,
 		QueueName:      queueName,
-		Data:           req.Data,
+		Data:           req.GetData(),
 		ScheduleTime:   scheduleTime,
 		RetryCount:     retryCount,
 		ExecutionCount: executionCount,
-		Header:         req.Header,
+		Header:         meta,
 	}, nil
 }
 

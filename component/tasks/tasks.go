@@ -11,7 +11,7 @@ import (
 
 type Driver interface {
 	Submit(context.Context, *CreateTaskRequest) error
-	ReceivePush(context.Context, PushRequest) (*Task, error)
+	Receive(context.Context, RawTask) (*Task, error)
 }
 
 type Tasks interface {
@@ -55,11 +55,11 @@ func (q *Manager) Submit(ctx context.Context, req *CreateTaskRequest) error {
 	return driver.Submit(ctx, req)
 }
 
-func (q *Manager) ReceivePush(ctx context.Context, req PushRequest) (*Task, error) {
+func (q *Manager) Receive(ctx context.Context, raw RawTask) (*Task, error) {
 	driver, err := q.resolveDriver()
 	if err != nil {
 		return nil, err
 	}
 
-	return driver.ReceivePush(ctx, req)
+	return driver.Receive(ctx, raw)
 }

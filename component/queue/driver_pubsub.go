@@ -101,10 +101,10 @@ func (q *PubSubDriver) Publish(ctx context.Context, message Message) error {
 	return nil
 }
 
-func (q *PubSubDriver) ReceivePush(ctx context.Context, req PushRequest) (Message, error) {
+func (q *PubSubDriver) Receive(ctx context.Context, raw RawMessage) (Message, error) {
 	message := &pubSubPushMessage{}
 
-	if err := json.Unmarshal(req.Data, message); err != nil {
+	if err := json.Unmarshal(raw.GetData(), message); err != nil {
 		return nil, err
 	}
 

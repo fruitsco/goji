@@ -77,16 +77,16 @@ func (d *QueueDriver) Submit(ctx context.Context, req *CreateTaskRequest) error 
 	return d.queue.Publish(ctx, message)
 }
 
-func (d *QueueDriver) ReceivePush(
+func (d *QueueDriver) Receive(
 	ctx context.Context,
-	req PushRequest,
+	raw RawTask,
 ) (*Task, error) {
 	// the interfaces of queue.PushRequest and tasks.PushRequest match,
 	// so we can just cast it here. May diverge in the future.
-	message, err := d.queue.ReceivePush(ctx, queue.PushRequest{
-		Data:   req.Data,
-		Header: req.Header,
-	})
+	message, err := d.queue.Receive(
+		ctx,
+		queue.NewPushMessageData(raw.GetData(), queue.RawMessageMeta(raw.GetHeader())),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to receive message: %w", err)
 	}

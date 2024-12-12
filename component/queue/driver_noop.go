@@ -41,6 +41,6 @@ func (q *NoOpDriver) Publish(context.Context, Message) error {
 	return errors.New("not implemented")
 }
 
-func (q *NoOpDriver) ReceivePush(context.Context, PushRequest) (Message, error) {
+func (q *NoOpDriver) Receive(context.Context, RawMessage) (Message, error) {
 	return nil, errors.New("not implemented")
 }

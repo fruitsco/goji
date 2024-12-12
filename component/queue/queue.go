@@ -10,7 +10,7 @@ import (
 
 type Driver interface {
 	Publish(context.Context, Message) error
-	ReceivePush(context.Context, PushRequest) (Message, error)
+	Receive(context.Context, RawMessage) (Message, error)
 }
 
 type Queue interface {
@@ -47,7 +47,6 @@ func (q *Manager) resolveDriver() (Driver, error) {
 
 func (q *Manager) Publish(ctx context.Context, message Message) error {
 	driver, err := q.resolveDriver()
-
 	if err != nil {
 		return err
 	}
@@ -55,12 +54,11 @@ func (q *Manager) Publish(ctx context.Context, message Message) error {
 	return driver.Publish(ctx, message)
 }
 
-func (q *Manager) ReceivePush(ctx context.Context, req PushRequest) (Message, error) {
+func (q *Manager) Receive(ctx context.Context, raw RawMessage) (Message, error) {
 	driver, err := q.resolveDriver()
-
 	if err != nil {
 		return nil, err
 	}
 
-	return driver.ReceivePush(ctx, req)
+	return driver.Receive(ctx, raw)
 }
