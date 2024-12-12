@@ -85,7 +85,7 @@ func NewPushMessageData(data []byte, meta RawMessageMeta) *PushMessageData {
 	}
 }
 
-func NewPushMessageDataFromRequest(w, r *http.Request) (*PushMessageData, error) {
+func NewPushMessageDataFromRequest(r *http.Request) (*PushMessageData, error) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err

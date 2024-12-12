@@ -70,7 +70,7 @@ func NewPushTaskData(data []byte, header http.Header) *PushTaskData {
 	}
 }
 
-func NewPushTaskDataFromRequest(w, r *http.Request) (*PushTaskData, error) {
+func NewPushTaskDataFromRequest(r *http.Request) (*PushTaskData, error) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
