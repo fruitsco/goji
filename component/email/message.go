@@ -12,14 +12,14 @@ type Message interface {
 }
 
 type TemplateData interface {
-	isTemplateData()
+	IsTemplateData()
 }
 
 type AttributesTemplateData map[string]any
 
 var _ = TemplateData(AttributesTemplateData{})
 
-func (t AttributesTemplateData) isTemplateData() {}
+func (t AttributesTemplateData) IsTemplateData() {}
 
 type Template struct {
 	Name string
