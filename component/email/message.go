@@ -102,6 +102,8 @@ type GenericMessage struct {
 	Attributes map[string]any
 }
 
+var _ = Message(&GenericMessage{})
+
 func (m *GenericMessage) GetFrom() *string {
 	return m.From
 }
@@ -128,6 +130,10 @@ func (m *GenericMessage) GetTemplate() *Template {
 
 func (m *GenericMessage) GetFiles() []*File {
 	return m.Files
+}
+
+func (m *GenericMessage) GetAttributes() map[string]any {
+	return m.Attributes
 }
 
 type File struct {
