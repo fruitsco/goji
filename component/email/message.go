@@ -17,22 +17,24 @@ type TemplateData interface {
 
 type AttributesTemplateData map[string]any
 
-var _ = TemplateData(&AttributesTemplateData{})
+var _ = TemplateData(AttributesTemplateData{})
 
-func (t *AttributesTemplateData) isTemplateData() {}
+func (t AttributesTemplateData) isTemplateData() {}
 
 type Template struct {
 	Name string
 	Data TemplateData
-
-	Attributes map[string]any
 }
 
-func NewTemplate(name string, attributes map[string]any) *Template {
+func NewTemplate(name string, data TemplateData) *Template {
 	return &Template{
-		Name:       name,
-		Attributes: attributes,
+		Name: name,
+		Data: data,
 	}
+}
+
+func NewAttributesTemplate(name string, data map[string]any) *Template {
+	return NewTemplate("attributes", AttributesTemplateData(data))
 }
 
 func NewTemplateMessage(
