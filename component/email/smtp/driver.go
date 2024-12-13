@@ -1,31 +1,34 @@
-package email
+package emailsmtp
 
 import (
 	"context"
 	"fmt"
 	"net/smtp"
 
+	"github.com/fruitsco/goji/component/email"
 	"github.com/fruitsco/goji/x/driver"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
+
+var Smtp email.MailDriver = "smtp"
 
 type SmtpDriver struct {
 	host string
 	port int
 }
 
-var _ = Driver(&SmtpDriver{})
+var _ = email.Driver(&SmtpDriver{})
 
 type SmtpDriverParams struct {
 	fx.In
 
-	Config *SmtpConfig
+	Config *email.SmtpConfig
 	Log    *zap.Logger
 }
 
-func NewSmtpDriverFactory(params SmtpDriverParams) driver.FactoryResult[MailDriver, Driver] {
-	return driver.NewFactory(Smtp, func() (Driver, error) {
+func NewSmtpDriverFactory(params SmtpDriverParams) driver.FactoryResult[email.MailDriver, email.Driver] {
+	return driver.NewFactory(Smtp, func() (email.Driver, error) {
 		return NewSmtpDriver(params), nil
 	})
 }
@@ -38,7 +41,7 @@ func NewSmtpDriver(params SmtpDriverParams) *SmtpDriver {
 	}
 }
 
-func (mailer *SmtpDriver) Send(ctx context.Context, msg Message) error {
+func (mailer *SmtpDriver) Send(ctx context.Context, msg email.Message) error {
 
 	smtpAddr := fmt.Sprintf("%s:%d", mailer.host, mailer.port)
 

@@ -11,8 +11,20 @@ type Message interface {
 	GetAttributes() map[string]any
 }
 
+type TemplateData interface {
+	isTemplateData()
+}
+
+type AttributesTemplateData map[string]any
+
+var _ = TemplateData(&AttributesTemplateData{})
+
+func (t *AttributesTemplateData) isTemplateData() {}
+
 type Template struct {
-	Name       string
+	Name string
+	Data TemplateData
+
 	Attributes map[string]any
 }
 
@@ -114,10 +126,6 @@ func (m *GenericMessage) GetTemplate() *Template {
 
 func (m *GenericMessage) GetFiles() []*File {
 	return m.Files
-}
-
-func (m *GenericMessage) GetAttributes() map[string]any {
-	return m.Attributes
 }
 
 type File struct {

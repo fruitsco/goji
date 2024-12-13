@@ -5,9 +5,7 @@ import "github.com/fruitsco/goji/conf"
 type MailDriver string
 
 const (
-	Mailgun MailDriver = "mailgun"
-	Smtp    MailDriver = "smtp"
-	NoOp    MailDriver = "noop"
+	NoOp MailDriver = "noop"
 )
 
 type SmtpConfig struct {

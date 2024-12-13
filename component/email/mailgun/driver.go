@@ -1,31 +1,34 @@
-package email
+package emailmailgun
 
 import (
 	"bytes"
 	"context"
 	"io"
 
+	"github.com/fruitsco/goji/component/email"
 	"github.com/fruitsco/goji/x/driver"
 	"github.com/mailgun/mailgun-go/v4"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
+var Mailgun email.MailDriver = "mailgun"
+
 type MailgunDriver struct {
 	mg *mailgun.MailgunImpl
 }
 
-var _ = Driver(&MailgunDriver{})
+var _ = email.Driver(&MailgunDriver{})
 
 type MailgunDriverParams struct {
 	fx.In
 
-	Config *MailgunConfig
+	Config *email.MailgunConfig
 	Log    *zap.Logger
 }
 
-func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[MailDriver, Driver] {
-	return driver.NewFactory(Mailgun, func() (Driver, error) {
+func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[email.MailDriver, email.Driver] {
+	return driver.NewFactory(Mailgun, func() (email.Driver, error) {
 		return NewMailgunDriver(params), nil
 	})
 }
@@ -41,7 +44,7 @@ func NewMailgunDriver(params MailgunDriverParams) *MailgunDriver {
 }
 
 // Send a message using mailgun
-func (m *MailgunDriver) Send(ctx context.Context, message Message) error {
+func (m *MailgunDriver) Send(ctx context.Context, message email.Message) error {
 	text := ""
 	if message.GetText() != nil {
 		text = *message.GetText()
