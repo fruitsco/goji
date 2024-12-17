@@ -31,6 +31,8 @@ cloud.google.com/go/secretmanager v1.14.2 h1:2XscWCfy//l/qF96YE18/oUaNJynAx749Jg
 cloud.google.com/go/secretmanager v1.14.2/go.mod h1:Q18wAPMM6RXLC/zVpWTlqq2IBSbbm7pKBlM3lCKsmjw=
 cloud.google.com/go/storage v1.46.0 h1:OTXISBpFd8KaA2ClT3K3oRk8UGOcTHtrZ1bW88xKiic=
 cloud.google.com/go/storage v1.46.0/go.mod h1:lM+gMAW91EfXIeMTBmixRsKL/XCxysytoAgduVikjMk=
+cloud.google.com/go/storage v1.48.0 h1:FhBDHACbVtdPx7S/AbcKujPWiHvfO6F8OXGgCEbB2+o=
+cloud.google.com/go/storage v1.48.0/go.mod h1:aFoDYNMAjv67lp+xcuZqjUKv/ctmplzQ3wJgodA7b+M=
 cloud.google.com/go/trace v1.11.2 h1:4ZmaBdL8Ng/ajrgKqY5jfvzqMXbrDcBsUGXOT9aqTtI=
 cloud.google.com/go/trace v1.11.2/go.mod h1:bn7OwXd4pd5rFuAnTrzBuoZ4ax2XQeG3qNgYmfCy0Io=
 entgo.io/ent v0.14.1 h1:fUERL506Pqr92EPHJqr8EYxbPioflJo6PudkrEA8a/s=
