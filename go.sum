@@ -231,6 +231,8 @@ github.com/infisical/go-sdk v0.4.5 h1:rQSgWW+thZQ2WfIbOD5SBflqx3BUUSNlvuDZdexXMF
 github.com/infisical/go-sdk v0.4.5/go.mod h1:6fWzAwTPIoKU49mQ2Oxu+aFnJu9n7k2JcNrZjzhHM2M=
 github.com/infisical/go-sdk v0.4.6 h1:RXXcmucfO2T5dSzXao9h9pZVn+m2usuflVO45Lpoz/o=
 github.com/infisical/go-sdk v0.4.6/go.mod h1:6fWzAwTPIoKU49mQ2Oxu+aFnJu9n7k2JcNrZjzhHM2M=
+github.com/infisical/go-sdk v0.4.7 h1:+cxIdDfciMh0Syxbxbqjhvz9/ShnN1equ2zqlVQYGtw=
+github.com/infisical/go-sdk v0.4.7/go.mod h1:6fWzAwTPIoKU49mQ2Oxu+aFnJu9n7k2JcNrZjzhHM2M=
 github.com/jackc/chunkreader/v2 v2.0.1 h1:i+RDz65UE+mmpjTfyz0MoVTnzeYxroil2G82ki7MGG8=
 github.com/jackc/chunkreader/v2 v2.0.1/go.mod h1:odVSm741yZoC3dpHEUXIqA9tQRhFrgOHwnPIn9lDKlk=
 github.com/jackc/pgconn v1.14.3 h1:bVoTr12EGANZz66nZPkMInAV/KHD2TxH9npjXXgiB3w=
