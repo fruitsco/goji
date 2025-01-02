@@ -15,6 +15,8 @@ cloud.google.com/go/cloudsqlconn v1.13.2 h1:c7dmrgJnbTeCYgPl9CRljbOSkxzh209UKM4L
 cloud.google.com/go/cloudsqlconn v1.13.2/go.mod h1:mjzL/CvXI8JHxMdjj9irBzGHIEMsZSP/hipODO/uxJc=
 cloud.google.com/go/cloudtasks v1.13.2 h1:x6Qw5JyNbH3reL0arUtlYf77kK6OVjZZ//8JCvUkLro=
 cloud.google.com/go/cloudtasks v1.13.2/go.mod h1:2pyE4Lhm7xY8GqbZKLnYk7eeuh8L0JwAvXx1ecKxYu8=
+cloud.google.com/go/cloudtasks v1.13.3 h1:rXdznKjCa7WpzmvR2plrn2KJ+RZC1oYxPiRWNQjjf3k=
+cloud.google.com/go/cloudtasks v1.13.3/go.mod h1:f9XRvmuFTm3VhIKzkzLCPyINSU3rjjvFUsFVGR5wi24=
 cloud.google.com/go/compute/metadata v0.6.0 h1:A6hENjEsCDtC1k8byVsgwvVcioamEHvZ4j01OwKxG9I=
 cloud.google.com/go/compute/metadata v0.6.0/go.mod h1:FjyFAW1MW0C203CEOMDTu3Dk1FlqW3Rga40jzHL4hfg=
 cloud.google.com/go/iam v1.3.0 h1:4Wo2qTaGKFtajbLpF6I4mywg900u3TLlHDb6mriLDPU=
