@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	vault "github.com/hashicorp/vault/api"
+	gcpAuth "github.com/hashicorp/vault/api/auth/gcp"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
 	"github.com/fruitsco/goji/x/driver"
-	vault "github.com/hashicorp/vault/api"
-	gcpAuth "github.com/hashicorp/vault/api/auth/gcp"
 )
 
 // HCPVaultAuthStrategy is the strategy for authentication

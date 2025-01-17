@@ -7,12 +7,25 @@ import (
 	"os"
 
 	"cloud.google.com/go/pubsub"
-	"github.com/fruitsco/goji/internal/google"
-	"github.com/fruitsco/goji/x/driver"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
+
+	"github.com/fruitsco/goji/internal/google"
+	"github.com/fruitsco/goji/x/driver"
 )
+
+type Handler interface {
+	Handle(context.Context, Message) error
+}
+
+type HandlerFunc func(context.Context, Message) error
+
+func (f HandlerFunc) Handle(ctx context.Context, message Message) error {
+	return f(ctx, message)
+}
+
+var _ = Handler(HandlerFunc(nil))
 
 // pubSubPushMessage is a struct that represents the message that is sent to the
 // push endpoint of a pubsub subscription. It contains the subscription name and
@@ -99,6 +112,28 @@ func (q *PubSubDriver) Publish(ctx context.Context, message Message) error {
 	}
 
 	return nil
+}
+
+func (q *PubSubDriver) Subscribe(ctx context.Context, name string, handler Handler) error {
+	sub := q.client.Subscription(name)
+
+	return sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
+		message := &GenericMessage{
+			ID:              m.ID,
+			Data:            m.Data,
+			DeliveryAttempt: m.DeliveryAttempt,
+			PublishTime:     m.PublishTime,
+			Meta:            m.Attributes,
+		}
+
+		if err := handler.Handle(ctx, message); err != nil {
+			q.log.Error("failed to handle message", zap.Error(err))
+			m.Nack()
+			return
+		}
+
+		m.Ack()
+	})
 }
 
 func (q *PubSubDriver) Receive(ctx context.Context, raw RawMessage) (Message, error) {

@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fruitsco/goji/x/driver"
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
-	secretmanager "cloud.google.com/go/secretmanager/apiv1"
-	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
+	"github.com/fruitsco/goji/x/driver"
 )
 
 // GCPSecretManagerConfig is the configuration for Google Cloud Secret Manager

@@ -1,8 +1,9 @@
 package crypt
 
 import (
-	"github.com/fruitsco/goji/x/logging"
 	"go.uber.org/fx"
+
+	"github.com/fruitsco/goji/x/logging"
 )
 
 func Module(cfg *Config) fx.Option {

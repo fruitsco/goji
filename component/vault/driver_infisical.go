@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	infisical "github.com/infisical/go-sdk"
+	infisicalModels "github.com/infisical/go-sdk/packages/models"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
 	"github.com/fruitsco/goji/x/driver"
-	infisical "github.com/infisical/go-sdk"
-	infisicalModels "github.com/infisical/go-sdk/packages/models"
 )
 
 // InfisicalAuthStrategy is the strategy for authentication

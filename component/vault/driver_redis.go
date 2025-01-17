@@ -8,10 +8,11 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/fruitsco/goji/component/redis"
-	"github.com/fruitsco/goji/x/driver"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+
+	"github.com/fruitsco/goji/component/redis"
+	"github.com/fruitsco/goji/x/driver"
 )
 
 // RedisDriverConfig is the configuration for the Redis driver

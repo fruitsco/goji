@@ -3,8 +3,9 @@ package crypt
 import (
 	"context"
 
-	"github.com/fruitsco/goji/component/vault"
 	"go.uber.org/fx"
+
+	"github.com/fruitsco/goji/component/vault"
 )
 
 type VaultKeyProvider struct {
