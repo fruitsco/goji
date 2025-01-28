@@ -54,6 +54,7 @@ func createLogger(
 	var config zap.Config
 	if environment == EnvironmentProduction {
 		config = zap.NewProductionConfig()
+		config.EncoderConfig.LevelKey = "severity"
 	} else {
 		config = zap.NewDevelopmentConfig()
 	}
