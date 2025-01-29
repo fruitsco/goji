@@ -160,6 +160,6 @@ require (
 )
 
 exclude (
-	github.com/envoyproxy/go-control-plane v0.13.1
-	github.com/envoyproxy/go-control-plane v0.13.2
+	github.com/envoyproxy/go-control-plane v0.13.4
+	github.com/envoyproxy/go-control-plane v0.13.4
 )
