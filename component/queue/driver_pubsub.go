@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 
 	"cloud.google.com/go/pubsub"
@@ -11,21 +12,10 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
 
+	"github.com/fruitsco/goji"
 	"github.com/fruitsco/goji/internal/google"
 	"github.com/fruitsco/goji/x/driver"
 )
-
-type Handler interface {
-	Handle(context.Context, Message) error
-}
-
-type HandlerFunc func(context.Context, Message) error
-
-func (f HandlerFunc) Handle(ctx context.Context, message Message) error {
-	return f(ctx, message)
-}
-
-var _ = Handler(HandlerFunc(nil))
 
 // pubSubPushMessage is a struct that represents the message that is sent to the
 // push endpoint of a pubsub subscription. It contains the subscription name and
@@ -119,7 +109,7 @@ func (q *PubSubDriver) Publish(ctx context.Context, message Message) error {
 	return nil
 }
 
-func (q *PubSubDriver) Subscribe(ctx context.Context, name string, handler Handler) error {
+func (q *PubSubDriver) Subscribe(ctx context.Context, name string, handler MessageHandler) error {
 	sub := q.client.Subscription(name)
 
 	return sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
@@ -131,7 +121,7 @@ func (q *PubSubDriver) Subscribe(ctx context.Context, name string, handler Handl
 			Meta:            m.Attributes,
 		}
 
-		if err := handler.Handle(ctx, message); err != nil {
+		if err := handler.HandleMessage(ctx, message); err != nil {
 			q.log.Error("failed to handle message", zap.Error(err))
 			m.Nack()
 			return
@@ -179,4 +169,55 @@ func (q *PubSubDriver) getTopic(topic string) *pubsub.Topic {
 	q.topicMap[topic] = t
 
 	return t
+}
+
+// MARK: - Push handler
+
+const maxPayloadBytes = int64(65536)
+
+func PubSubPushHandler(q Queue, h MessageHandler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// prevent flooding the server with large payloads
+		r.Body = http.MaxBytesReader(w, r.Body, maxPayloadBytes)
+
+		ctx := r.Context()
+
+		log, err := goji.LoggerFromContext(ctx)
+		if err != nil {
+			log = zap.NewNop()
+		}
+
+		log = log.Named("queue_push_handler").With(
+			zap.String("method", r.Method),
+			zap.String("path", r.URL.Path),
+		)
+
+		data, err := NewPushMessageDataFromRequest(r)
+		if err != nil {
+			log.Warn("error reading request body", zap.Error(err))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		message, err := q.Receive(ctx, data)
+		if err != nil {
+			log.Warn("error recieving queue event", zap.Error(err))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		log = log.With(
+			zap.String("message_id", message.GetID()),
+			zap.String("message_topic", message.GetTopic()),
+			zap.Any("message_attempt", message.GetDeliveryAttempt()),
+		)
+
+		if err := h.HandleMessage(ctx, message); err != nil {
+			log.Warn("error handling message", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
 }
