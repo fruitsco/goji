@@ -106,7 +106,12 @@ func (q *PubSubDriver) Name() QueueDriver {
 func (q *PubSubDriver) Publish(ctx context.Context, message Message) error {
 	topic := q.getTopic(message.GetTopic())
 
-	_, err := topic.Publish(ctx, &pubsub.Message{Data: message.GetData()}).Get(ctx)
+	msg := &pubsub.Message{
+		Data:       message.GetData(),
+		Attributes: message.GetMeta(),
+	}
+
+	_, err := topic.Publish(ctx, msg).Get(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to publish message: %w", err)
 	}
