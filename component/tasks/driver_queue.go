@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"go.uber.org/fx"
@@ -58,8 +57,8 @@ func (d *QueueDriver) Submit(ctx context.Context, req *CreateTaskRequest) error 
 
 	msg := queue.NewGenericMessage(req.Queue, req.Data)
 
-	for k, v := range req.Header {
-		msg.Meta[k] = strings.Join(v, ",") // TODO: does this make sense?
+	for k := range req.Header {
+		msg.Meta[k] = req.Header.Get(k)
 	}
 
 	name := req.Name
