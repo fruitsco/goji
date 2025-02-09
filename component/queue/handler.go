@@ -2,14 +2,14 @@ package queue
 
 import "context"
 
-type MessageHandler interface {
+type Handler interface {
 	HandleMessage(context.Context, Message) error
 }
 
-type MessageHandlerFunc func(context.Context, Message) error
+type HandlerFunc func(context.Context, Message) error
 
-func (f MessageHandlerFunc) HandleMessage(ctx context.Context, message Message) error {
+func (f HandlerFunc) HandleMessage(ctx context.Context, message Message) error {
 	return f(ctx, message)
 }
 
-var _ = MessageHandler(MessageHandlerFunc(nil))
+var _ = Handler(HandlerFunc(nil))

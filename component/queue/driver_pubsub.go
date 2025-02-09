@@ -109,7 +109,7 @@ func (q *PubSubDriver) Publish(ctx context.Context, message Message) error {
 	return nil
 }
 
-func (q *PubSubDriver) Subscribe(ctx context.Context, name string, handler MessageHandler) error {
+func (q *PubSubDriver) Subscribe(ctx context.Context, name string, handler Handler) error {
 	sub := q.client.Subscription(name)
 
 	return sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
@@ -175,7 +175,7 @@ func (q *PubSubDriver) getTopic(topic string) *pubsub.Topic {
 
 const maxPayloadBytes = int64(65536)
 
-func PubSubPushHandler(q Queue, h MessageHandler) http.Handler {
+func PubSubPushHandler(q Queue, h Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// prevent flooding the server with large payloads
 		r.Body = http.MaxBytesReader(w, r.Body, maxPayloadBytes)
