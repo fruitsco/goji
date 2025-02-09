@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/fruitsco/goji"
 	"github.com/fruitsco/goji/x/driver"
 )
 
@@ -258,4 +259,52 @@ var httpMethodMap = map[string]taskspb.HttpMethod{
 	http.MethodDelete:  taskspb.HttpMethod_DELETE,
 	http.MethodHead:    taskspb.HttpMethod_HEAD,
 	http.MethodOptions: taskspb.HttpMethod_OPTIONS,
+}
+
+const maxPayloadBytes = int64(65536)
+
+func CloudTasksPushHandler(t Tasks, h Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, maxPayloadBytes)
+
+		ctx := r.Context()
+
+		log, err := goji.LoggerFromContext(ctx)
+		if err != nil {
+			log = zap.NewNop()
+		}
+
+		log = log.Named("tasks_push_handler").With(
+			zap.String("method", r.Method),
+			zap.String("path", r.URL.Path),
+		)
+
+		data, err := NewPushTaskDataFromRequest(r)
+		if err != nil {
+			log.Warn("error creating task data", zap.Error(err))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		task, err := t.Receive(ctx, data)
+		if err != nil {
+			log.Warn("error recieving task", zap.Error(err))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		log = log.With(
+			zap.String("task_name", task.TaskName),
+			zap.String("task_queue", task.QueueName),
+			zap.Any("task_execution_count", task.ExecutionCount),
+		)
+
+		if err := h.HandleTask(ctx, task); err != nil {
+			log.Warn("error handling message", zap.Error(err))
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	})
 }

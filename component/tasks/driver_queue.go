@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"go.uber.org/fx"
@@ -55,7 +56,11 @@ func (d *QueueDriver) Submit(ctx context.Context, req *CreateTaskRequest) error 
 		return fmt.Errorf("data is required")
 	}
 
-	message := queue.NewGenericMessage(req.Queue, req.Data)
+	msg := queue.NewGenericMessage(req.Queue, req.Data)
+
+	for k, v := range req.Header {
+		msg.Meta[k] = strings.Join(v, ",") // TODO: does this make sense?
+	}
 
 	name := req.Name
 	if name == "" {
@@ -71,10 +76,10 @@ func (d *QueueDriver) Submit(ctx context.Context, req *CreateTaskRequest) error 
 	// for sake of consistency, we add these fields to the message metadata.
 	// this is not used by the pubsub driver itself, but the information will
 	// eventually be delivered to the consumer.
-	message.Meta["task_name"] = name
-	message.Meta["schedule_time"] = scheduleTime.Format(time.RFC3339)
+	msg.Meta["task_name"] = name
+	msg.Meta["schedule_time"] = scheduleTime.Format(time.RFC3339)
 
-	return d.queue.Publish(ctx, message)
+	return d.queue.Publish(ctx, msg)
 }
 
 func (d *QueueDriver) Receive(
