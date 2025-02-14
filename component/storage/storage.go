@@ -28,6 +28,7 @@ type Driver interface {
 	SignedDownload(ctx context.Context, bucketName string, name string) (*SignResult, error)
 	Download(ctx context.Context, bucketName string, name string) ([]byte, error)
 	Upload(ctx context.Context, bucketName string, name string, data []byte) error
+	Copy(ctx context.Context, srcBucket string, srcName string, dstBucket string, dstName string) error
 }
 
 type Storage interface {
@@ -121,4 +122,13 @@ func (s *Manager) Upload(ctx context.Context, bucketName string, name string, da
 	}
 
 	return driver.Upload(ctx, bucketName, name, data)
+}
+
+func (s *Manager) Copy(ctx context.Context, srcBucket string, srcName string, dstBucket string, dstName string) error {
+	driver, err := s.defaultDriver()
+	if err != nil {
+		return err
+	}
+
+	return driver.Copy(ctx, srcBucket, srcName, dstBucket, dstName)
 }

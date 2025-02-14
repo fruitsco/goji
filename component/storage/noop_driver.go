@@ -62,9 +62,15 @@ func (s *NoOpDriver) SignedDownload(
 ) (*SignResult, error) {
 	return nil, nil
 }
+
 func (s *NoOpDriver) Download(ctx context.Context, bucketName string, name string) ([]byte, error) {
 	return nil, nil
 }
+
 func (s *NoOpDriver) Upload(ctx context.Context, bucketName string, name string, data []byte) error {
+	return nil
+}
+
+func (s *NoOpDriver) Copy(ctx context.Context, srcBucket string, srcName string, dstBucket string, dstName string) error {
 	return nil
 }

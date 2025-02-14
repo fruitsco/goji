@@ -175,8 +175,15 @@ func (s *MinioDriver) Download(ctx context.Context, bucketName string, name stri
 // Upload uploads a file to the storage
 func (s *MinioDriver) Upload(ctx context.Context, bucketName string, name string, data []byte) error {
 	_, err := s.client.PutObject(ctx, bucketName, name, bytes.NewReader(data), int64(len(data)), minio.PutObjectOptions{})
-
 	return err
+}
+
+func (s *MinioDriver) Copy(ctx context.Context, srcBucket string, srcName string, dstBucket string, dstName string) error {
+	dest := minio.CopyDestOptions{Bucket: dstBucket, Object: dstName}
+	src := minio.CopySrcOptions{Bucket: srcBucket, Object: srcName}
+	_, err := s.client.CopyObject(ctx, dest, src)
+	return err
+
 }
 
 func createClientTrace(log *zap.Logger) *httptrace.ClientTrace {

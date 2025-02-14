@@ -39,7 +39,6 @@ func NewGCSDriverFactory(params GCSDriverParams) driver.FactoryResult[StorageDri
 // NewGCSDriver creates a new storage base struct
 func NewGCSDriver(params GCSDriverParams) (*GCSDriver, error) {
 	client, err := storage.NewClient(params.Context)
-
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +71,7 @@ func (s *GCSDriver) Exists(ctx context.Context, bucketName string, name string) 
 func (s *GCSDriver) Delete(ctx context.Context, bucketName string, name string) error {
 	bucket := s.client.Bucket(bucketName)
 
-	err := bucket.Object(name).Delete(ctx)
-
-	if err != nil {
+	if err := bucket.Object(name).Delete(ctx); err != nil {
 		return err
 	}
 
@@ -114,13 +111,11 @@ func (s *GCSDriver) SignedUpload(
 	}
 
 	signedUrlString, err := bucket.SignedURL(name, opts)
-
 	if err != nil {
 		return nil, err
 	}
 
 	signedUrl, err := url.Parse(signedUrlString)
-
 	if err != nil {
 		return nil, err
 	}
@@ -149,13 +144,11 @@ func (s *GCSDriver) SignedDownload(
 	}
 
 	signedUrlString, err := bucket.SignedURL(name, opts)
-
 	if err != nil {
 		return nil, err
 	}
 
 	signedUrl, err := url.Parse(signedUrlString)
-
 	if err != nil {
 		return nil, err
 	}
@@ -190,13 +183,31 @@ func (s *GCSDriver) Upload(ctx context.Context, bucketName string, name string, 
 
 	w := obj.NewWriter(ctx)
 
-	_, err := w.Write(data)
-
-	if err != nil {
+	if _, err := w.Write(data); err != nil {
 		return err
 	}
 
 	if err := w.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *GCSDriver) Copy(
+	ctx context.Context,
+	srcBucketName string,
+	srcName string,
+	dstBucketName string,
+	dstName string,
+) error {
+	srcBucketObj := s.client.Bucket(srcBucketName)
+	dstBucketObj := s.client.Bucket(dstBucketName)
+
+	srcObj := srcBucketObj.Object(srcName)
+	dstObj := dstBucketObj.Object(dstName)
+
+	if _, err := dstObj.CopierFrom(srcObj).Run(ctx); err != nil {
 		return err
 	}
 
