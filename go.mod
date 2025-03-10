@@ -3,7 +3,7 @@ module github.com/fruitsco/goji
 go 1.23.0
 
 require (
-	ariga.io/atlas v0.30.0
+	ariga.io/atlas v0.32.0
 	cloud.google.com/go/cloudsqlconn v1.14.1
 	cloud.google.com/go/iam v1.3.1
 	cloud.google.com/go/pubsub v1.45.3
@@ -35,7 +35,10 @@ require (
 	google.golang.org/protobuf v1.36.4
 )
 
-require github.com/envoyproxy/go-control-plane/envoy v1.32.3 // indirect
+require (
+	github.com/envoyproxy/go-control-plane/envoy v1.32.3 // indirect
+	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
+)
 
 require (
 	cel.dev/expr v0.19.0 // indirect
