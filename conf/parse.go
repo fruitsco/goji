@@ -31,7 +31,7 @@ func Parse[C any](opt ParseOptions) (*C, error) {
 
 	k := koanf.New(".")
 
-	dotenvParser := dotenv.ParserEnv(opt.Prefix, ".", transformEnv)
+	dotenvParser := dotenv.ParserEnvWithValue(opt.Prefix, ".", transformEnv)
 
 	// PRIO 0 - defaults
 	k.Load(confmap.Provider(opt.Defaults, "."), nil)
@@ -63,7 +63,7 @@ func Parse[C any](opt ParseOptions) (*C, error) {
 	}
 
 	// PRIO 5 - load env vars
-	if err := k.Load(env.Provider(opt.Prefix, ".", transformEnv), nil); err != nil {
+	if err := k.Load(env.ProviderWithValue(opt.Prefix, ".", transformEnv), nil); err != nil {
 		log.Error("error loading env vars", zap.Error(err))
 		return nil, err
 	}
@@ -82,13 +82,48 @@ func Parse[C any](opt ParseOptions) (*C, error) {
 	return &config, nil
 }
 
-func transformEnv(s string) string {
+func transformEnv(k string, v string) (string, any) {
 	// allow specifying nested env vars w/ __
-	normalized := strings.ReplaceAll(strings.ToLower(s), "__", ".")
+	normalized := strings.ReplaceAll(strings.ToLower(k), "__", ".")
 	// split normalized env var by separator
 	parts := strings.Split(normalized, ".")
 	// pop prefix
 	_, parts = parts[0], parts[1:]
 	// create final string
-	return strings.Join(parts, ".")
+	kr := strings.Join(parts, ".")
+	kv := transformEnvValue(v)
+	return kr, kv
+}
+
+func transformEnvValue(v string) any {
+	if strings.Contains(v, ",") {
+		// if the value contains a comma, split it into a slice
+		// each item should be trimmed. if the comma is escaped
+		// it should not be split
+		escaped := false
+		var partsList []string
+		var current strings.Builder
+
+		for i := 0; i < len(v); i++ {
+			ch := v[i]
+			if ch == '\\' && !escaped {
+				escaped = true
+				continue
+			}
+			if ch == ',' && !escaped {
+				partsList = append(partsList, strings.TrimSpace(current.String()))
+				current.Reset()
+			} else {
+				current.WriteByte(ch)
+				escaped = false
+			}
+		}
+		partsList = append(partsList, strings.TrimSpace(current.String()))
+		if len(partsList) == 1 {
+			return partsList[0]
+		}
+		return partsList
+	}
+
+	return v
 }
