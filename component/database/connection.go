@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"sync/atomic"
 
 	"cloud.google.com/go/cloudsqlconn"
 	"cloud.google.com/go/cloudsqlconn/postgres/pgxv5"
@@ -10,6 +11,8 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
+
+var driverCount int64
 
 type CleanupFn func() error
 
@@ -170,14 +173,17 @@ func createCloudSQLConnectorDB(params ConnectionParams) (*sql.DB, CleanupFn, err
 		dialerOpts = append(dialerOpts, cloudsqlconn.WithIAMAuthN())
 	}
 
-	close, err := pgxv5.RegisterDriver("cloudsql-postgres", dialerOpts...)
+	driverIndex := atomic.AddInt64(&driverCount, 1)
+	driverName := fmt.Sprintf("cloudsql-postgres-%d", driverIndex)
+
+	close, err := pgxv5.RegisterDriver(driverName, dialerOpts...)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	dbURI := DsnForConnection(params)
 
-	db, err := sql.Open("cloudsql-postgres", dbURI)
+	db, err := sql.Open(driverName, dbURI)
 	if err != nil {
 		close()
 		return nil, nil, err
