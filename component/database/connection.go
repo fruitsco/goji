@@ -130,8 +130,10 @@ func (c *multiConnection) DB() *sql.DB {
 
 func (c *multiConnection) Driver() dialect.Driver {
 	return &multiDriver{
-		r: c.r.Driver(),
-		w: c.w.Driver(),
+		r:                  c.r.Driver(),
+		w:                  c.w.Driver(),
+		queryTotal:         3,
+		queryWriteFraction: 1,
 	}
 }
 
