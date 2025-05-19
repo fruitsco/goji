@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -57,7 +58,7 @@ func (s *GCSDriver) Exists(ctx context.Context, bucketName string, name string) 
 	obj := bucket.Object(name)
 
 	if _, err := obj.Attrs(ctx); err != nil {
-		if err == storage.ErrObjectNotExist {
+		if errors.Is(err, storage.ErrObjectNotExist) {
 			return false, nil
 		} else {
 			return false, err
