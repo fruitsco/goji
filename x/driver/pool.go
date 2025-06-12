@@ -41,3 +41,16 @@ func (p *Pool[K, D]) Resolve(driverKey K) (D, error) {
 
 	return d, fmt.Errorf("driver %v not found", driverKey)
 }
+
+func (p *Pool[K, D]) All() ([]D, error) {
+	var r []D
+	for k := range p.drivers {
+		if d, err := p.Resolve(k); err != nil {
+			return nil, err
+		} else {
+			r = append(r, d)
+		}
+	}
+
+	return r, nil
+}
