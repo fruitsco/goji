@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net/smtp"
 
-	"github.com/fruitsco/goji/component/email"
-	"github.com/fruitsco/goji/x/driver"
+	"github.com/google/uuid"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+
+	"github.com/fruitsco/goji/component/email"
+	"github.com/fruitsco/goji/x/driver"
 )
 
 var Smtp email.MailDriver = "smtp"
@@ -42,6 +44,11 @@ func NewSmtpDriver(params SmtpDriverParams) *SmtpDriver {
 }
 
 func (mailer *SmtpDriver) Send(ctx context.Context, msg email.Message) error {
+	_, err := mailer.SendID(ctx, msg)
+	return err
+}
+
+func (mailer *SmtpDriver) SendID(ctx context.Context, msg email.Message) (string, error) {
 
 	smtpAddr := fmt.Sprintf("%s:%d", mailer.host, mailer.port)
 
@@ -50,12 +57,10 @@ func (mailer *SmtpDriver) Send(ctx context.Context, msg email.Message) error {
 		text = *msg.GetText()
 	}
 
-	err := smtp.SendMail(smtpAddr, nil, *msg.GetFrom(), msg.GetTo(), []byte(text))
-
-	if err != nil {
+	if err := smtp.SendMail(smtpAddr, nil, *msg.GetFrom(), msg.GetTo(), []byte(text)); err != nil {
 		fmt.Println(err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return uuid.NewString(), nil
 }

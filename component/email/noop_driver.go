@@ -33,8 +33,12 @@ func NewNoOpDriver(params NoOpDriverParams) *NoOpDriver {
 	}
 }
 
-// Send a message using postino
 func (m *NoOpDriver) Send(ctx context.Context, message Message) error {
 	m.log.With(zap.Any("message", message)).Info("sending message")
 	return nil
+}
+
+func (m *NoOpDriver) SendID(ctx context.Context, message Message) (string, error) {
+	m.log.With(zap.Any("message", message)).Info("sending message")
+	return "", nil
 }
