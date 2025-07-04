@@ -7,6 +7,7 @@ import (
 type Factory[K comparable, D any] struct {
 	Provides K
 	Create   func() (D, error)
+	Optional bool
 }
 
 func NewFactory[K comparable, D any](name K, create func() (D, error)) FactoryResult[K, D] {
@@ -14,6 +15,16 @@ func NewFactory[K comparable, D any](name K, create func() (D, error)) FactoryRe
 		Factory: &Factory[K, D]{
 			Provides: name,
 			Create:   create,
+		},
+	}
+}
+
+func NewOptionalFactory[K comparable, D any](name K, create func() (D, error)) FactoryResult[K, D] {
+	return FactoryResult[K, D]{
+		Factory: &Factory[K, D]{
+			Provides: name,
+			Create:   create,
+			Optional: true,
 		},
 	}
 }

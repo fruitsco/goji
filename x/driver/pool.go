@@ -46,7 +46,12 @@ func (p *Pool[K, D]) All() ([]D, error) {
 	var r []D
 	for k := range p.drivers {
 		if d, err := p.Resolve(k); err != nil {
-			return nil, err
+			if f, ok := p.drivers[k]; ok && f.Optional {
+				// if the driver is optional, we skip it
+				continue
+			}
+
+			return nil, fmt.Errorf("failed to resolve driver %v: %w", k, err)
 		} else {
 			r = append(r, d)
 		}
