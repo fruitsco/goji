@@ -27,7 +27,7 @@ type RedisDriverConfig struct {
 // RedisDriver is the driver for Redis
 type RedisDriver struct {
 	config *RedisDriverConfig
-	redis  *redis.Connection
+	redis  *redis.Client
 	log    *zap.Logger
 }
 

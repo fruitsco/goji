@@ -8,29 +8,23 @@ import (
 	"go.uber.org/fx"
 )
 
+type Client = redis.Client
+
 var (
 	ErrConnectionNotConfigured = errors.New("connection not configured")
 )
 
-type Connection struct {
-	*redis.Client
-}
-
-func NewConnection(config *ConnectionConfig) *Connection {
-	client := redis.NewClient(&redis.Options{
+func NewConnection(config *ConnectionConfig) *Client {
+	return redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", config.Host, config.Port),
 		Password: config.Password,
 		DB:       config.DB,
 	})
-
-	return &Connection{
-		Client: client,
-	}
 }
 
 type Redis struct {
 	config      *Config
-	connections map[ConnectionName]*Connection
+	connections map[ConnectionName]*Client
 }
 
 type RedisParams struct {
@@ -41,7 +35,7 @@ type RedisParams struct {
 
 func New(params RedisParams) *Redis {
 	// init default connections
-	connections := map[ConnectionName]*Connection{
+	connections := map[ConnectionName]*Client{
 		(DefaultConnectionName): NewConnection(params.Config.Connections[params.Config.DefaultConnection]),
 	}
 
@@ -51,7 +45,7 @@ func New(params RedisParams) *Redis {
 	}
 }
 
-func (r *Redis) resolveConnection(name ConnectionName) (*Connection, error) {
+func (r *Redis) resolveConnection(name ConnectionName) (*Client, error) {
 	if conn, ok := r.connections[name]; ok {
 		return conn, nil
 	}
@@ -65,10 +59,10 @@ func (r *Redis) resolveConnection(name ConnectionName) (*Connection, error) {
 	return nil, ErrConnectionNotConfigured
 }
 
-func (r *Redis) Default() (*Connection, error) {
+func (r *Redis) Default() (*Client, error) {
 	return r.resolveConnection(r.config.DefaultConnection)
 }
 
-func (r *Redis) Connection(name ConnectionName) (*Connection, error) {
+func (r *Redis) Connection(name ConnectionName) (*Client, error) {
 	return r.resolveConnection(name)
 }
