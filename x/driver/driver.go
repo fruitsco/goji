@@ -10,6 +10,8 @@ type Factory[K comparable, D any] struct {
 	Optional bool
 }
 
+type Factories[K comparable, D any] []*Factory[K, D]
+
 func NewFactory[K comparable, D any](name K, create func() (D, error)) FactoryResult[K, D] {
 	return FactoryResult[K, D]{
 		Factory: &Factory[K, D]{

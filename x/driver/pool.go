@@ -7,7 +7,7 @@ type Pool[K comparable, D any] struct {
 	driverCache map[K]D
 }
 
-func NewPool[K comparable, D any](drivers []*Factory[K, D]) *Pool[K, D] {
+func NewPool[K comparable, D any](drivers Factories[K, D]) *Pool[K, D] {
 	driversPool := make(map[K]*Factory[K, D])
 	driverCache := make(map[K]D)
 
