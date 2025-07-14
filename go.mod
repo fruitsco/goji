@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.15.0
 	github.com/hashicorp/vault/api/auth/gcp v0.8.0
-	github.com/infisical/go-sdk v0.4.7
+	github.com/infisical/go-sdk v0.5.97
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/knadh/koanf/parsers/dotenv v1.0.0
 	github.com/knadh/koanf/parsers/json v0.1.0
@@ -38,6 +38,7 @@ require (
 )
 
 require (
+	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/minio/crc64nvme v1.0.1 // indirect
 	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
