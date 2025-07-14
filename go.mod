@@ -24,7 +24,7 @@ require (
 	github.com/knadh/koanf/providers/file v1.2.0
 	github.com/knadh/koanf/v2 v2.2.2
 	github.com/lib/pq v1.10.9
-	github.com/mailgun/mailgun-go/v4 v4.23.0
+	github.com/mailgun/mailgun-go/v5 v5.4.2
 	github.com/minio/minio-go/v7 v7.0.94
 	github.com/redis/go-redis/v9 v9.11.0
 	github.com/shopspring/decimal v1.4.0
@@ -36,6 +36,8 @@ require (
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 )
+
+require github.com/oapi-codegen/runtime v1.1.1 // indirect
 
 require (
 	cel.dev/expr v0.23.0 // indirect
@@ -76,7 +78,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
-	github.com/go-chi/chi/v5 v5.2.2 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
