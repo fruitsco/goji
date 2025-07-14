@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	ariga.io/atlas v0.31.1-0.20250212144724-069be8033e83
 	cloud.google.com/go/cloudsqlconn v1.14.1
-	cloud.google.com/go/cloudtasks v1.13.3
+	cloud.google.com/go/cloudtasks v1.13.6
 	cloud.google.com/go/iam v1.5.2
 	cloud.google.com/go/pubsub v1.47.0
 	cloud.google.com/go/secretmanager v1.14.5
