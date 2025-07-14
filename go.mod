@@ -27,7 +27,7 @@ require (
 	github.com/mailgun/mailgun-go/v4 v4.23.0
 	github.com/mailgun/mailgun-go/v5 v5.4.2
 	github.com/minio/minio-go/v7 v7.0.94
-	github.com/redis/go-redis/v9 v9.7.3
+	github.com/redis/go-redis/v9 v9.11.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/urfave/cli/v2 v2.27.7
 	go.uber.org/fx v1.24.0
