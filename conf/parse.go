@@ -6,7 +6,7 @@ import (
 	"github.com/knadh/koanf/parsers/dotenv"
 	jsonParser "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/providers/confmap"
-	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/env/v2"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
 	"go.uber.org/zap"
@@ -62,8 +62,13 @@ func Parse[C any](opt ParseOptions) (*C, error) {
 		log.Debug(".env not found")
 	}
 
+	envProvider := env.Provider(".", env.Opt{
+		Prefix:        opt.Prefix,
+		TransformFunc: transformEnv,
+	})
+
 	// PRIO 5 - load env vars
-	if err := k.Load(env.ProviderWithValue(opt.Prefix, ".", transformEnv), nil); err != nil {
+	if err := k.Load(envProvider, nil); err != nil {
 		log.Error("error loading env vars", zap.Error(err))
 		return nil, err
 	}

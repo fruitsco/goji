@@ -17,12 +17,12 @@ require (
 	github.com/hashicorp/vault/api/auth/gcp v0.8.0
 	github.com/infisical/go-sdk v0.4.7
 	github.com/jackc/pgx/v5 v5.7.5
-	github.com/knadh/koanf/parsers/dotenv v1.0.0
-	github.com/knadh/koanf/parsers/json v0.1.0
-	github.com/knadh/koanf/providers/confmap v0.1.0
-	github.com/knadh/koanf/providers/env v1.0.0
-	github.com/knadh/koanf/providers/file v1.1.2
-	github.com/knadh/koanf/v2 v2.1.2
+	github.com/knadh/koanf/parsers/dotenv v1.1.0
+	github.com/knadh/koanf/parsers/json v1.0.0
+	github.com/knadh/koanf/providers/confmap v1.0.0
+	github.com/knadh/koanf/providers/env/v2 v2.0.0
+	github.com/knadh/koanf/providers/file v1.2.0
+	github.com/knadh/koanf/v2 v2.2.2
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.23.0
 	github.com/minio/minio-go/v7 v7.0.94
@@ -35,15 +35,6 @@ require (
 	google.golang.org/api v0.237.0
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
-)
-
-require (
-	github.com/minio/crc64nvme v1.0.1 // indirect
-	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
-	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
-	github.com/tinylib/msgp v1.3.0 // indirect
-	github.com/zeebo/errs v1.4.0 // indirect
-	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 )
 
 require (
@@ -84,7 +75,7 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-chi/chi/v5 v5.2.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
@@ -96,7 +87,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-resty/resty/v2 v2.13.1 // indirect
 	github.com/go-test/deep v1.0.4 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -120,10 +111,11 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
-	github.com/knadh/koanf/maps v0.1.1 // indirect
+	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mailgun/errors v0.4.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
+	github.com/minio/crc64nvme v1.0.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -132,19 +124,23 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
+	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.10.0
+	github.com/tinylib/msgp v1.3.0 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
+	github.com/zeebo/errs v1.4.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/detectors/gcp v1.35.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.61.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.61.0 // indirect
