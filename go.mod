@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/cloudsqlconn v1.14.1
 	cloud.google.com/go/cloudtasks v1.13.3
 	cloud.google.com/go/iam v1.5.2
-	cloud.google.com/go/pubsub v1.47.0
+	cloud.google.com/go/pubsub v1.49.0
 	cloud.google.com/go/secretmanager v1.14.5
 	cloud.google.com/go/storage v1.50.0
 	entgo.io/ent v0.14.4
