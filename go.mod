@@ -33,7 +33,7 @@ require (
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.30.0
-	google.golang.org/api v0.237.0
+	google.golang.org/api v0.241.0
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 )
