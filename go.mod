@@ -18,7 +18,7 @@ require (
 	github.com/infisical/go-sdk v0.4.7
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/knadh/koanf/parsers/dotenv v1.0.0
-	github.com/knadh/koanf/parsers/json v0.1.0
+	github.com/knadh/koanf/parsers/json v1.0.0
 	github.com/knadh/koanf/providers/confmap v0.1.0
 	github.com/knadh/koanf/providers/env v1.0.0
 	github.com/knadh/koanf/providers/file v1.1.2
