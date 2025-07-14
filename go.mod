@@ -29,6 +29,7 @@ require (
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/shopspring/decimal v1.4.0
 	github.com/urfave/cli/v2 v2.27.7
+	github.com/urfave/cli/v3 v3.3.8
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/oauth2 v0.30.0
