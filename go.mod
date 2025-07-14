@@ -21,7 +21,7 @@ require (
 	github.com/knadh/koanf/parsers/json v0.1.0
 	github.com/knadh/koanf/providers/confmap v0.1.0
 	github.com/knadh/koanf/providers/env v1.0.0
-	github.com/knadh/koanf/providers/file v1.1.2
+	github.com/knadh/koanf/providers/file v1.2.0
 	github.com/knadh/koanf/v2 v2.1.2
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.23.0
@@ -82,7 +82,7 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-chi/chi/v5 v5.2.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
