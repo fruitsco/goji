@@ -1,16 +1,18 @@
 module github.com/fruitsco/goji
 
-go 1.23.0
+go 1.24.0
 
 require (
 	ariga.io/atlas v0.31.1-0.20250212144724-069be8033e83
 	cloud.google.com/go/cloudsqlconn v1.14.1
+	cloud.google.com/go/cloudtasks v1.13.3
 	cloud.google.com/go/iam v1.3.1
 	cloud.google.com/go/pubsub v1.45.3
 	cloud.google.com/go/secretmanager v1.14.3
 	cloud.google.com/go/storage v1.50.0
 	entgo.io/ent v0.14.4
 	github.com/go-playground/validator/v10 v10.24.0
+	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.15.0
 	github.com/hashicorp/vault/api/auth/gcp v0.8.0
 	github.com/infisical/go-sdk v0.4.7
@@ -36,16 +38,10 @@ require (
 )
 
 require (
-	github.com/envoyproxy/go-control-plane/envoy v1.32.3 // indirect
-	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
-)
-
-require (
 	cel.dev/expr v0.19.0 // indirect
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.14.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
-	cloud.google.com/go/cloudtasks v1.13.3
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	cloud.google.com/go/monitoring v1.21.2 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0 // indirect
@@ -75,6 +71,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/envoyproxy/go-control-plane/envoy v1.32.3 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.1.0 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -95,7 +92,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -138,6 +134,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
+	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/detectors/gcp v1.32.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.54.0 // indirect
