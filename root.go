@@ -71,7 +71,7 @@ func NewCommand[C any](params RootParams) *CLIRoot {
 			logLevel := cmd.String("log-level")
 
 			initCtx, err := Init[C](ctx, InitParams{
-				AppName:        cmd.Name,
+				AppName:        cmd.Root().Name,
 				LogLevel:       logLevel,
 				Prefix:         params.Prefix,
 				Environment:    environment,
