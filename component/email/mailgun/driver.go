@@ -15,8 +15,15 @@ import (
 
 var Mailgun email.MailDriver = "mailgun"
 
+// NewMailgun creates a new mailgun client
+func NewMailgun(config *email.MailgunConfig) mailgun.Mailgun {
+	mg := mailgun.NewMailgun(config.APIKey)
+	mg.SetAPIBase(config.APIBase)
+	return mg
+}
+
 type MailgunDriver struct {
-	mg     *mailgun.Client
+	mg     mailgun.Mailgun
 	domain string
 }
 
@@ -25,10 +32,12 @@ var _ = email.Driver(&MailgunDriver{})
 type MailgunDriverParams struct {
 	fx.In
 
-	Config *email.MailgunConfig
-	Log    *zap.Logger
+	Config  *email.MailgunConfig
+	Mailgun mailgun.Mailgun
+	Log     *zap.Logger
 }
 
+// NewMailgunDriverFactory creates a new mailgun driver factory
 func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[email.MailDriver, email.Driver] {
 	return driver.NewFactory(Mailgun, func() (email.Driver, error) {
 		return NewMailgunDriver(params), nil
@@ -37,10 +46,7 @@ func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[em
 
 // NewMailgunDriver returns a new mailgun driver implementation
 func NewMailgunDriver(params MailgunDriverParams) *MailgunDriver {
-	mg := mailgun.NewMailgun(params.Config.ApiKey)
-	mg.SetAPIBase(params.Config.ApiBase)
-
-	return &MailgunDriver{mg, params.Config.Domain}
+	return &MailgunDriver{params.Mailgun, params.Config.Domain}
 }
 
 func (m *MailgunDriver) Send(ctx context.Context, message email.Message) error {

@@ -25,7 +25,7 @@ var _ = email.Driver(&SmtpDriver{})
 type SmtpDriverParams struct {
 	fx.In
 
-	Config *email.SmtpConfig
+	Config *email.SMTPConfig
 	Log    *zap.Logger
 }
 
