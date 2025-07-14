@@ -1,12 +1,10 @@
-# inpackage: True
-with-expecter: True
-outpkg: "{{.PackageName}}_mocks"
-filename: "{{.InterfaceName | snakecase}}_mock.go"
 dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }}
-# dir: "{{.InterfaceDir}}"
+pkgname: "{{.SrcPackageName}}_mocks"
+template: testify
+filename: "{{.InterfaceName | snakecase}}_mock.go"
 packages:
   cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb:
     config:
-      dir: "test/mocks/googleapis/cloudtaskspb"
+      dir: test/mocks/googleapis/cloudtaskspb
     interfaces:
-      CloudTasksServer:
+      CloudTasksServer: {}
