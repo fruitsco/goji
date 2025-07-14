@@ -3,7 +3,7 @@ module github.com/fruitsco/goji
 go 1.24.0
 
 require (
-	ariga.io/atlas v0.31.1-0.20250212144724-069be8033e83
+	ariga.io/atlas v0.35.0
 	cloud.google.com/go/cloudsqlconn v1.14.1
 	cloud.google.com/go/cloudtasks v1.13.3
 	cloud.google.com/go/iam v1.5.2
@@ -149,7 +149,7 @@ require (
 	go.uber.org/dig v1.19.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.37.0 // indirect
-	golang.org/x/mod v0.23.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
