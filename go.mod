@@ -14,7 +14,7 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.20.0
-	github.com/hashicorp/vault/api/auth/gcp v0.8.0
+	github.com/hashicorp/vault/api/auth/gcp v0.10.0
 	github.com/infisical/go-sdk v0.5.97
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/knadh/koanf/parsers/dotenv v1.0.0
