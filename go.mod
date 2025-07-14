@@ -22,7 +22,7 @@ require (
 	github.com/knadh/koanf/providers/confmap v0.1.0
 	github.com/knadh/koanf/providers/env v1.0.0
 	github.com/knadh/koanf/providers/file v1.1.2
-	github.com/knadh/koanf/v2 v2.1.2
+	github.com/knadh/koanf/v2 v2.2.2
 	github.com/lib/pq v1.10.9
 	github.com/mailgun/mailgun-go/v4 v4.23.0
 	github.com/minio/minio-go/v7 v7.0.94
@@ -94,7 +94,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-resty/resty/v2 v2.13.1 // indirect
 	github.com/go-test/deep v1.0.4 // indirect
-	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
+	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -118,7 +118,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.10 // indirect
-	github.com/knadh/koanf/maps v0.1.1 // indirect
+	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mailgun/errors v0.4.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
