@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/fruitsco/goji/conf"
 )
@@ -22,7 +22,7 @@ type RootParams struct {
 }
 
 type CLIRoot struct {
-	CLI *cli.App
+	CLI *cli.Command
 }
 
 func NewCommand[C any](params RootParams) *CLIRoot {
@@ -36,19 +36,18 @@ func NewCommand[C any](params RootParams) *CLIRoot {
 		&cli.StringFlag{
 			Name:    "env",
 			Aliases: []string{"e"},
-			EnvVars: []string{
+			Sources: cli.EnvVars(
 				fmt.Sprintf("%s.ENV", params.Prefix),
 				fmt.Sprintf("%s__ENV", params.Prefix),
-			},
+			),
 			Value: "development",
 		},
 		&cli.StringFlag{
 			Name: "log-level",
-			EnvVars: []string{
-				"LOG_LEVEL",
+			Sources: cli.EnvVars(
 				fmt.Sprintf("%s.LOG_LEVEL", params.Prefix),
 				fmt.Sprintf("%s__LOG_LEVEL", params.Prefix),
-			},
+			),
 		},
 		// &cli.StringFlag{
 		// 	Name: "log-name",
@@ -60,19 +59,19 @@ func NewCommand[C any](params RootParams) *CLIRoot {
 		// },
 	}, params.Flags...)
 
-	cliApp := &cli.App{
+	cliApp := &cli.Command{
 		Name:           params.AppName,
 		Version:        params.Version,
 		Usage:          params.Description,
 		Flags:          flags,
 		DefaultCommand: params.DefaultCommand,
-		Before: func(ctx *cli.Context) error {
-			environment := getEnvFromCLI(ctx)
+		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
+			environment := getEnvFromCLI(cmd)
 
-			logLevel := ctx.String("log-level")
+			logLevel := cmd.String("log-level")
 
-			initCtx, err := Init[C](ctx.Context, InitParams{
-				AppName:        ctx.App.Name,
+			initCtx, err := Init[C](ctx, InitParams{
+				AppName:        cmd.Name,
 				LogLevel:       logLevel,
 				Prefix:         params.Prefix,
 				Environment:    environment,
@@ -80,15 +79,13 @@ func NewCommand[C any](params RootParams) *CLIRoot {
 				ConfigFileName: params.ConfigFileName,
 			})
 			if err != nil {
-				return err
+				return ctx, err
 			}
 
-			ctx.Context = initCtx
-
-			return nil
+			return initCtx, nil
 		},
-		After: func(ctx *cli.Context) error {
-			log, err := LoggerFromContext(ctx.Context)
+		After: func(ctx context.Context, cmd *cli.Command) error {
+			log, err := LoggerFromContext(ctx)
 			if err != nil {
 				return err
 			}
@@ -113,7 +110,7 @@ func (r *CLIRoot) Run(args []string) {
 }
 
 func (r *CLIRoot) RunContext(ctx context.Context, args []string) {
-	err := r.CLI.RunContext(ctx, args)
+	err := r.CLI.Run(ctx, args)
 
 	// if app exited without error, return
 	if err == nil {
@@ -133,8 +130,7 @@ func (r *CLIRoot) RunContext(ctx context.Context, args []string) {
 
 func init() {
 	cli.VersionFlag = &cli.BoolFlag{
-		Name:               "version",
-		Usage:              "print the version",
-		DisableDefaultText: true,
+		Name:  "version",
+		Usage: "print the version",
 	}
 }

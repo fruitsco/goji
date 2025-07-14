@@ -3,7 +3,7 @@ package goji
 import (
 	"os"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -29,8 +29,8 @@ func GetLogLevelFromEnv() string {
 	return os.Getenv("LOG_LEVEL")
 }
 
-func getEnvFromCLI(ctx *cli.Context) Environment {
-	if env, ok := envMap[ctx.String("env")]; ok {
+func getEnvFromCLI(cmd *cli.Command) Environment {
+	if env, ok := envMap[cmd.String("env")]; ok {
 		return env
 	}
 
