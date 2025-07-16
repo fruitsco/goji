@@ -8,6 +8,7 @@ require (
 	cloud.google.com/go/cloudtasks v1.13.6
 	cloud.google.com/go/iam v1.5.2
 	cloud.google.com/go/pubsub v1.49.0
+	cloud.google.com/go/pubsub/v2 v2.0.0
 	cloud.google.com/go/secretmanager v1.15.0
 	cloud.google.com/go/storage v1.55.0
 	entgo.io/ent v0.14.4
