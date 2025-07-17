@@ -1,9 +1,16 @@
 package emailmailgun
 
-import "go.uber.org/fx"
+import (
+	"github.com/fruitsco/goji/component/email"
+	"go.uber.org/fx"
+)
 
 func Module() fx.Option {
 	return fx.Options(
+		fx.Decorate(func(cfg *email.Config) *email.MailgunConfig {
+			return cfg.Mailgun
+		}),
+
 		fx.Provide(NewMailgun),
 		fx.Provide(NewMailgunDriverFactory),
 	)

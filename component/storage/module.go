@@ -12,14 +12,6 @@ func Module(cfg *Config) fx.Option {
 		// noop driver
 		fx.Provide(NewNoOpDriverFactory),
 
-		// gcs driver
-		fx.Supply(cfg.GCS),
-		fx.Provide(NewGCSDriverFactory),
-
-		// minio driver
-		fx.Supply(cfg.Minio),
-		fx.Provide(NewMinioDriverFactory),
-
 		// base
 		fx.Supply(cfg),
 		fx.Provide(New),

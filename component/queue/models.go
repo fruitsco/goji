@@ -4,6 +4,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Message interface {
@@ -52,6 +54,7 @@ func (m *GenericMessage) GetMeta() map[string]string {
 
 func NewGenericMessage(topic string, data []byte) *GenericMessage {
 	return &GenericMessage{
+		ID:    uuid.NewString(),
 		Topic: topic,
 		Data:  data,
 		Meta:  make(map[string]string),

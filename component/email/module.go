@@ -5,7 +5,7 @@ import (
 	"go.uber.org/fx"
 )
 
-func Module(config *Config) fx.Option {
+func Module(cfg *Config) fx.Option {
 	return fx.Module("email",
 		fx.Decorate(logging.NamedLogger("email")),
 
@@ -13,7 +13,7 @@ func Module(config *Config) fx.Option {
 		fx.Provide(NewNoOpDriverFactory),
 
 		// service
-		fx.Supply(config),
+		fx.Supply(cfg),
 		fx.Provide(New),
 	)
 }

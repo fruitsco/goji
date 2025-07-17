@@ -1,4 +1,4 @@
-package vault
+package vaultgcp
 
 import (
 	"context"
@@ -11,18 +11,13 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
+	"github.com/fruitsco/goji/component/vault"
 	"github.com/fruitsco/goji/x/driver"
 )
 
-// GCPSecretManagerConfig is the configuration for Google Cloud Secret Manager
-type GCPSecretManagerConfig struct {
-	// ProjectID is the project ID for Google Cloud Secret Manager
-	ProjectID string `conf:"project_id"`
-}
-
 // GCPSecretManagerDriver is the driver for Google Cloud Secret Manager
 type GCPSecretManagerDriver struct {
-	config *GCPSecretManagerConfig
+	config *vault.GCPSecretManagerConfig
 	client *secretmanager.Client
 	log    *zap.Logger
 }
@@ -35,7 +30,7 @@ type GCPSecretManagerDriverParams struct {
 	Context context.Context
 
 	// Config is the configuration for the Google Cloud Secret Manager driver
-	Config *GCPSecretManagerConfig
+	Config *vault.GCPSecretManagerConfig
 
 	// Log is the logger for the Google Cloud Secret Manager driver
 	Log *zap.Logger
@@ -45,8 +40,8 @@ type GCPSecretManagerDriverParams struct {
 func NewGCPSecretManagerDriverFactory(
 	params GCPSecretManagerDriverParams,
 	lc fx.Lifecycle,
-) driver.FactoryResult[DriverName, Driver] {
-	return driver.NewFactory(GCPSecretManager, func() (Driver, error) {
+) driver.FactoryResult[vault.DriverName, vault.Driver] {
+	return driver.NewFactory(vault.GCPSecretManager, func() (vault.Driver, error) {
 		return NewGCPSecretManagerDriver(params, lc)
 	})
 }
@@ -55,7 +50,7 @@ func NewGCPSecretManagerDriverFactory(
 func NewGCPSecretManagerDriver(
 	params GCPSecretManagerDriverParams,
 	lc fx.Lifecycle,
-) (Driver, error) {
+) (vault.Driver, error) {
 	if params.Config == nil || params.Config.ProjectID == "" {
 		return nil, fmt.Errorf("project ID is required for Google Cloud Secret Manager")
 	}
@@ -78,16 +73,16 @@ func NewGCPSecretManagerDriver(
 	}, nil
 }
 
-var _ = Driver(&GCPSecretManagerDriver{})
+var _ = vault.Driver(&GCPSecretManagerDriver{})
 
-var _ = Closer(&GCPSecretManagerDriver{})
+var _ = vault.Closer(&GCPSecretManagerDriver{})
 
 // CreateSecret creates a new secret in Google Cloud Secret Manager
 func (d *GCPSecretManagerDriver) CreateSecret(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) (Secret, error) {
+) (vault.Secret, error) {
 	createSecretReq := &secretmanagerpb.CreateSecretRequest{
 		Parent:   fmt.Sprintf("projects/%s", d.config.ProjectID),
 		SecretId: name,
@@ -103,7 +98,7 @@ func (d *GCPSecretManagerDriver) CreateSecret(
 
 	_, err := d.client.CreateSecret(ctx, createSecretReq)
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
 	return d.AddVersion(ctx, name, payload)
@@ -114,7 +109,7 @@ func (d *GCPSecretManagerDriver) AddVersion(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) (Secret, error) {
+) (vault.Secret, error) {
 	addSecretVersionReq := &secretmanagerpb.AddSecretVersionRequest{
 		Parent: fmt.Sprintf("projects/%s/secrets/%s", d.config.ProjectID, name),
 		Payload: &secretmanagerpb.SecretPayload{
@@ -124,15 +119,15 @@ func (d *GCPSecretManagerDriver) AddVersion(
 
 	addSecretVersionResp, err := d.client.AddSecretVersion(ctx, addSecretVersionReq)
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
 	version, err := d.getVersionFromName(addSecretVersionResp.Name)
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
-	return Secret{
+	return vault.Secret{
 		Name:    name,
 		Version: version,
 		Payload: payload,
@@ -144,7 +139,7 @@ func (d *GCPSecretManagerDriver) GetVersion(
 	ctx context.Context,
 	name string,
 	version int,
-) (Secret, error) {
+) (vault.Secret, error) {
 	return d.getSecretVersion(ctx, name, fmt.Sprintf("%d", version))
 }
 
@@ -152,7 +147,7 @@ func (d *GCPSecretManagerDriver) GetVersion(
 func (d *GCPSecretManagerDriver) GetLatestVersion(
 	ctx context.Context,
 	name string,
-) (Secret, error) {
+) (vault.Secret, error) {
 	return d.getSecretVersion(ctx, name, "latest")
 }
 
@@ -175,22 +170,22 @@ func (d *GCPSecretManagerDriver) getSecretVersion(
 	ctx context.Context,
 	name string,
 	version string,
-) (Secret, error) {
+) (vault.Secret, error) {
 	accessSecretVersionReq := &secretmanagerpb.AccessSecretVersionRequest{
 		Name: fmt.Sprintf("projects/%s/secrets/%s/versions/%s", d.config.ProjectID, name, version),
 	}
 
 	accessSecretVersionResp, err := d.client.AccessSecretVersion(ctx, accessSecretVersionReq)
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
 	versionParsed, err := d.getVersionFromName(accessSecretVersionResp.Name)
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
-	return Secret{
+	return vault.Secret{
 		Name:    name,
 		Version: versionParsed,
 		Payload: accessSecretVersionResp.Payload.Data,

@@ -10,17 +10,19 @@ const (
 	NoOp       TaskDriver = "noop"
 )
 
+type Config struct {
+	Driver TaskDriver `conf:"driver"`
+
+	CloudTasks *CloudTasksConfig `conf:"cloudtasks"`
+}
+
+// MARK: - GCP CloudTasks
+
 type CloudTasksConfig struct {
 	ProjectID               string `conf:"project_id"`
 	Region                  string `conf:"region"`
 	DefaultUrl              string `conf:"default_url"`
 	AuthServiceAccountEmail string `conf:"auth_service_account_email"`
-}
-
-type Config struct {
-	Driver TaskDriver `conf:"driver"`
-
-	CloudTasks *CloudTasksConfig `conf:"cloudtasks"`
 }
 
 var DefaultConfig = conf.DefaultConfig{

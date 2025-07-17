@@ -1,4 +1,4 @@
-package tasks
+package tasksgcp
 
 import (
 	"context"
@@ -18,16 +18,17 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/fruitsco/goji"
+	"github.com/fruitsco/goji/component/tasks"
 	"github.com/fruitsco/goji/x/driver"
 )
 
 type CloudTasksDriver struct {
-	config *CloudTasksConfig
+	config *tasks.CloudTasksConfig
 	client *cloudtasks.Client
 	log    *zap.Logger
 }
 
-var _ = Driver(&CloudTasksDriver{})
+var _ = tasks.Driver(&CloudTasksDriver{})
 
 type CloudTasksDriverParams struct {
 	fx.In
@@ -36,7 +37,7 @@ type CloudTasksDriverParams struct {
 	Context context.Context
 
 	// Config is the cloud tasks configuration.
-	Config *CloudTasksConfig
+	Config *tasks.CloudTasksConfig
 
 	// GRPCConn is the gRPC connection to use for the driver.
 	GRPCConn *grpc.ClientConn `optional:"true"`
@@ -49,8 +50,8 @@ type CloudTasksDriverParams struct {
 	Log *zap.Logger
 }
 
-func NewCloudTasksDriverFactory(params CloudTasksDriverParams, lc fx.Lifecycle) driver.FactoryResult[TaskDriver, Driver] {
-	factory := driver.NewFactory(CloudTasks, func() (Driver, error) {
+func NewCloudTasksDriverFactory(params CloudTasksDriverParams, lc fx.Lifecycle) driver.FactoryResult[tasks.TaskDriver, tasks.Driver] {
+	factory := driver.NewFactory(tasks.CloudTasks, func() (tasks.Driver, error) {
 		driver, err := NewCloudTasksDriver(params)
 		if err != nil {
 			return nil, err
@@ -109,11 +110,11 @@ func NewCloudTasksDriver(params CloudTasksDriverParams) (*CloudTasksDriver, erro
 	}, nil
 }
 
-func (d *CloudTasksDriver) Name() TaskDriver {
-	return CloudTasks
+func (d *CloudTasksDriver) Name() tasks.TaskDriver {
+	return tasks.CloudTasks
 }
 
-func (d *CloudTasksDriver) Submit(ctx context.Context, req *CreateTaskRequest) error {
+func (d *CloudTasksDriver) Submit(ctx context.Context, req *tasks.CreateTaskRequest) error {
 	if req.Queue == "" {
 		return fmt.Errorf("queue name is required")
 	}
@@ -185,8 +186,8 @@ func (d *CloudTasksDriver) Submit(ctx context.Context, req *CreateTaskRequest) e
 
 func (d *CloudTasksDriver) Receive(
 	ctx context.Context,
-	req RawTask,
-) (*Task, error) {
+	req tasks.RawTask,
+) (*tasks.Task, error) {
 	meta := req.GetHeader()
 
 	taskName := meta.Get("X-CloudTasks-TaskName")
@@ -236,7 +237,7 @@ func (d *CloudTasksDriver) Receive(
 		return nil, fmt.Errorf("invalid cloud tasks request: invalid execution count: %v", err)
 	}
 
-	return &Task{
+	return &tasks.Task{
 		TaskName:       taskName,
 		QueueName:      queueName,
 		Data:           req.GetData(),
@@ -263,7 +264,7 @@ var httpMethodMap = map[string]taskspb.HttpMethod{
 
 const maxPayloadBytes = int64(65536)
 
-func CloudTasksPushHandler(t Tasks, h Handler) http.Handler {
+func CloudTasksPushHandler(t tasks.Tasks, h tasks.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxPayloadBytes)
 
@@ -279,7 +280,7 @@ func CloudTasksPushHandler(t Tasks, h Handler) http.Handler {
 			zap.String("path", r.URL.Path),
 		)
 
-		data, err := NewPushTaskDataFromRequest(r)
+		data, err := tasks.NewPushTaskDataFromRequest(r)
 		if err != nil {
 			log.Warn("error creating task data", zap.Error(err))
 			w.WriteHeader(http.StatusBadRequest)

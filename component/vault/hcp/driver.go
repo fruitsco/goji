@@ -1,71 +1,22 @@
-package vault
+package vaulthcp
 
 import (
 	"context"
 	"fmt"
 
-	vault "github.com/hashicorp/vault/api"
+	vaultapi "github.com/hashicorp/vault/api"
 	gcpAuth "github.com/hashicorp/vault/api/auth/gcp"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
+	"github.com/fruitsco/goji/component/vault"
 	"github.com/fruitsco/goji/x/driver"
 )
 
-// HCPVaultAuthStrategy is the strategy for authentication
-type HCPVaultAuthStrategy string
-
-const (
-	// HCPVaultAuthStrategyToken is the token auth strategy
-	HCPVaultAuthStrategyToken HCPVaultAuthStrategy = "token"
-
-	// HCPVaultAuthStrategyGCP is the GCP auth strategy
-	HCPVaultAuthStrategyGCP HCPVaultAuthStrategy = "gcp"
-)
-
-// HCPVaultTokenAuthConfig is the configuration for the token auth strategy
-type HCPVaultTokenAuthConfig struct {
-	// Token is the token for the token auth strategy
-	Token string `conf:"token"`
-}
-
-// HCPVaultGCPAuthConfig is the configuration for the GCP auth strategy
-type HCPVaultGCPAuthConfig struct {
-	// RoleName is the role name for the GCP auth strategy
-	RoleName string `conf:"role_name"`
-
-	// ServiceAccountEmail is the service account email for the GCP auth strategy
-	ServiceAccountEmail string `conf:"service_account_email"`
-}
-
-// HCPVaultAuthConfig is the configuration for the HashiCorp Vault auth strategy
-type HCPVaultAuthConfig struct {
-	// Strategy is the strategy to use for authentication
-	Strategy HCPVaultAuthStrategy `conf:"strategy"`
-
-	// Token is the configuration for the token auth strategy
-	Token *HCPVaultTokenAuthConfig `conf:"token"`
-
-	// GCP is the configuration for the GCP auth strategy
-	GCP *HCPVaultGCPAuthConfig `conf:"gcp"`
-}
-
-// HCPVaultConfig is the configuration for the HashiCorp Vault driver
-type HCPVaultConfig struct {
-	// Address is the address of the HashiCorp Vault server
-	Address string `conf:"address"`
-
-	// MountPath is the mount path for the HashiCorp Vault server
-	MountPath string `conf:"mount_path"`
-
-	// Auth is the configuration for the HashiCorp Vault auth strategy
-	Auth HCPVaultAuthConfig `conf:"auth"`
-}
-
 // HCPVaultDriver is the HashiCorp Vault driver
 type HCPVaultDriver struct {
-	config *HCPVaultConfig
-	client *vault.Client
+	config *vault.HCPVaultConfig
+	client *vaultapi.Client
 	log    *zap.Logger
 }
 
@@ -74,7 +25,7 @@ type HCPVaultDriverParams struct {
 	fx.In
 
 	// Config is the configuration for the HashiCorp Vault driver
-	Config *HCPVaultConfig
+	Config *vault.HCPVaultConfig
 
 	// Log is the logger for the HashiCorp Vault driver
 	Log *zap.Logger
@@ -84,8 +35,8 @@ type HCPVaultDriverParams struct {
 func NewHCPVaultDriverFactory(
 	params HCPVaultDriverParams,
 	lc fx.Lifecycle,
-) driver.FactoryResult[DriverName, Driver] {
-	return driver.NewFactory(HCPVault, func() (Driver, error) {
+) driver.FactoryResult[vault.DriverName, vault.Driver] {
+	return driver.NewFactory(vault.HCPVault, func() (vault.Driver, error) {
 		return NewHCPVaultDriver(params, lc)
 	})
 }
@@ -94,7 +45,7 @@ func NewHCPVaultDriverFactory(
 func NewHCPVaultDriver(
 	params HCPVaultDriverParams,
 	lc fx.Lifecycle,
-) (Driver, error) {
+) (vault.Driver, error) {
 	if params.Config == nil {
 		return nil, fmt.Errorf("config is required for HashiCorp Vault driver")
 	}
@@ -104,14 +55,14 @@ func NewHCPVaultDriver(
 	}
 
 	if params.Config.Auth.Strategy == "" {
-		params.Config.Auth.Strategy = HCPVaultAuthStrategyToken
+		params.Config.Auth.Strategy = vault.HCPVaultAuthStrategyToken
 	}
 
 	// TODO: advanced config
-	config := vault.DefaultConfig()
+	config := vaultapi.DefaultConfig()
 	config.Address = params.Config.Address
 
-	client, err := vault.NewClient(config)
+	client, err := vaultapi.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
@@ -133,9 +84,9 @@ func NewHCPVaultDriver(
 	}, nil
 }
 
-var _ = Driver(&HCPVaultDriver{})
+var _ = vault.Driver(&HCPVaultDriver{})
 
-func (d *HCPVaultDriver) kv() *vault.KVv2 {
+func (d *HCPVaultDriver) kv() *vaultapi.KVv2 {
 	return d.client.KVv2(d.config.MountPath)
 }
 
@@ -144,12 +95,12 @@ func (d *HCPVaultDriver) CreateSecret(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) (Secret, error) {
+) (vault.Secret, error) {
 	secret, err := d.kv().Put(ctx, name, map[string]interface{}{
 		"data": payload,
 	})
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
 	return d.mapSecret(name, secret)
@@ -160,12 +111,12 @@ func (d *HCPVaultDriver) AddVersion(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) (Secret, error) {
+) (vault.Secret, error) {
 	secret, err := d.kv().Put(ctx, name, map[string]interface{}{
 		"data": payload,
 	})
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
 	return d.mapSecret(name, secret)
@@ -176,10 +127,10 @@ func (d *HCPVaultDriver) GetVersion(
 	ctx context.Context,
 	name string,
 	version int,
-) (Secret, error) {
+) (vault.Secret, error) {
 	secret, err := d.kv().GetVersion(ctx, name, version)
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
 	return d.mapSecret(name, secret)
@@ -189,10 +140,10 @@ func (d *HCPVaultDriver) GetVersion(
 func (d *HCPVaultDriver) GetLatestVersion(
 	ctx context.Context,
 	name string,
-) (Secret, error) {
+) (vault.Secret, error) {
 	secret, err := d.kv().Get(ctx, name)
 	if err != nil {
-		return Secret{}, err
+		return vault.Secret{}, err
 	}
 
 	return d.mapSecret(name, secret)
@@ -206,13 +157,13 @@ func (d *HCPVaultDriver) DeleteSecret(
 	return d.kv().Delete(ctx, name)
 }
 
-func (d *HCPVaultDriver) mapSecret(name string, secret *vault.KVSecret) (Secret, error) {
+func (d *HCPVaultDriver) mapSecret(name string, secret *vaultapi.KVSecret) (vault.Secret, error) {
 	payload, ok := secret.Data["data"].([]byte)
 	if !ok {
-		return Secret{}, fmt.Errorf("unable to parse secret data")
+		return vault.Secret{}, fmt.Errorf("unable to parse secret data")
 	}
 
-	return Secret{
+	return vault.Secret{
 		Name:    name,
 		Version: secret.VersionMetadata.Version,
 		Payload: payload,
@@ -222,17 +173,17 @@ func (d *HCPVaultDriver) mapSecret(name string, secret *vault.KVSecret) (Secret,
 // hcpAuth authenticates to HashiCorp Vault
 func hcpAuth(
 	ctx context.Context,
-	client *vault.Client,
-	config HCPVaultAuthConfig,
+	client *vaultapi.Client,
+	config vault.HCPVaultAuthConfig,
 ) error {
 	switch config.Strategy {
-	case HCPVaultAuthStrategyToken:
+	case vault.HCPVaultAuthStrategyToken:
 		if config.Token == nil {
 			return fmt.Errorf("token auth strategy requires token configuration")
 		}
 
 		client.SetToken(config.Token.Token)
-	case HCPVaultAuthStrategyGCP:
+	case vault.HCPVaultAuthStrategyGCP:
 		if config.GCP == nil {
 			return fmt.Errorf("GCP auth strategy requires GCP configuration")
 		}

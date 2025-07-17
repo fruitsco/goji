@@ -1,4 +1,4 @@
-package storage
+package storageminio
 
 import (
 	"bytes"
@@ -12,30 +12,32 @@ import (
 
 	"net/http/httptrace"
 
-	"github.com/fruitsco/goji/x/driver"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+
+	"github.com/fruitsco/goji/component/storage"
+	"github.com/fruitsco/goji/x/driver"
 )
 
 type MinioDriver struct {
-	config *MinioConfig
+	config *storage.MinioConfig
 	client *minio.Client
 	log    *zap.Logger
 }
 
-var _ = Driver(&MinioDriver{})
+var _ = storage.Driver(&MinioDriver{})
 
 type MinioDriverParams struct {
 	fx.In
 
-	Config *MinioConfig
+	Config *storage.MinioConfig
 	Log    *zap.Logger
 }
 
-func NewMinioDriverFactory(params MinioDriverParams) driver.FactoryResult[StorageDriver, Driver] {
-	return driver.NewFactory(Minio, func() (Driver, error) {
+func NewMinioDriverFactory(params MinioDriverParams) driver.FactoryResult[storage.StorageDriver, storage.Driver] {
+	return driver.NewFactory(storage.Minio, func() (storage.Driver, error) {
 		return NewMinioDriver(params)
 	})
 }
@@ -114,8 +116,8 @@ func (s *MinioDriver) SignedUpload(
 	ctx context.Context,
 	bucketName string,
 	name string,
-	options *SignedUploadOptions,
-) (*SignResult, error) {
+	options *storage.SignedUploadOptions,
+) (*storage.SignResult, error) {
 	// Set request parameters for content-type and content-length-range
 	headers := http.Header{
 		"Content-Type": []string{options.MimeType},
@@ -131,7 +133,7 @@ func (s *MinioDriver) SignedUpload(
 		return nil, err
 	}
 
-	return &SignResult{
+	return &storage.SignResult{
 		URL:     url,
 		Method:  "PUT",
 		Headers: headers,
@@ -142,7 +144,7 @@ func (s *MinioDriver) SignedDownload(
 	ctx context.Context,
 	bucketName string,
 	name string,
-) (*SignResult, error) {
+) (*storage.SignResult, error) {
 	expires := time.Duration(s.config.Expiration) * time.Second
 
 	url, err := s.client.PresignedGetObject(ctx, bucketName, name, expires, nil)
@@ -151,7 +153,7 @@ func (s *MinioDriver) SignedDownload(
 		return nil, err
 	}
 
-	return &SignResult{
+	return &storage.SignResult{
 		URL:    url,
 		Method: "GET",
 	}, nil

@@ -1,4 +1,4 @@
-package storage
+package storagegcs
 
 import (
 	"context"
@@ -9,37 +9,39 @@ import (
 	"net/url"
 	"time"
 
-	"cloud.google.com/go/storage"
-	"github.com/fruitsco/goji/x/driver"
+	gcs "cloud.google.com/go/storage"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+
+	"github.com/fruitsco/goji/component/storage"
+	"github.com/fruitsco/goji/x/driver"
 )
 
 type GCSDriver struct {
-	config *GCSConfig
-	client *storage.Client
+	config *storage.GCSConfig
+	client *gcs.Client
 	log    *zap.Logger
 }
 
-var _ = Driver(&GCSDriver{})
+var _ = storage.Driver(&GCSDriver{})
 
 type GCSDriverParams struct {
 	fx.In
 
 	Context context.Context
-	Config  *GCSConfig
+	Config  *storage.GCSConfig
 	Log     *zap.Logger
 }
 
-func NewGCSDriverFactory(params GCSDriverParams) driver.FactoryResult[StorageDriver, Driver] {
-	return driver.NewFactory(GCS, func() (Driver, error) {
+func NewGCSDriverFactory(params GCSDriverParams) driver.FactoryResult[storage.StorageDriver, storage.Driver] {
+	return driver.NewFactory(storage.GCS, func() (storage.Driver, error) {
 		return NewGCSDriver(params)
 	})
 }
 
 // NewGCSDriver creates a new storage base struct
 func NewGCSDriver(params GCSDriverParams) (*GCSDriver, error) {
-	client, err := storage.NewClient(params.Context)
+	client, err := gcs.NewClient(params.Context)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +60,7 @@ func (s *GCSDriver) Exists(ctx context.Context, bucketName string, name string) 
 	obj := bucket.Object(name)
 
 	if _, err := obj.Attrs(ctx); err != nil {
-		if errors.Is(err, storage.ErrObjectNotExist) {
+		if errors.Is(err, gcs.ErrObjectNotExist) {
 			return false, nil
 		} else {
 			return false, err
@@ -84,8 +86,8 @@ func (s *GCSDriver) SignedUpload(
 	context context.Context,
 	bucketName string,
 	name string,
-	options *SignedUploadOptions,
-) (*SignResult, error) {
+	options *storage.SignedUploadOptions,
+) (*storage.SignResult, error) {
 	bucket := s.client.Bucket(bucketName)
 
 	expires := time.Duration(s.config.Expiration) * time.Second
@@ -103,8 +105,8 @@ func (s *GCSDriver) SignedUpload(
 
 	method := http.MethodPut
 
-	opts := &storage.SignedURLOptions{
-		Scheme:      storage.SigningSchemeV4,
+	opts := &gcs.SignedURLOptions{
+		Scheme:      gcs.SigningSchemeV4,
 		Method:      method,
 		ContentType: options.MimeType,
 		Headers:     reqHeaders,
@@ -121,7 +123,7 @@ func (s *GCSDriver) SignedUpload(
 		return nil, err
 	}
 
-	return &SignResult{
+	return &storage.SignResult{
 		Method:  method,
 		URL:     signedUrl,
 		Headers: headers,
@@ -133,13 +135,13 @@ func (s *GCSDriver) SignedDownload(
 	ctx context.Context,
 	bucketName string,
 	name string,
-) (*SignResult, error) {
+) (*storage.SignResult, error) {
 	bucket := s.client.Bucket(bucketName)
 
 	expires := time.Duration(s.config.Expiration) * time.Second
 
-	opts := &storage.SignedURLOptions{
-		Scheme:  storage.SigningSchemeV4,
+	opts := &gcs.SignedURLOptions{
+		Scheme:  gcs.SigningSchemeV4,
 		Method:  http.MethodGet,
 		Expires: time.Now().Add(expires),
 	}
@@ -154,7 +156,7 @@ func (s *GCSDriver) SignedDownload(
 		return nil, err
 	}
 
-	return &SignResult{
+	return &storage.SignResult{
 		URL: signedUrl,
 	}, nil
 }

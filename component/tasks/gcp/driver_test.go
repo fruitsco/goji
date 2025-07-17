@@ -1,4 +1,4 @@
-package tasks_test
+package tasksgcp_test
 
 import (
 	"context"
@@ -16,6 +16,7 @@ import (
 	testutil "github.com/fruitsco/goji/test/util"
 
 	"github.com/fruitsco/goji/component/tasks"
+	tasksgcp "github.com/fruitsco/goji/component/tasks/gcp"
 )
 
 func createMockServer(t *testing.T) (*grpc.ClientConn, *cloudtaskspb_mocks.MockCloudTasksServer) {
@@ -41,7 +42,7 @@ func TestCloudTasksDriver_Submit(t *testing.T) {
 		return &cloudtaskspb.Task{}, nil
 	})
 
-	driver, err := tasks.NewCloudTasksDriver(tasks.CloudTasksDriverParams{
+	driver, err := tasksgcp.NewCloudTasksDriver(tasksgcp.CloudTasksDriverParams{
 		Context: context.Background(),
 		Config: &tasks.CloudTasksConfig{
 			ProjectID:  "test-project",
@@ -64,7 +65,7 @@ func TestCloudTasksDriver_Submit(t *testing.T) {
 }
 
 func TestCloudTasksDriver_ReceivePush(t *testing.T) {
-	driver, err := tasks.NewCloudTasksDriver(tasks.CloudTasksDriverParams{
+	driver, err := tasksgcp.NewCloudTasksDriver(tasksgcp.CloudTasksDriverParams{
 		Context: context.Background(),
 		Config: &tasks.CloudTasksConfig{
 			ProjectID:  "test-project",
@@ -99,7 +100,7 @@ func TestCloudTasksDriver_ReceivePush(t *testing.T) {
 }
 
 func TestCloudTasksDriver_ReceivePush_FailsForInvalidHeaders(t *testing.T) {
-	driver, err := tasks.NewCloudTasksDriver(tasks.CloudTasksDriverParams{
+	driver, err := tasksgcp.NewCloudTasksDriver(tasksgcp.CloudTasksDriverParams{
 		Context: context.Background(),
 		Config: &tasks.CloudTasksConfig{
 			ProjectID:  "test-project",

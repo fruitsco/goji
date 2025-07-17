@@ -1,4 +1,4 @@
-package vault
+package vaultredis
 
 import (
 	"context"
@@ -12,21 +12,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/fruitsco/goji/component/redis"
+	"github.com/fruitsco/goji/component/vault"
 	"github.com/fruitsco/goji/x/driver"
 )
 
-// RedisDriverConfig is the configuration for the Redis driver
-type RedisDriverConfig struct {
-	// ConnectionName is the name of the Redis connection to use
-	ConnectionName redis.ConnectionName `conf:"connection_name"`
-
-	// EncryptionKey is the key to use for encryption
-	EncryptionKey string `conf:"encryption_key"`
-}
-
 // RedisDriver is the driver for Redis
 type RedisDriver struct {
-	config *RedisDriverConfig
+	config *vault.RedisConfig
 	redis  *redis.Client
 	log    *zap.Logger
 }
@@ -36,7 +28,7 @@ type RedisDriverParams struct {
 	fx.In
 
 	// Config is the configuration for the Redis driver
-	Config *RedisDriverConfig
+	Config *vault.RedisConfig
 
 	// Redis is the Redis connection
 	Redis *redis.Redis
@@ -46,14 +38,14 @@ type RedisDriverParams struct {
 }
 
 // NewRedisDriverFactory creates a new Redis driver factory
-func NewRedisDriverFactory(params RedisDriverParams) driver.FactoryResult[DriverName, Driver] {
-	return driver.NewFactory(Redis, func() (Driver, error) {
+func NewRedisDriverFactory(params RedisDriverParams) driver.FactoryResult[vault.DriverName, vault.Driver] {
+	return driver.NewFactory(vault.Redis, func() (vault.Driver, error) {
 		return NewRedisDriver(params)
 	})
 }
 
 // NewRedisDriver creates a new Redis driver
-func NewRedisDriver(params RedisDriverParams) (Driver, error) {
+func NewRedisDriver(params RedisDriverParams) (vault.Driver, error) {
 	if params.Config == nil {
 		return nil, fmt.Errorf("config is required for Redis driver")
 	}
@@ -80,29 +72,29 @@ func NewRedisDriver(params RedisDriverParams) (Driver, error) {
 	}, nil
 }
 
-var _ = Driver(&RedisDriver{})
+var _ = vault.Driver(&RedisDriver{})
 
 // CreateSecret creates a new secret in Redis
 func (d *RedisDriver) CreateSecret(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) (Secret, error) {
+) (vault.Secret, error) {
 	encryptedPayload, err := d.encrypt(payload)
 	if err != nil {
-		return Secret{}, fmt.Errorf("failed to encrypt payload: %w", err)
+		return vault.Secret{}, fmt.Errorf("failed to encrypt payload: %w", err)
 	}
 
 	res := d.redis.LPush(ctx, d.getKeyName(name), encryptedPayload)
 	if res.Err() != nil {
-		return Secret{}, res.Err()
+		return vault.Secret{}, res.Err()
 	}
 
 	// `lpush` returns the length of the list after the push,
 	// which corresponds to the 1-based version number
 	version := int(res.Val())
 
-	return Secret{
+	return vault.Secret{
 		Name:    name,
 		Version: version,
 		Payload: payload,
@@ -114,10 +106,10 @@ func (d *RedisDriver) AddVersion(
 	ctx context.Context,
 	name string,
 	payload []byte,
-) (Secret, error) {
+) (vault.Secret, error) {
 	encryptedPayload, err := d.encrypt(payload)
 	if err != nil {
-		return Secret{}, fmt.Errorf("failed to encrypt payload: %w", err)
+		return vault.Secret{}, fmt.Errorf("failed to encrypt payload: %w", err)
 	}
 
 	res := d.redis.LPush(ctx, d.getKeyName(name), encryptedPayload)
@@ -126,7 +118,7 @@ func (d *RedisDriver) AddVersion(
 	// which corresponds to the 1-based version number
 	version := int(res.Val())
 
-	return Secret{
+	return vault.Secret{
 		Name:    name,
 		Version: version,
 		Payload: payload,
@@ -138,18 +130,18 @@ func (d *RedisDriver) GetVersion(
 	ctx context.Context,
 	name string,
 	version int,
-) (Secret, error) {
+) (vault.Secret, error) {
 	res := d.redis.LIndex(ctx, d.getKeyName(name), int64(-version))
 	if res.Err() != nil {
-		return Secret{}, res.Err()
+		return vault.Secret{}, res.Err()
 	}
 
 	decryptedPayload, err := d.decrypt(res.Val())
 	if err != nil {
-		return Secret{}, fmt.Errorf("failed to decrypt payload: %w", err)
+		return vault.Secret{}, fmt.Errorf("failed to decrypt payload: %w", err)
 	}
 
-	return Secret{
+	return vault.Secret{
 		Name:    name,
 		Version: version,
 		Payload: decryptedPayload,
@@ -160,25 +152,25 @@ func (d *RedisDriver) GetVersion(
 func (d *RedisDriver) GetLatestVersion(
 	ctx context.Context,
 	name string,
-) (Secret, error) {
+) (vault.Secret, error) {
 	itemRes := d.redis.LIndex(ctx, d.getKeyName(name), 0)
 	if itemRes.Err() != nil {
-		return Secret{}, itemRes.Err()
+		return vault.Secret{}, itemRes.Err()
 	}
 
 	// decrypt the payload
 	decryptedPayload, err := d.decrypt(itemRes.Val())
 	if err != nil {
-		return Secret{}, fmt.Errorf("failed to decrypt payload: %w", err)
+		return vault.Secret{}, fmt.Errorf("failed to decrypt payload: %w", err)
 	}
 
 	// get the length of the list, which corresponds to the version number
 	lenRes := d.redis.LLen(ctx, d.getKeyName(name))
 	if lenRes.Err() != nil {
-		return Secret{}, lenRes.Err()
+		return vault.Secret{}, lenRes.Err()
 	}
 
-	return Secret{
+	return vault.Secret{
 		Name:    name,
 		Version: int(lenRes.Val()),
 		Payload: decryptedPayload,

@@ -4,7 +4,6 @@ import (
 	"github.com/fruitsco/goji/component/crypt"
 	"github.com/fruitsco/goji/component/database"
 	"github.com/fruitsco/goji/component/email"
-	"github.com/fruitsco/goji/component/notification"
 	"github.com/fruitsco/goji/component/queue"
 	"github.com/fruitsco/goji/component/redis"
 	"github.com/fruitsco/goji/component/storage"
@@ -14,21 +13,19 @@ import (
 )
 
 type Config struct {
-	Database     *database.Config     `conf:"db"`
-	Email        *email.Config        `conf:"email"`
-	Notification *notification.Config `conf:"notification"`
-	Queue        *queue.Config        `conf:"queue"`
-	Redis        *redis.Config        `conf:"redis"`
-	Storage      *storage.Config      `conf:"storage"`
-	Vault        *vault.Config        `conf:"vault"`
-	Crypt        *crypt.Config        `conf:"crypt"`
-	Tasks        *tasks.Config        `conf:"tasks"`
+	Database *database.Config `conf:"db"`
+	Email    *email.Config    `conf:"email"`
+	Queue    *queue.Config    `conf:"queue"`
+	Redis    *redis.Config    `conf:"redis"`
+	Storage  *storage.Config  `conf:"storage"`
+	Vault    *vault.Config    `conf:"vault"`
+	Crypt    *crypt.Config    `conf:"crypt"`
+	Tasks    *tasks.Config    `conf:"tasks"`
 }
 
 var DefaultConfig = util.MergeMap(
 	database.DefaultConfig,
 	email.DefaultConfig,
-	notification.DefaultConfig,
 	queue.DefaultConfig,
 	redis.DefaultConfig,
 	storage.DefaultConfig,
