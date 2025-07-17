@@ -8,7 +8,7 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *vault.Config) *vault.InfisicalConfig {
+		fx.Provide(func(cfg *vault.Config) *vault.InfisicalConfig {
 			return cfg.Infisical
 		}),
 		fx.Provide(NewInfisicalDriverFactory),

@@ -8,10 +8,9 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *vault.Config) *vault.HCPVaultConfig {
+		fx.Provide(func(cfg *vault.Config) *vault.HCPVaultConfig {
 			return cfg.HCPVault
 		}),
-
 		fx.Provide(NewHCPVaultDriverFactory),
 	)
 }

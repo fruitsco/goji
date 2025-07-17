@@ -8,7 +8,7 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *storage.Config) *storage.MinioConfig {
+		fx.Provide(func(cfg *storage.Config) *storage.MinioConfig {
 			return cfg.Minio
 		}),
 		fx.Provide(NewMinioDriverFactory),

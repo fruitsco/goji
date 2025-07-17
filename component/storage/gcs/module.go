@@ -8,7 +8,7 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *storage.Config) *storage.GCSConfig {
+		fx.Provide(func(cfg *storage.Config) *storage.GCSConfig {
 			return cfg.GCS
 		}),
 		fx.Provide(NewGCSDriverFactory),

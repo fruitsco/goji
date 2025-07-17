@@ -7,10 +7,9 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *email.Config) *email.MailgunConfig {
+		fx.Provide(func(cfg *email.Config) *email.MailgunConfig {
 			return cfg.Mailgun
 		}),
-
 		fx.Provide(NewMailgun),
 		fx.Provide(NewMailgunDriverFactory),
 	)

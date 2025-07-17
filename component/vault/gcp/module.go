@@ -8,7 +8,7 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *vault.Config) *vault.GCPSecretManagerConfig {
+		fx.Provide(func(cfg *vault.Config) *vault.GCPSecretManagerConfig {
 			return cfg.GCPSecretManager
 		}),
 		fx.Provide(NewGCPSecretManagerDriverFactory),

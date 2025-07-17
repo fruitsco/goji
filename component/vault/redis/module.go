@@ -8,7 +8,7 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *vault.Config) *vault.RedisConfig {
+		fx.Provide(func(cfg *vault.Config) *vault.RedisConfig {
 			return cfg.Redis
 		}),
 		fx.Provide(NewRedisDriverFactory),

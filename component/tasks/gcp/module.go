@@ -8,7 +8,7 @@ import (
 
 func Module() fx.Option {
 	return fx.Options(
-		fx.Decorate(func(cfg *tasks.Config) *tasks.CloudTasksConfig {
+		fx.Provide(func(cfg *tasks.Config) *tasks.CloudTasksConfig {
 			return cfg.CloudTasks
 		}),
 		fx.Provide(NewCloudTasksDriverFactory),
