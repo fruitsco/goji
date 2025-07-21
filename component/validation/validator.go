@@ -4,9 +4,17 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/shopspring/decimal"
+)
+
+var (
+	// initMutex protects concurrent initialization of validators
+	initMutex sync.Mutex
+	// initializedValidators tracks which validator instances have been initialized
+	initializedValidators = make(map[*validator.Validate]bool)
 )
 
 func New() *validator.Validate {
@@ -18,6 +26,14 @@ func New() *validator.Validate {
 }
 
 func Init(v *validator.Validate) {
+	initMutex.Lock()
+	defer initMutex.Unlock()
+
+	// Check if this validator instance has already been initialized
+	if initializedValidators[v] {
+		return
+	}
+
 	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		// If the field has a protobuf tag, use that.
 		if protoTagName := fld.Tag.Get("protobuf"); protoTagName != "" {
@@ -64,4 +80,7 @@ func Init(v *validator.Validate) {
 		}
 		return nil
 	}, decimal.Decimal{})
+
+	// Mark this validator instance as initialized
+	initializedValidators[v] = true
 }
