@@ -13,8 +13,6 @@ import (
 	"github.com/fruitsco/goji/x/driver"
 )
 
-var Mailgun email.MailDriver = "mailgun"
-
 // NewMailgun creates a new mailgun client
 func NewMailgun(config *email.MailgunConfig) mailgun.Mailgun {
 	mg := mailgun.NewMailgun(config.APIKey)
@@ -39,7 +37,7 @@ type MailgunDriverParams struct {
 
 // NewMailgunDriverFactory creates a new mailgun driver factory
 func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[email.MailDriver, email.Driver] {
-	return driver.NewFactory(Mailgun, func() (email.Driver, error) {
+	return driver.NewFactory(email.Mailgun, func() (email.Driver, error) {
 		return NewMailgunDriver(params), nil
 	})
 }

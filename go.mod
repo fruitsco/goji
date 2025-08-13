@@ -51,6 +51,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
+	github.com/resend/resend-go/v2 v2.23.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/spf13/cobra v1.8.1 // indirect

@@ -5,7 +5,9 @@ import "github.com/fruitsco/goji/conf"
 type MailDriver string
 
 const (
-	NoOp MailDriver = "noop"
+	NoOp    MailDriver = "noop"
+	Mailgun MailDriver = "mailgun"
+	Resend  MailDriver = "resend"
 )
 
 type SMTPConfig struct {
@@ -19,6 +21,10 @@ type MailgunConfig struct {
 	APIBase string `conf:"api_base"`
 }
 
+type ResendConfig struct {
+	APIKey string `conf:"api_key"`
+}
+
 type SenderConfig struct {
 	Name *string `conf:"sender_name"`
 	Mail *string `conf:"sender_email"`
@@ -28,6 +34,7 @@ type Config struct {
 	Driver  MailDriver     `conf:"driver"`
 	Mailgun *MailgunConfig `conf:"mailgun"`
 	SMTP    *SMTPConfig    `conf:"smtp"`
+	Resend  *ResendConfig  `conf:"resend"`
 
 	// common config
 	Sender *SenderConfig `conf:"sender"`
