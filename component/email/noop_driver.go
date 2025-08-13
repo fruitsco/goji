@@ -21,8 +21,8 @@ type NoOpDriverParams struct {
 	Log *zap.Logger
 }
 
-func NewNoOpDriverFactory(params NoOpDriverParams) driver.FactoryResult[MailDriver, Driver] {
-	return driver.NewFactory(NoOp, func() (Driver, error) {
+func NewNoOpDriverFactory(params NoOpDriverParams) driver.FactoryResult[MailDriver, ConnectionFactory] {
+	return NewConnectionFactory(NoOp, func(ConnectionConfig) (Driver, error) {
 		return NewNoOpDriver(params), nil
 	})
 }

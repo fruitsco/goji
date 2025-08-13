@@ -2,6 +2,8 @@ package emailresend
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/resend/resend-go/v2"
 	"go.uber.org/fx"
@@ -10,11 +12,6 @@ import (
 	"github.com/fruitsco/goji/component/email"
 	"github.com/fruitsco/goji/x/driver"
 )
-
-// NewResend creates a new resend client
-func NewResend(config *email.ResendConfig) *resend.Client {
-	return resend.NewClient(config.APIKey)
-}
 
 type ResendDriver struct {
 	r *resend.Client
@@ -25,20 +22,36 @@ var _ = email.Driver(&ResendDriver{})
 type ResendDriverParams struct {
 	fx.In
 
-	Resend *resend.Client
+	Config *email.ResendConfig `optional:"true"`
 	Log    *zap.Logger
 }
 
 // NewResendDriverFactory creates a new resend driver factory
-func NewResendDriverFactory(params ResendDriverParams) driver.FactoryResult[email.MailDriver, email.Driver] {
-	return driver.NewFactory(email.Resend, func() (email.Driver, error) {
-		return NewResendDriver(params), nil
+func NewResendDriverFactory(params ResendDriverParams) driver.FactoryResult[email.MailDriver, email.ConnectionFactory] {
+	return email.NewConnectionFactory(email.Resend, func(cfg email.ConnectionConfig) (email.Driver, error) {
+		if cfg.Driver != email.Mailgun {
+			return nil, fmt.Errorf("wrong driver name, expected %s, got %s", email.Resend, cfg.Driver)
+		}
+
+		params.Config = cfg.Resend
+
+		return NewResendDriver(params)
 	})
 }
 
 // NewResendDriver returns a new resend driver implementation
-func NewResendDriver(params ResendDriverParams) *ResendDriver {
-	return &ResendDriver{params.Resend}
+func NewResendDriver(params ResendDriverParams) (email.Driver, error) {
+	if params.Config == nil {
+		return nil, errors.New("config is missing")
+	}
+
+	if params.Config.APIKey == "" {
+		return nil, errors.New("api key is empty")
+	}
+
+	client := resend.NewClient(params.Config.APIKey)
+
+	return &ResendDriver{client}, nil
 }
 
 func (m *ResendDriver) Send(ctx context.Context, message email.Message) error {

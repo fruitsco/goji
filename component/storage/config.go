@@ -11,8 +11,8 @@ const (
 )
 
 type GCSConfig struct {
-	Region     string `conf:"region"`
-	Expiration int    `conf:"signed_url_expiration"`
+	Region  string `conf:"region"`
+	Expires int    `conf:"signed_url_expiration"`
 }
 
 type MinioConfig struct {
@@ -29,13 +29,13 @@ type MinioConfig struct {
 	SecretKey string `conf:"secret_key"`
 
 	// The URL of the proxy to use when connecting to the minio server
-	ProxyUrl string `conf:"proxy_url"`
+	ProxyURL string `conf:"proxy_url"`
 
 	// The region of the minio server
 	Region string `conf:"region"`
 
 	// The expiration time of signed URLs
-	Expiration int `conf:"signed_url_expiration"`
+	Expires int `conf:"signed_url_expiration"`
 
 	// Whether to skip TLS verification
 	TLSSkipVerify bool `conf:"tls_skip_verify"`

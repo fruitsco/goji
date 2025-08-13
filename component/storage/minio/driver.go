@@ -6,11 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httptrace"
 	"net/url"
 	"strings"
 	"time"
-
-	"net/http/httptrace"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -47,7 +46,7 @@ func NewMinioDriver(params MinioDriverParams) (*MinioDriver, error) {
 	log := params.Log.Named("minio")
 
 	// use secure transport if the secure option is set, and we're either not using a proxy or the proxy itself is secure
-	secureTransport := params.Config.Secure && (params.Config.ProxyUrl == "" || strings.HasPrefix(params.Config.ProxyUrl, "https://"))
+	secureTransport := params.Config.Secure && (params.Config.ProxyURL == "" || strings.HasPrefix(params.Config.ProxyURL, "https://"))
 
 	transport, err := minio.DefaultTransport(secureTransport)
 	if err != nil {
@@ -62,8 +61,8 @@ func NewMinioDriver(params MinioDriverParams) (*MinioDriver, error) {
 
 	// If the proxy url is set, set the proxy env variables for the minio client.
 	// We use minio's default transport and set the proxy url on it.
-	if params.Config.ProxyUrl != "" {
-		proxyUrl, err := url.Parse(params.Config.ProxyUrl)
+	if params.Config.ProxyURL != "" {
+		proxyUrl, err := url.Parse(params.Config.ProxyURL)
 		if err != nil {
 			return nil, err
 		}
@@ -124,7 +123,7 @@ func (s *MinioDriver) SignedUpload(
 		// ISSUE: content length??
 	}
 
-	expires := time.Duration(s.config.Expiration) * time.Second
+	expires := time.Duration(s.config.Expires) * time.Second
 
 	url, err := s.client.PresignHeader(ctx, "PUT", bucketName, name, expires, nil, headers)
 
@@ -145,10 +144,21 @@ func (s *MinioDriver) SignedDownload(
 	bucketName string,
 	name string,
 ) (*storage.SignResult, error) {
-	expires := time.Duration(s.config.Expiration) * time.Second
+	return s.SignedDownloadWithOptions(ctx, bucketName, name, nil)
+}
+
+func (s *MinioDriver) SignedDownloadWithOptions(
+	ctx context.Context,
+	bucketName string,
+	name string,
+	options *storage.SignedDownloadOptions,
+) (*storage.SignResult, error) {
+	expires := time.Duration(s.config.Expires) * time.Second
+	if options != nil && options.Expires > 0 {
+		expires = options.Expires
+	}
 
 	url, err := s.client.PresignedGetObject(ctx, bucketName, name, expires, nil)
-
 	if err != nil {
 		return nil, err
 	}

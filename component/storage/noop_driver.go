@@ -3,9 +3,10 @@ package storage
 import (
 	"context"
 
-	"github.com/fruitsco/goji/x/driver"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+
+	"github.com/fruitsco/goji/x/driver"
 )
 
 type NoOpDriver struct {
@@ -27,24 +28,24 @@ func NewNoOpDriverFactory(params NoOpDriverParams) driver.FactoryResult[StorageD
 	})
 }
 
-// NewGCSDriver creates a new storage base struct
+// NewNoOpDriver creates a new storage base struct
 func NewNoOpDriver(params NoOpDriverParams) *NoOpDriver {
 	return &NoOpDriver{
 		log: params.Log.Named("noop"),
 	}
 }
 
-// ObjectExists checks if an object exists in the bucket
+// Exists checks if an object exists in the bucket
 func (s *NoOpDriver) Exists(ctx context.Context, bucketName string, name string) (bool, error) {
 	return false, nil
 }
 
-// DeleteFileFromBucket deletes a file from the bucket
+// Delete deletes a file from the bucket
 func (s *NoOpDriver) Delete(ctx context.Context, bucketName string, name string) error {
 	return nil
 }
 
-// GetPresignedUpload returns a presigned url for uploading a file
+// SignedUpload returns a presigned url for uploading a file
 func (s *NoOpDriver) SignedUpload(
 	context context.Context,
 	bucketName string,
@@ -54,11 +55,20 @@ func (s *NoOpDriver) SignedUpload(
 	return nil, nil
 }
 
-// PresignedDownload returns a presigned url for downloading a file
+// SignedDownload returns a presigned url for downloading a file
 func (s *NoOpDriver) SignedDownload(
 	ctx context.Context,
 	bucketName string,
 	name string,
+) (*SignResult, error) {
+	return nil, nil
+}
+
+func (s *NoOpDriver) SignedDownloadWithOptions(
+	ctx context.Context,
+	bucketName string,
+	name string,
+	options *SignedDownloadOptions,
 ) (*SignResult, error) {
 	return nil, nil
 }

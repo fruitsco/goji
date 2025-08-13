@@ -53,7 +53,7 @@ func NewGCSDriver(params GCSDriverParams) (*GCSDriver, error) {
 	}, nil
 }
 
-// ObjectExists checks if an object exists in the bucket
+// Exists checks if an object exists in the bucket
 func (s *GCSDriver) Exists(ctx context.Context, bucketName string, name string) (bool, error) {
 	bucket := s.client.Bucket(bucketName)
 
@@ -70,7 +70,7 @@ func (s *GCSDriver) Exists(ctx context.Context, bucketName string, name string) 
 	return true, nil
 }
 
-// DeleteFileFromBucket deletes a file from the bucket
+// Delete deletes a file from the bucket
 func (s *GCSDriver) Delete(ctx context.Context, bucketName string, name string) error {
 	bucket := s.client.Bucket(bucketName)
 
@@ -81,7 +81,7 @@ func (s *GCSDriver) Delete(ctx context.Context, bucketName string, name string) 
 	return nil
 }
 
-// GetPresignedUpload returns a presigned url for uploading a file
+// SignedUpload returns a presigned url for uploading a file
 func (s *GCSDriver) SignedUpload(
 	context context.Context,
 	bucketName string,
@@ -90,7 +90,7 @@ func (s *GCSDriver) SignedUpload(
 ) (*storage.SignResult, error) {
 	bucket := s.client.Bucket(bucketName)
 
-	expires := time.Duration(s.config.Expiration) * time.Second
+	expires := time.Duration(s.config.Expires) * time.Second
 
 	headers := http.Header{
 		"X-Goog-Content-Length-Range": []string{
@@ -113,32 +113,44 @@ func (s *GCSDriver) SignedUpload(
 		Expires:     time.Now().Add(expires),
 	}
 
-	signedUrlString, err := bucket.SignedURL(name, opts)
+	signedURLString, err := bucket.SignedURL(name, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	signedUrl, err := url.Parse(signedUrlString)
+	signedURL, err := url.Parse(signedURLString)
 	if err != nil {
 		return nil, err
 	}
 
 	return &storage.SignResult{
 		Method:  method,
-		URL:     signedUrl,
+		URL:     signedURL,
 		Headers: headers,
 	}, nil
 }
 
-// PresignedDownload returns a presigned url for downloading a file
 func (s *GCSDriver) SignedDownload(
 	ctx context.Context,
 	bucketName string,
 	name string,
 ) (*storage.SignResult, error) {
+	return s.SignedDownloadWithOptions(ctx, bucketName, name, nil)
+}
+
+// SignedDownloadWithOptions returns a presigned url for downloading a file
+func (s *GCSDriver) SignedDownloadWithOptions(
+	ctx context.Context,
+	bucketName string,
+	name string,
+	options *storage.SignedDownloadOptions,
+) (*storage.SignResult, error) {
 	bucket := s.client.Bucket(bucketName)
 
-	expires := time.Duration(s.config.Expiration) * time.Second
+	expires := time.Duration(s.config.Expires) * time.Second
+	if options != nil && options.Expires > 0 {
+		expires = options.Expires
+	}
 
 	opts := &gcs.SignedURLOptions{
 		Scheme:  gcs.SigningSchemeV4,
@@ -146,20 +158,21 @@ func (s *GCSDriver) SignedDownload(
 		Expires: time.Now().Add(expires),
 	}
 
-	signedUrlString, err := bucket.SignedURL(name, opts)
+	signedURLString, err := bucket.SignedURL(name, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	signedUrl, err := url.Parse(signedUrlString)
+	signedURL, err := url.Parse(signedURLString)
 	if err != nil {
 		return nil, err
 	}
 
 	return &storage.SignResult{
-		URL: signedUrl,
+		URL: signedURL,
 	}, nil
 }
+
 func (s *GCSDriver) Download(ctx context.Context, bucketName string, name string) ([]byte, error) {
 	bucket := s.client.Bucket(bucketName)
 	obj := bucket.Object(name)

@@ -4,8 +4,10 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/fruitsco/goji/x/driver"
+
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -13,6 +15,11 @@ import (
 type SignedUploadOptions struct {
 	Size     int64
 	MimeType string
+	Expires  time.Duration
+}
+
+type SignedDownloadOptions struct {
+	Expires time.Duration
 }
 
 type SignResult struct {
@@ -26,6 +33,7 @@ type Driver interface {
 	Delete(ctx context.Context, bucketName string, name string) error
 	SignedUpload(ctx context.Context, bucketName string, name string, options *SignedUploadOptions) (*SignResult, error)
 	SignedDownload(ctx context.Context, bucketName string, name string) (*SignResult, error)
+	SignedDownloadWithOptions(ctx context.Context, bucketName string, name string, options *SignedDownloadOptions) (*SignResult, error)
 	Download(ctx context.Context, bucketName string, name string) ([]byte, error)
 	Upload(ctx context.Context, bucketName string, name string, data []byte) error
 	Copy(ctx context.Context, srcBucket string, srcName string, dstBucket string, dstName string) error
@@ -106,6 +114,16 @@ func (s *Manager) SignedDownload(ctx context.Context, bucketName string, name st
 
 	return driver.SignedDownload(ctx, bucketName, name)
 }
+
+func (s *Manager) SignedDownloadWithOptions(ctx context.Context, bucketName string, name string, options *SignedDownloadOptions) (*SignResult, error) {
+	driver, err := s.defaultDriver()
+	if err != nil {
+		return nil, err
+	}
+
+	return driver.SignedDownloadWithOptions(ctx, bucketName, name, options)
+}
+
 func (s *Manager) Download(ctx context.Context, bucketName string, name string) ([]byte, error) {
 	driver, err := s.defaultDriver()
 	if err != nil {

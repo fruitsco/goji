@@ -1,12 +1,15 @@
 package email
 
-import "github.com/fruitsco/goji/conf"
+import (
+	"github.com/fruitsco/goji/conf"
+)
 
 type MailDriver string
 
 const (
 	NoOp    MailDriver = "noop"
 	Mailgun MailDriver = "mailgun"
+	SMTP    MailDriver = "smtp"
 	Resend  MailDriver = "resend"
 )
 
@@ -30,7 +33,16 @@ type SenderConfig struct {
 	Mail *string `conf:"sender_email"`
 }
 
+type ConnectionConfig struct {
+	Driver MailDriver `conf:"driver"`
+
+	Mailgun *MailgunConfig `conf:"mailgun"`
+	SMTP    *SMTPConfig    `conf:"smtp"`
+	Resend  *ResendConfig  `conf:"resend"`
+}
+
 type Config struct {
+	// Legacy default config
 	Driver  MailDriver     `conf:"driver"`
 	Mailgun *MailgunConfig `conf:"mailgun"`
 	SMTP    *SMTPConfig    `conf:"smtp"`
@@ -38,6 +50,8 @@ type Config struct {
 
 	// common config
 	Sender *SenderConfig `conf:"sender"`
+
+	Connections map[string]ConnectionConfig `conf:"connections"`
 }
 
 var DefaultConfig = conf.DefaultConfig{

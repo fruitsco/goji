@@ -3,6 +3,7 @@ package emailmailgun
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/mailgun/mailgun-go/v5"
@@ -30,21 +31,42 @@ var _ = email.Driver(&MailgunDriver{})
 type MailgunDriverParams struct {
 	fx.In
 
-	Config  *email.MailgunConfig
-	Mailgun mailgun.Mailgun
-	Log     *zap.Logger
+	Config *email.MailgunConfig `optional:"true"`
+	Log    *zap.Logger
 }
 
 // NewMailgunDriverFactory creates a new mailgun driver factory
-func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[email.MailDriver, email.Driver] {
-	return driver.NewFactory(email.Mailgun, func() (email.Driver, error) {
-		return NewMailgunDriver(params), nil
+func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[email.MailDriver, email.ConnectionFactory] {
+	return driver.NewFactory(email.Mailgun, func() (email.ConnectionFactory, error) {
+		return func(cfg email.ConnectionConfig) (email.Driver, error) {
+			if cfg.Driver != email.Mailgun {
+				return nil, fmt.Errorf("wrong driver name, expected %s, got %s", email.Mailgun, cfg.Driver)
+			}
+
+			params.Config = cfg.Mailgun
+
+			return NewMailgunDriver(params)
+		}, nil
 	})
 }
 
 // NewMailgunDriver returns a new mailgun driver implementation
-func NewMailgunDriver(params MailgunDriverParams) *MailgunDriver {
-	return &MailgunDriver{params.Mailgun, params.Config.Domain}
+func NewMailgunDriver(params MailgunDriverParams) (*MailgunDriver, error) {
+	if params.Config == nil {
+		return nil, fmt.Errorf("config is missing")
+	}
+
+	if params.Config.APIKey == "" {
+		return nil, fmt.Errorf("api key is empty")
+	}
+
+	if params.Config.APIBase == "" {
+		return nil, fmt.Errorf("api base is empty")
+	}
+
+	mg := NewMailgun(params.Config)
+
+	return &MailgunDriver{mg, params.Config.Domain}, nil
 }
 
 func (m *MailgunDriver) Send(ctx context.Context, message email.Message) error {
