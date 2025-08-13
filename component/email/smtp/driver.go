@@ -30,10 +30,6 @@ type SMTPDriverParams struct {
 
 func NewSMTPDriverFactory(params SMTPDriverParams) driver.FactoryResult[email.MailDriver, email.ConnectionFactory] {
 	return email.NewConnectionFactory(email.SMTP, func(cfg email.ConnectionConfig) (email.Driver, error) {
-		if cfg.Driver != email.SMTP {
-			return nil, fmt.Errorf("wrong driver name, expected %s, got %s", email.SMTP, cfg.Driver)
-		}
-
 		params.Config = cfg.SMTP
 
 		return NewSMTPDriver(params)

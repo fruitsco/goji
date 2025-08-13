@@ -19,7 +19,13 @@ type ConnectionFactory func(ConnectionConfig) (Driver, error)
 
 func NewConnectionFactory(name MailDriver, f ConnectionFactory) driver.FactoryResult[MailDriver, ConnectionFactory] {
 	return driver.NewFactory(name, func() (ConnectionFactory, error) {
-		return f, nil
+		return func(cfg ConnectionConfig) (Driver, error) {
+			if cfg.Driver != name {
+				return nil, fmt.Errorf("wrong driver name, expected %s, got %s", name, cfg.Driver)
+			}
+
+			return f(cfg)
+		}, nil
 	})
 }
 

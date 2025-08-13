@@ -3,7 +3,6 @@ package emailresend
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/resend/resend-go/v2"
 	"go.uber.org/fx"
@@ -29,10 +28,6 @@ type ResendDriverParams struct {
 // NewResendDriverFactory creates a new resend driver factory
 func NewResendDriverFactory(params ResendDriverParams) driver.FactoryResult[email.MailDriver, email.ConnectionFactory] {
 	return email.NewConnectionFactory(email.Resend, func(cfg email.ConnectionConfig) (email.Driver, error) {
-		if cfg.Driver != email.Mailgun {
-			return nil, fmt.Errorf("wrong driver name, expected %s, got %s", email.Resend, cfg.Driver)
-		}
-
 		params.Config = cfg.Resend
 
 		return NewResendDriver(params)

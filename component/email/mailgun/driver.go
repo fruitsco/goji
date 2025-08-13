@@ -37,16 +37,10 @@ type MailgunDriverParams struct {
 
 // NewMailgunDriverFactory creates a new mailgun driver factory
 func NewMailgunDriverFactory(params MailgunDriverParams) driver.FactoryResult[email.MailDriver, email.ConnectionFactory] {
-	return driver.NewFactory(email.Mailgun, func() (email.ConnectionFactory, error) {
-		return func(cfg email.ConnectionConfig) (email.Driver, error) {
-			if cfg.Driver != email.Mailgun {
-				return nil, fmt.Errorf("wrong driver name, expected %s, got %s", email.Mailgun, cfg.Driver)
-			}
+	return email.NewConnectionFactory(email.Mailgun, func(cfg email.ConnectionConfig) (email.Driver, error) {
+		params.Config = cfg.Mailgun
 
-			params.Config = cfg.Mailgun
-
-			return NewMailgunDriver(params)
-		}, nil
+		return NewMailgunDriver(params)
 	})
 }
 
