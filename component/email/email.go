@@ -31,6 +31,8 @@ func NewConnectionFactory(name MailDriver, f ConnectionFactory) driver.FactoryRe
 
 type Email interface {
 	Driver
+
+	Connection(name string) (Driver, error)
 }
 
 type EmailParams struct {
