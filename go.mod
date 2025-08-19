@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/vault/api v1.20.0
 	github.com/hashicorp/vault/api/auth/gcp v0.10.0
-	github.com/infisical/go-sdk v0.5.97
+	github.com/infisical/go-sdk v0.5.100
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/knadh/koanf/parsers/dotenv v1.1.0
 	github.com/knadh/koanf/parsers/json v1.0.0
@@ -41,6 +41,7 @@ require (
 require (
 	github.com/brunoga/deep v1.2.4 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jedib0t/go-pretty/v6 v6.6.7 // indirect
@@ -52,14 +53,17 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/oapi-codegen/runtime v1.1.1 // indirect
+	github.com/oracle/oci-go-sdk/v65 v65.95.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rs/zerolog v1.33.0 // indirect
+	github.com/sony/gobreaker v0.5.0 // indirect
 	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vektra/mockery/v3 v3.5.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/term v0.33.0 // indirect
 	golang.org/x/tools v0.34.0 // indirect
